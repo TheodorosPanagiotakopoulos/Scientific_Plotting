@@ -1,1 +1,3 @@
-# Scientific_Plotting
+# Scientific Plotting
+
+Plotting for papers
