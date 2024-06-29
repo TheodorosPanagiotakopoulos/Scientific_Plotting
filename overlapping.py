@@ -382,3 +382,66 @@ df2 = pd.DataFrame({
 # Test the function
 plot_combined_density(df1, df2)
 
+---
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.stats import gaussian_kde as kde
+from matplotlib.colors import LinearSegmentedColormap, Normalize
+from matplotlib import cm
+
+# Function to create a custom colormap with lighter shades of blue
+def create_light_blue_colormap():
+    colors = [(0.9, 0.9, 1.0), (0.6, 0.6, 1.0), (0.3, 0.3, 1.0), (0.0, 0.0, 0.8)]  # Light to dark blue
+    cmap = LinearSegmentedColormap.from_list('custom_light_blue', colors)
+    return cmap
+
+# Function to calculate densities for a given dataframe
+def get_density(df, column_name='size'):
+    data = df[column_name].values
+    densObj = kde(data)
+    densities = densObj(data)
+    return data, densities
+
+# Function to plot data from both dataframes separately
+def plot_density(df1, df2, column_name='size'):
+    data1, densities1 = get_density(df1, column_name)
+    data2, densities2 = get_density(df2, column_name)
+    
+    # Normalize densities for each dataframe
+    norm1 = Normalize(vmin=densities1.min(), vmax=densities1.max())
+    norm2 = Normalize(vmin=densities2.min(), vmax=densities2.max())
+    
+    # Generate colors based on normalized densities
+    colors1 = [cm.ScalarMappable(norm=norm1, cmap=create_light_blue_colormap()).to_rgba(val) for val in densities1]
+    colors2 = [cm.ScalarMappable(norm=norm2, cmap='Greens').to_rgba(val) for val in densities2]
+    
+    plt.figure(figsize=(14, 8))
+    
+    # Scatter plot for df1 with custom light blue colormap
+    sns.scatterplot(x=range(len(data1)), y=data1, hue=densities1, palette=create_light_blue_colormap(), legend=False, alpha=0.6)
+    
+    # Scatter plot for df2 with light green to green gradient
+    sns.scatterplot(x=range(len(data1), len(data1) + len(data2)), y=data2, hue=densities2, palette='Greens', legend=False, alpha=0.6)
+
+    plt.xlabel('Index')
+    plt.ylabel(column_name.capitalize())
+    plt.title(f'{column_name.capitalize()} vs Index with Density Colors')
+    plt.legend()
+    plt.show()
+
+# Create two sample dataframes for testing
+np.random.seed(0)
+df1 = pd.DataFrame({
+    'size': np.random.normal(loc=50, scale=10, size=2000000)
+})
+
+np.random.seed(1)
+df2 = pd.DataFrame({
+    'size': np.random.normal(loc=50, scale=10, size=2000000)
+})
+
+# Test the function
+plot_density(df1, df2)
