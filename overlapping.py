@@ -445,3 +445,11 @@ df2 = pd.DataFrame({
 
 # Test the function
 plot_density(df1, df2)
+
+
+
+
+def create_light_green_colormap():
+    colors = [(0.9, 1.0, 0.9), (0.6, 1.0, 0.6), (0.3, 1.0, 0.3), (0.0, 0.8, 0.0)]  # Light to dark green
+    cmap = LinearSegmentedColormap.from_list('custom_light_green', colors)
+    return cmap
