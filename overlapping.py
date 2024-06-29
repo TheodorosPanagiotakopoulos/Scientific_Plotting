@@ -248,3 +248,70 @@ df2 = pd.DataFrame({
 
 # Test the function
 plot_combined_density(df1, df2)
+---------------
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.stats import gaussian_kde as kde
+from matplotlib.colors import Normalize
+from matplotlib import cm
+
+# Function to calculate densities for a given dataframe
+def get_density(df, column_name='size'):
+    data = df[column_name].values
+    densObj = kde(data)
+    densities = densObj(data)
+    return data, densities
+
+# Function to plot both dataframes together with seaborn
+def plot_combined_density(df1, df2, column_name='size'):
+    data1, densities1 = get_density(df1, column_name)
+    data2, densities2 = get_density(df2, column_name)
+    
+    # Normalize densities for color mapping
+    norm1 = Normalize(vmin=densities1.min(), vmax=densities1.max())
+    norm2 = Normalize(vmin=densities2.min(), vmax=densities2.max())
+    
+    colors1 = [cm.ScalarMappable(norm=norm1, cmap='Blues').to_rgba(val) for val in densities1]
+    colors2 = [cm.ScalarMappable(norm=norm2, cmap='Greens').to_rgba(val) for val in densities2]
+    
+    plt.figure(figsize=(14, 8))
+    
+    # Scatter plot for df1
+    sns.scatterplot(x=range(len(data1)), y=data1, hue=densities1, palette='Blues', legend=False, alpha=0.6)
+    
+    # Scatter plot for df2
+    sns.scatterplot(x=range(len(data2)), y=data2, hue=densities2, palette='Greens', legend=False, alpha=0.6)
+    
+    # Combine data for overlap
+    combined_data = np.concatenate((data1, data2))
+    combined_indices = range(len(combined_data))
+    combined_kde = kde(combined_data)
+    combined_densities = combined_kde(combined_data)
+    combined_norm = Normalize(vmin=combined_densities.min(), vmax=combined_densities.max())
+    yellow_colours = [cm.ScalarMappable(norm=combined_norm, cmap='YlOrRd').to_rgba(val) for val in combined_densities]
+    
+    # Plot combined data with yellow color for overlapping points
+    plt.scatter(combined_indices, combined_data, color=yellow_colours, label='Overlapping points', alpha=0.3)
+
+    plt.xlabel('Index')
+    plt.ylabel(column_name.capitalize())
+    plt.title(f'{column_name.capitalize()} vs Index with Density Colors')
+    plt.legend()
+    plt.show()
+
+# Create two sample dataframes for testing with larger dataset
+np.random.seed(0)
+df1 = pd.DataFrame({
+    'size': np.random.normal(loc=50, scale=10, size=2000000)
+})
+
+np.random.seed(1)
+df2 = pd.DataFrame({
+    'size': np.random.normal(loc=50, scale=10, size=2000000)
+})
+
+# Test the function
+plot_combined_density(df1, df2)
