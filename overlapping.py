@@ -514,3 +514,43 @@ def process_file(input_file, output_file):
 input_file = 'input.txt'
 output_file = 'output.txt'
 process_file(input_file, output_file)
+
+------
+
+def process_file(input_file, output_file):
+    with open(input_file, 'r') as f:
+        lines = f.readlines()
+
+    new_lines = []
+
+    for line in lines:
+        new_lines.append(line.rstrip())  # Original line with its original spacing
+        words = line.split()
+        if words and words[0].endswith('_a'):
+            # Extract number from the first word
+            number = int(''.join(filter(str.isdigit, words[0])))
+            half_number = number / 2
+            new_words = words.copy()
+            
+            # Modify the third and fifth words
+            if len(new_words) > 4:
+                new_words[2] = str(float(new_words[2]) + half_number)
+                new_words[4] = str(float(new_words[4]) + half_number)
+                new_words[0] = new_words[0][:-1] + 'c'  # Change '_a' to '_c' in the first word
+
+            # Construct the new line with the same spacing as the original line
+            new_line = line.replace(words[0], new_words[0], 1)
+            new_line = new_line.replace(words[2], new_words[2], 1)
+            new_line = new_line.replace(words[4], new_words[4], 1)
+
+            new_lines.append(new_line.rstrip())
+
+    with open(output_file, 'w') as f:
+        for line in new_lines:
+            f.write(line + '\n')
+
+# Usage example
+input_file = 'input.txt'
+output_file = 'output.txt'
+process_file(input_file, output_file)
+
