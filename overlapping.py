@@ -453,3 +453,33 @@ def create_light_green_colormap():
     colors = [(0.9, 1.0, 0.9), (0.6, 1.0, 0.6), (0.3, 1.0, 0.3), (0.0, 0.8, 0.0)]  # Light to dark green
     cmap = LinearSegmentedColormap.from_list('custom_light_green', colors)
     return cmap
+
+
+-----------------
+
+def process_file(input_file, output_file):
+    with open(input_file, 'r') as f:
+        lines = f.readlines()
+
+    new_lines = []
+    
+    for line in lines:
+        new_lines.append(line.strip())  # Original line
+        words = line.strip().split()
+        if words[0].endswith('_a'):
+            number = int(''.join(filter(str.isdigit, words[0])))
+            half_number = number / 2
+            if len(words) > 4:  # Ensure there are at least 5 words
+                words[2] = str(float(words[2]) + half_number)
+                words[4] = str(float(words[4]) + half_number)
+                new_line = ' '.join(words)
+                new_lines.append(new_line)
+
+    with open(output_file, 'w') as f:
+        for line in new_lines:
+            f.write(line + '\n')
+
+# Usage example
+input_file = 'input.txt'
+output_file = 'output.txt'
+process_file(input_file, output_file)
