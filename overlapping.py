@@ -643,3 +643,51 @@ input_file = 'input.txt'
 output_file = 'output.txt'
 process_file(input_file, output_file)
 
+____
+
+def process_file(input_file, output_file):
+    with open(input_file, 'r') as f:
+        lines = f.readlines()
+
+    new_lines = []
+
+    for line in lines:
+        new_lines.append(line.rstrip())  # Add original line
+        words = line.split()
+        if words and words[0].endswith('_a'):
+            # Extract number from the first word
+            number_str = ''.join(filter(str.isdigit, words[0]))
+            number = int(number_str) if number_str else 0
+            half_number = number / 2.0
+
+            # Create a new list of words for the modified line
+            new_words = words[:]
+            new_words[0] = words[0][:-1] + 'c'
+            if len(words) > 5:
+                try:
+                    new_words[3] = str(float(words[3]) + half_number)
+                    new_words[5] = str(float(words[5]) + half_number)
+                except ValueError:
+                    # In case the 4th and 6th words are not numbers, skip them
+                    pass
+            
+            # Reconstruct the line while preserving original spacing
+            index1 = line.find(words[0])
+            index2 = line.find(words[3], index1 + len(words[0]))
+            index3 = line.find(words[5], index2 + len(words[3]))
+            
+            new_line = (line[:index1] + new_words[0] +
+                        line[index1 + len(words[0]):index2] + new_words[3] +
+                        line[index2 + len(words[3]):index3] + new_words[5] +
+                        line[index3 + len(words[5]):])
+            
+            new_lines.append(new_line.rstrip())
+
+    with open(output_file, 'w') as f:
+        for line in new_lines:
+            f.write(line + '\n')
+
+# Usage example
+input_file = 'input.txt'
+output_file = 'output.txt'
+process_file(input_file, output_file)
