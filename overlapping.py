@@ -691,3 +691,15 @@ def process_file(input_file, output_file):
 input_file = 'input.txt'
 output_file = 'output.txt'
 process_file(input_file, output_file)
+
+----
+
+def count_lines(file_path):
+    with open(file_path, 'r') as file:
+        line_count = sum(1 for _ in file)
+    return line_count
+
+# Usage
+file_path = 'path/to/your/large_file.txt'
+number_of_lines = count_lines(file_path)
+print(f"The file has {number_of_lines} lines.")
