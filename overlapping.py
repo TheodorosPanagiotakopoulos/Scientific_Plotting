@@ -793,5 +793,19 @@ done
 # Print the total sum
 echo "Total sum: $total_sum"
 
+___
+
+#!/bin/bash
+
+average_sixth_column() {
+  for file in Rep_*; do
+    if [[ -f $file ]]; then
+      awk '/^id/ {sum += $6; count++} END {if (count > 0) print FILENAME, sum/count}' "$file"
+    fi
+  done
+}
+
+# Call the function
+average_sixth_column
 
 
