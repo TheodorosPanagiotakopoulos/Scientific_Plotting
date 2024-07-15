@@ -961,3 +961,62 @@ if [ $total_count -gt 0 ]; then
 else
   echo "No valid lines with 'id' found across files or sixth column values are missing or not numeric."
 fi
+
+
+___
+
+#!/bin/bash
+
+# Directory where Rep_ files are located
+directory="/path/to/directory"
+
+# Initialize variables for sum and count
+file_count=0
+
+# Loop through each file starting with "Rep_" in the directory
+for file_path in "$directory"/Rep_*; do
+  # Check if file exists and is readable
+  if [ -f "$file_path" ] && [ -r "$file_path" ]; then
+    # Increment file count
+    (( file_count++ ))
+    
+    # Initialize variables for current file
+    sum=0
+    count=0
+    
+    # Process each file line by line
+    while IFS= read -r line; do
+      # Get the first word of the line
+      first_word=$(echo "$line" | awk '{print $1}')
+      
+      # Check if the first word is 'id'
+      if [ "$first_word" == "id" ]; then
+        # Extract the sixth column value
+        sixth_column=$(echo "$line" | awk '{print $6}')
+        
+        # Check if sixth column value is numeric
+        if [[ "$sixth_column" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+          # Convert negative values to positive
+          if (( $(echo "$sixth_column < 0" | bc -l) )); then
+            sixth_column=$(echo "$sixth_column * -1" | bc)
+          fi
+          
+          # Add to sum and increment count
+          sum=$(awk "BEGIN {print $sum + $sixth_column}")
+          (( count++ ))
+        fi
+      fi
+    done < "$file_path"
+    
+    # Calculate the average for the current file
+    if [ $count -gt 0 ]; then
+      average=$(awk "BEGIN {print $sum / $count}")
+      echo "Average of sixth column in file $(basename "$file_path"): $average"
+    else
+      echo "No valid lines with 'id' found in file $(basename "$file_path") or sixth column values are missing or not numeric."
+    fi
+    
+  else
+    echo "Error: File $file_path not found or not readable."
+  fi
+done
