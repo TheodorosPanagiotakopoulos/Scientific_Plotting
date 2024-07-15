@@ -770,4 +770,28 @@ done
 # Print the total sum
 echo "Total sum: $total_sum"
 
+---
+
+#!/bin/bash
+
+# Initialize the total sum variable
+total_sum=0
+
+# Iterate over all files with names starting with 'ptablel_after'
+for file in ptablel_after*; do
+  if [[ -f $file ]]; then
+    # Sum all numbers in the file
+    file_sum=$(awk '{sum += $1} END {print sum}' "$file")
+    
+    # Ensure file_sum is not empty
+    if [ -n "$file_sum" ]; then
+      total_sum=$(echo "$total_sum + $file_sum" | bc)
+    fi
+  fi
+done
+
+# Print the total sum
+echo "Total sum: $total_sum"
+
+
 
