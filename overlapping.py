@@ -1020,3 +1020,28 @@ for file_path in "$directory"/Rep_*; do
     echo "Error: File $file_path not found or not readable."
   fi
 done
+
+
+___
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Example list of values
+data = [10, 20, 15, 35, 45, 55, 65, 75, 85, 95, 25, 35, 45, 55, 60, 70, 80, 90, 100, 110]
+
+# Create a figure and axis
+fig, ax = plt.subplots()
+
+# Create a box plot
+sns.boxplot(data=data, ax=ax)
+
+# Overlay a strip plot to show each individual data point
+sns.stripplot(data=data, ax=ax, color='red', jitter=True)
+
+# Add title and labels
+ax.set_title('Box Plot with Individual Data Points')
+ax.set_ylabel('Values')
+
+# Display the plot
+plt.show()
