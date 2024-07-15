@@ -747,3 +747,27 @@ done
 # Print the total sum
 echo "Total sum: $total_sum"
 
+___
+
+#!/bin/bash
+
+# Initialize the total sum variable
+total_sum=0
+
+# Iterate over all files in the directory
+for file in *; do
+  if [[ -f $file ]]; then
+    # Extract lines starting with 'ptablel_after', get the second column, and sum the numbers
+    file_sum=$(grep '^ptablel_after' "$file" | awk '{sum += $2} END {print sum}')
+    
+    # Ensure file_sum is not empty
+    if [ -n "$file_sum" ]; then
+      total_sum=$(echo "$total_sum + $file_sum" | bc)
+    fi
+  fi
+done
+
+# Print the total sum
+echo "Total sum: $total_sum"
+
+
