@@ -809,3 +809,20 @@ average_sixth_column() {
 average_sixth_column
 
 
+___
+
+#!/bin/bash
+
+# Read the file line by line
+while IFS= read -r line; do
+  # Get the first word of the line
+  first_word=$(echo $line | awk '{print $1}')
+  
+  # Check if the first word is 'id'
+  if [ "$first_word" == "id" ]; then
+    # Print the line if the first word is 'id'
+    echo $line
+  fi
+done < Rep_01.txt
+
+
