@@ -703,3 +703,25 @@ def count_lines(file_path):
 file_path = 'path/to/your/large_file.txt'
 number_of_lines = count_lines(file_path)
 print(f"The file has {number_of_lines} lines.")
+
+
+---
+
+#!/bin/bash
+
+# Initialize the total sum variable
+total_sum=0
+
+# Iterate over all files in the directory
+for file in *; do
+  if [[ -f $file ]]; then
+    # Sum numbers on lines starting with 'ptablel_after' in the current file
+    file_sum=$(grep '^ptablel_after' "$file" | awk '{sum += $2} END {print sum}')
+    
+    # Add the file sum to the total sum
+    total_sum=$((total_sum + file_sum))
+  fi
+done
+
+# Print the total sum
+echo "Total sum: $total_sum"
