@@ -864,3 +864,46 @@ else
   echo "No lines with 'id' found or sixth column values are missing or not numeric."
 fi
 
+
+___
+
+#!/bin/bash
+
+file_path="Rep_01.txt"
+
+# Initialize variables for sum and count
+sum=0
+count=0
+
+# Read the file line by line
+while IFS= read -r line; do
+  # Get the first word of the line
+  first_word=$(echo "$line" | awk '{print $1}')
+  
+  # Check if the first word is 'id'
+  if [ "$first_word" == "id" ]; then
+    # Extract the sixth column value
+    sixth_column=$(echo "$line" | awk '{print $6}')
+    
+    # Check if sixth column value is numeric
+    if [[ "$sixth_column" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]; then
+      # Convert negative values to positive
+      if (( $(echo "$sixth_column < 0" | bc -l) )); then
+        sixth_column=$(echo "$sixth_column * -1" | bc)
+      fi
+      
+      # Add to sum and increment count
+      sum=$(awk "BEGIN {print $sum + $sixth_column}")
+      (( count++ ))
+    fi
+  fi
+done < "$file_path"
+
+# Calculate the average
+if [ $count -gt 0 ]; then
+  average=$(awk "BEGIN {print $sum / $count}")
+  echo "Average of the sixth column: $average"
+else
+  echo "No lines with 'id' found or sixth column values are missing or not numeric."
+fi
+
