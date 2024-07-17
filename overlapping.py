@@ -1065,3 +1065,31 @@ class table:
 
 # Create an instance of the table class
 table_instance = table()
+
+
+___
+
+import pandas as pd
+
+# Sample DataFrame
+data = {
+    'col1': [1, 2, 3],
+    'col2': [4, 5, 6],
+    'col3': [7, 8, 9],
+    'col4': [10, 11, 12]
+}
+df = pd.DataFrame(data)
+
+# Display the original DataFrame
+print("Original DataFrame:")
+print(df)
+
+# Get the current name of the second column (index 1 in zero-based indexing)
+original_col_name = df.columns[1]
+
+# Rename the second column to 'ils'
+df.rename(columns={original_col_name: 'ils'}, inplace=True)
+
+# Display the modified DataFrame
+print("\nModified DataFrame (second column renamed to 'ils'):")
+print(df)
