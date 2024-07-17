@@ -1093,3 +1093,33 @@ df.rename(columns={original_col_name: 'ils'}, inplace=True)
 # Display the modified DataFrame
 print("\nModified DataFrame (second column renamed to 'ils'):")
 print(df)
+
+
+___
+
+import pandas as pd
+import numpy as np
+
+# Example DataFrames
+df1 = pd.DataFrame({
+    'gauge': ['A', 'B', 'C', 'D'],
+    'AI_CD': [10, 20, 30, 40]
+})
+
+df2 = pd.DataFrame({
+    'gauge': ['A', 'B', 'X', 'D'],
+    'AI_CD': [15, 25, 35, 45]
+})
+
+# Merge the two DataFrames on the 'gauge' column
+merged_df = pd.merge(df1, df2, on='gauge', how='outer', suffixes=('_df1', '_df2'))
+
+# Compute the absolute difference where the 'gauge' names are the same in both DataFrames
+merged_df['AI_CD_diff'] = np.where(merged_df[['AI_CD_df1', 'AI_CD_df2']].notna().all(axis=1), 
+                                    abs(merged_df['AI_CD_df1'] - merged_df['AI_CD_df2']), 
+                                    np.nan)
+
+# Select only the necessary columns for the final DataFrame
+final_df = merged_df[['gauge', 'AI_CD_diff']]
+
+print(final_df)
