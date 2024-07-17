@@ -1045,3 +1045,23 @@ ax.set_ylabel('Values')
 
 # Display the plot
 plt.show()
+
+
+___
+
+class table:
+    def __init__(self):
+        self.data = [1, 2, 3]
+        self.name = "Sample Table"
+    
+    def get_data(self):
+        return self.data
+    
+    def get_name(self):
+        return self.name
+    
+    def get_summary(self):
+        return f"Table: {self.name}, Data: {self.data}"
+
+# Create an instance of the table class
+table_instance = table()
