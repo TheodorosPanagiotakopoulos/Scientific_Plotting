@@ -1123,3 +1123,25 @@ merged_df['AI_CD_diff'] = np.where(merged_df[['AI_CD_df1', 'AI_CD_df2']].notna()
 final_df = merged_df[['gauge', 'AI_CD_diff']]
 
 print(final_df)
+
+
+___
+
+import pandas as pd
+
+# Sample DataFrame
+df = pd.DataFrame({
+    'gauge_temp': [1, 2, 3],
+    'gauge_pressure': [4, 5, 6],
+    'ils_speed': [7, 8, 9],
+    'AI_CD_quality': [10, 11, 12],
+    'other_column': [13, 14, 15]
+})
+
+# List of column names to keep
+columns_to_keep = ['gauge_temp', 'gauge_pressure', 'ils_speed', 'AI_CD_quality']
+
+# Keep columns that are in the list or start with specific prefixes
+filtered_df = df[[col for col in df.columns if col in columns_to_keep or col.startswith('gauge') or col.startswith('ils') or col.startswith('AI_CD')]]
+
+print(filtered_df)
