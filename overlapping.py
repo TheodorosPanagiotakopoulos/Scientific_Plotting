@@ -1183,3 +1183,10 @@ Corner rounding in lithography is caused by the diffraction of light and imperfe
 In simulations, these rounding effects must be accurately modeled to predict and correct pattern distortions. However, current approaches often lack optimal simulation values and can waste significant computational resources.
 
 This poster introduces a new method that reduces simulation run time by 20% while preserving accuracy, enhancing computational efficiency and addressing the inefficiencies in modeling geometrical corner rounding.
+
+
+Corner rounding in lithography arises from light diffraction and photomask imperfections, causing deviations from intended patterns.
+
+Accurate simulation of these effects is crucial but often inefficient, leading to excessive computational time.
+
+This poster presents a method that reduces simulation run time by 20% while maintaining accuracy, improving efficiency in modeling corner rounding.
