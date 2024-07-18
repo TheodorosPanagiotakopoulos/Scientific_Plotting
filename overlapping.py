@@ -1145,3 +1145,30 @@ columns_to_keep = ['gauge_temp', 'gauge_pressure', 'ils_speed', 'AI_CD_quality']
 filtered_df = df[[col for col in df.columns if col in columns_to_keep or col.startswith('gauge') or col.startswith('ils') or col.startswith('AI_CD')]]
 
 print(filtered_df)
+
+___
+
+import matplotlib.pyplot as plt
+
+# Create a figure and an axes
+fig, ax = plt.subplots()
+
+# Plot a horizontal line at y=0.2 with a light grey color
+ax.axhline(y=0.2, color='grey', linestyle='--', linewidth=1)
+
+# Add a label to the line
+ax.text(0.5, 0.2, 'Threshold = 0.2', color='grey', fontsize=12, ha='center', va='bottom', backgroundcolor='w')
+
+# Optionally, plot some data for context
+x = [0, 1, 2, 3, 4, 5]
+y = [0.1, 0.3, 0.15, 0.25, 0.18, 0.22]
+ax.plot(x, y, marker='o')
+
+# Set labels and title
+ax.set_xlabel('X-axis')
+ax.set_ylabel('Y-axis')
+ax.set_title('Plot with Horizontal Line at y=0.2')
+
+# Show the plot
+plt.show()
+
