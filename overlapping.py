@@ -1176,3 +1176,10 @@ plt.show()
 ___
 
 Geometrical corner rounding in computational lithography is crucial for maintaining pattern fidelity in semiconductor manufacturing. This poster introduces an optimized method that achieves a 20% reduction in simulation run time while preserving accuracy, significantly improving computational efficiency and resolution.
+
+
+Corner rounding in lithography is caused by the diffraction of light and imperfections in the photomask and exposure processes. This phenomenon leads to deviations from the intended pattern, impacting the accuracy of semiconductor manufacturing.
+
+In simulations, these rounding effects must be accurately modeled to predict and correct pattern distortions. However, current approaches often lack optimal simulation values and can waste significant computational resources.
+
+This poster introduces a new method that reduces simulation run time by 20% while preserving accuracy, enhancing computational efficiency and addressing the inefficiencies in modeling geometrical corner rounding.
