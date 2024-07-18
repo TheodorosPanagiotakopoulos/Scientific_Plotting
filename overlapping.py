@@ -1172,3 +1172,7 @@ ax.set_title('Plot with Horizontal Line at y=0.2')
 # Show the plot
 plt.show()
 
+
+___
+
+Geometrical corner rounding in computational lithography is crucial for maintaining pattern fidelity in semiconductor manufacturing. This poster introduces an optimized method that achieves a 20% reduction in simulation run time while preserving accuracy, significantly improving computational efficiency and resolution.
