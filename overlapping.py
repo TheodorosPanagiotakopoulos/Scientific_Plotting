@@ -1190,3 +1190,47 @@ Corner rounding in lithography arises from light diffraction and photomask imper
 Accurate simulation of these effects is crucial but often inefficient, leading to excessive computational time.
 
 This poster presents a method that reduces simulation run time by 20% while maintaining accuracy, improving efficiency in modeling corner rounding.
+
+
+___
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Example dictionary S with dataframes (assuming you have the actual dataframes)
+# S = {'TCC_1': df1, 'TCC_2': df2, ..., 'TCC_24': df24}
+
+# Extract the maximum values for each dataframe
+max_values = {key: df['AI_CD_diff'].max() for key, df in S.items()}
+
+# Combine all dataframes for the box plot
+combined_df = pd.concat(S.values(), keys=S.keys()).reset_index(level=0).rename(columns={'level_0': 'Category'})
+
+# Initialize the plot and axes
+fig, ax = plt.subplots(figsize=(14, 8))
+
+# Create the box plot for each key in the dictionary
+categories = list(S.keys())
+data = [S[key]['AI_CD_diff'] for key in categories]
+
+# Plot the box plots
+boxprops = dict(facecolor='lightblue', color='black')
+ax.boxplot(data, positions=range(len(categories)), patch_artist=True, boxprops=boxprops)
+
+# Plot the maximum values as red dots
+for i, key in enumerate(categories):
+    ax.plot(i + 1, max_values[key], 'ro', label=f'Max {key}' if i == 0 else "")
+
+# Set the x-ticks and labels
+ax.set_xticks(range(1, len(categories) + 1))
+ax.set_xticklabels(categories, rotation=45)
+ax.set_xlabel('Category')
+ax.set_ylabel('AI_CD_diff')
+ax.set_title('Box Plot and Max Values of AI_CD_diff')
+
+# Add a legend
+ax.legend()
+
+# Adjust layout
+plt.tight_layout()
+plt.show()
