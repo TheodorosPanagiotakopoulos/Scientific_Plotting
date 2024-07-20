@@ -1234,3 +1234,44 @@ ax.legend()
 # Adjust layout
 plt.tight_layout()
 plt.show()
+
+
+----------------------------
+
+import matplotlib.pyplot as plt
+
+# Example dictionary with 10 dataframes
+dfs = {
+    'df1': df1,
+    'df2': df2,
+    'df3': df3,
+    'df4': df4,
+    'df5': df5,
+    'df6': df6,
+    'df7': df7,
+    'df8': df8,
+    'df9': df9,
+    'df10': df10
+}
+
+# Create a figure and axis for the box plots
+plt.figure(figsize=(12, 8))
+
+# Iterate over the dictionary and create a box plot for the AI_CD_diff column of each dataframe
+for i, (key, df) in enumerate(dfs.items(), start=1):
+    # Extract the AI_CD_diff column
+    data = df['AI_CD_diff']
+    
+    # Plot each dataframe's AI_CD_diff column as a boxplot on the same axis
+    plt.boxplot(data, positions=[i], widths=0.5, patch_artist=True)
+
+# Add titles and labels
+plt.title('Box Plots for AI_CD_diff Column in All DataFrames')
+plt.xlabel('DataFrame Index')
+plt.ylabel('AI_CD_diff Values')
+
+# Customize x-axis ticks to match DataFrame names
+plt.xticks(range(1, len(dfs) + 1), [key for key in dfs.keys()])
+
+# Show the plot
+plt.show()
