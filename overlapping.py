@@ -1290,3 +1290,19 @@ corresponding_gauge = max_row['gauges']
 
 print("Maximum AI_CD_diff:", max_ai_cd_diff)
 print("Corresponding gauge value:", corresponding_gauge)
+
+___
+
+import pandas as pd
+
+# Assuming df is your dataframe
+max_index = df['AI_CD_diff'].idxmax()
+max_row = df.loc[max_index]
+
+# Extract the maximum AI_CD_diff and corresponding gauge value
+max_ai_cd_diff = max_row['AI_CD_diff']
+corresponding_gauge = max_row['gauges']
+
+print("Index of max AI_CD_diff:", max_index)
+print("Maximum AI_CD_diff:", max_ai_cd_diff)
+print("Corresponding gauge value:", corresponding_gauge)
