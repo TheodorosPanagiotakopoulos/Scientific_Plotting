@@ -1306,3 +1306,22 @@ corresponding_gauge = max_row['gauges']
 print("Index of max AI_CD_diff:", max_index)
 print("Maximum AI_CD_diff:", max_ai_cd_diff)
 print("Corresponding gauge value:", corresponding_gauge)
+
+
+___
+
+import pandas as pd
+import numpy as np
+
+# Sample dataframe
+data = {'pYS': ['1.1', '2.2', 'na', '4.4', 'na']}
+df = pd.DataFrame(data)
+
+# Replace 'na' with np.nan
+df['pYS'] = df['pYS'].replace('na', np.nan)
+
+# Convert the column to float
+df['pYS'] = df['pYS'].astype(float)
+
+print(df)
+
