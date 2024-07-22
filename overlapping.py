@@ -1325,3 +1325,11 @@ df['pYS'] = df['pYS'].astype(float)
 
 print(df)
 
+
+___
+
+condition = (df['group'] == '1bar') & ((df['po'] + df['p1'] - df['AI_CD']) > 8)
+
+# Drop the rows that meet the condition
+df = df.drop(df[condition].index)
+
