@@ -1275,3 +1275,18 @@ plt.xticks(range(1, len(dfs) + 1), [key for key in dfs.keys()])
 
 # Show the plot
 plt.show()
+
+
+___
+
+import pandas as pd
+
+# Assuming df is your dataframe
+max_row = df.loc[df['AI_CD_diff'].idxmax()]
+
+# Extract the maximum AI_CD_diff and corresponding gauge value
+max_ai_cd_diff = max_row['AI_CD_diff']
+corresponding_gauge = max_row['gauges']
+
+print("Maximum AI_CD_diff:", max_ai_cd_diff)
+print("Corresponding gauge value:", corresponding_gauge)
