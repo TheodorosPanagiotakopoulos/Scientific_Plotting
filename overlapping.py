@@ -1333,3 +1333,22 @@ condition = (df['group'] == '1bar') & ((df['po'] + df['p1'] - df['AI_CD']) > 8)
 # Drop the rows that meet the condition
 df = df.drop(df[condition].index)
 
+___
+
+import pandas as pd
+
+# Assuming df is your DataFrame
+# Create a list to hold the indices of rows to drop
+rows_to_drop = []
+
+# Iterate through the DataFrame using iterrows
+for i, row in df.iterrows():
+    if row['group'] == '1bar' and (row['po'] + row['p1'] - row['AI_CD']) > 8:
+        rows_to_drop.append(i)
+
+# Drop the rows using the list of indices
+df = df.drop(rows_to_drop)
+
+print(df)
+
+
