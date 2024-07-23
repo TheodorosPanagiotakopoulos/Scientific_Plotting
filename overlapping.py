@@ -1351,4 +1351,38 @@ df = df.drop(rows_to_drop)
 
 print(df)
 
+___
+
+from PIL import Image
+
+def merge_images(image1_path, image2_path, output_path):
+    # Open the images
+    image1 = Image.open(image1_path).convert("RGBA")
+    image2 = Image.open(image2_path).convert("RGBA")
+
+    # Ensure both images have the same size; if not, resize the second image
+    if image1.size != image2.size:
+        image2 = image2.resize(image1.size, Image.LANCZOS)
+
+    # Create a new image with the same size as the first image and a transparent background
+    merged_image = Image.new("RGBA", image1.size, (0, 0, 0, 0))
+
+    # Paste the first image onto the merged image
+    merged_image.paste(image1, (0, 0), image1)
+
+    # Paste the second image onto the merged image
+    merged_image.paste(image2, (0, 0), image2)
+
+    # Save the merged image with high quality settings
+    merged_image.save(output_path, "PNG")
+
+# Paths to the images to be merged
+image1_path = "path/to/first/image.png"
+image2_path = "path/to/second/image.png"
+output_path = "path/to/output/merged_image.png"
+
+# Merge the images
+merge_images(image1_path, image2_path, output_path)
+
+
 
