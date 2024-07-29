@@ -1384,5 +1384,7 @@ output_path = "path/to/output/merged_image.png"
 # Merge the images
 merge_images(image1_path, image2_path, output_path)
 
+_________________________________
 
+At \textbf{ASML}, I also worked on \textbf{transition cross coefficient (TCC)} optimization. I designed \textbf{rigorous M3D simulations} using \textbf{Tachyon software}, specifically \textbf{FEM+}. I utilized a variety of settings to calculate the optimal TCC number that yields the lowest aerial image critical dimension (AI\_CD) difference between the baseline model and models with fewer TCC numbers. For this purpose, I used different types of settings and masks, such as \textbf{high numerical aperture} with \textbf{low refraction index}, \textbf{high numerical }aperture with binary mask, low numerical aperture with \textbf{low refraction index}, and \textbf{low numerical aperture with binary mask}, each with different mask patterns. These patterns included one-\textbf{dimensional} masks, \textbf{two-dimensional} masks, \textbf{circular} masks, \textbf{elliptical} masks, and \textbf{polygon} masks. I calculated the optimal TCC number, which reduces the run time by 30\% while maintaining accuracy in the aerial image within a specification of 0.1 nm and causing a shift in the x and y directions of less than 0.01 nm. After discussing the results with the research and development team, we \textbf{included this update in the next Tachyon software} release, and the result was also adopted by our customer.
 
