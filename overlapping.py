@@ -1495,10 +1495,20 @@ P
 
 
 
+_____
 
-
-
-
-
-
-ChatGPT can make mistakes. Check important info.
+What is the optimal TCC number 
+𝑖
+i that leads to the maximum absolute difference in AI_CD between the model with 
+𝑇
+𝐶
+𝐶
+=
+𝑖
+TCC=i and the model with 
+𝑇
+𝐶
+𝐶
+=
+24
+TCC=24?
