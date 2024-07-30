@@ -1401,3 +1401,104 @@ if not os.path.exists(folder_path):
 else:
     print(f"Folder '{folder_path}' already exists.")
 
+
+____
+
+TCC(f 
+x
+​
+ ,f 
+y
+​
+ ,f 
+x
+′
+​
+ ,f 
+y
+′
+​
+ )=∫ 
+−∞
+∞
+​
+ S(s 
+x
+​
+ ,s 
+y
+​
+ )⋅P(f 
+x
+​
+ +s 
+x
+​
+ ,f 
+y
+​
+ +s 
+y
+​
+ )⋅P 
+∗
+ (f 
+x
+′
+​
+ +s 
+x
+​
+ ,f 
+y
+′
+​
+ +s 
+y
+​
+ )ds 
+x
+​
+ ds 
+y
+​
+ 
+
+In this context, 
+𝑃
+P typically represents the complex transmission function of the mask. This function describes how different spatial frequencies are transmitted through the mask and is critical for understanding and analyzing the mask's imaging performance. 
+𝑃
+∗
+P 
+∗
+  denotes the complex conjugate of 
+𝑃
+P.
+
+
+
+
+
+Is it the projection pupil?
+ChatGPT
+Yes, 
+𝑃
+P often represents the projection pupil function in lithography. The projection pupil function describes how light is transmitted through the optical system, including the mask and lens system, and how different spatial frequencies are affected. It plays a crucial role in determining the quality and resolution of the pattern transfer onto the wafer. The complex transmission function 
+𝑃
+P and its complex conjugate 
+𝑃
+∗
+P 
+∗
+  are used to evaluate the imaging performance and mask characteristics through the Transmission Cross Coefficient (TCC).
+
+
+
+
+
+
+
+
+
+
+ChatGPT can make mistakes. Check important info.
