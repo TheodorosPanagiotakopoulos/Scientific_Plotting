@@ -1615,3 +1615,7 @@ def read_below_to_dataframe(file_path, search_string="Leaf User CPU time"):
 file_path = 'your_file.txt'
 df = read_below_to_dataframe(file_path)
 print(df)
+
+____
+
+df.rename(columns={first_column_name
