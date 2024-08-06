@@ -1639,3 +1639,21 @@ first_column_name = df.columns[0]
 df.rename(columns={first_column_name: 'NewName'}, inplace=True)
 
 print(df)
+
+___import pandas as pd
+
+# Example DataFrame
+data = {
+    'stage': ['TccPrep-1', 'OtherStage-2', 'Stage(Main_substage)', 'AnotherStage-4'],
+    'value': [10, 20, 30, 40]
+}
+df = pd.DataFrame(data)
+
+# Define the pattern to match either "TccPrep" or "Stage(Main_substage)"
+pattern = r'TccPrep|Stage\(Main_substage\)'
+
+# Filter rows where the 'stage' column contains either string
+df_filtered = df[df['stage'].str.contains(pattern, regex=True)]
+
+print(df_filtered)
+
