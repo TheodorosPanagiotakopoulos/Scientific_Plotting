@@ -1580,3 +1580,38 @@ file_path = 'your_file.txt'
 df = read_below_to_dataframe(file_path)
 print(df)
 
+
+____
+
+import pandas as pd
+
+def read_below_to_dataframe(file_path, search_string="Leaf User CPU time"):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+
+    # Find the index of the line containing the search string
+    start_index = None
+    for i, line in enumerate(lines):
+        if search_string in line:
+            start_index = i  # Start reading from the line with the search string
+            break
+
+    if start_index is None:
+        raise ValueError(f"'{search_string}' not found in the file.")
+
+    # Read everything from the start_index into a list
+    data = []
+    for line in lines[start_index:]:
+        stripped_line = line.strip()
+        if stripped_line:  # Skip empty lines
+            data.append(stripped_line.split())  # Assuming the data is space-separated
+
+    # Convert the list of lists to a DataFrame
+    df = pd.DataFrame(data)
+
+    return df
+
+# Example usage:
+file_path = 'your_file.txt'
+df = read_below_to_dataframe(file_path)
+print(df)
