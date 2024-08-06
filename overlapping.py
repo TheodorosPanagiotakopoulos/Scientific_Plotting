@@ -1619,3 +1619,23 @@ print(df)
 ____
 
 df.rename(columns={first_column_name
+
+___
+
+import pandas as pd
+
+# Example DataFrame
+data = {
+    'A': [1, 2, 3],
+    'B': [4, 5, 6],
+    'C': [7, 8, 9]
+}
+df = pd.DataFrame(data)
+
+# Get the name of the first column
+first_column_name = df.columns[0]
+
+# Rename the first column
+df.rename(columns={first_column_name: 'NewName'}, inplace=True)
+
+print(df)
