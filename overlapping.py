@@ -1512,3 +1512,34 @@ TCC=i and the model with
 =
 24
 TCC=24?
+
+
+_____
+
+class ExampleClass:
+    def method_one(self):
+        pass
+
+    def method_two(self):
+        pass
+
+    @staticmethod
+    def static_method():
+        pass
+
+    @classmethod
+    def class_method(cls):
+        pass
+
+# Function to get all functions of a class by its name
+def get_class_methods_by_name(class_name):
+    cls = globals().get(class_name)  # Retrieve the class object from globals using its name
+    if cls is None:
+        raise ValueError(f"Class '{class_name}' not found.")
+    
+    methods = [func for func in dir(cls) if callable(getattr(cls, func)) and not func.startswith("__")]
+    return methods
+
+class_name = "ExampleClass"
+methods = get_class_methods_by_name(class_name)
+print(methods)
