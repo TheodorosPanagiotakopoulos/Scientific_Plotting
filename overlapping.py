@@ -1657,3 +1657,23 @@ df_filtered = df[df['stage'].str.contains(pattern, regex=True)]
 
 print(df_filtered)
 
+___
+
+import pandas as pd
+
+# Example DataFrame
+data = {
+    'stage': ['TccPrep_MAINSUBSTAGE', 'OtherStage', 'Stage(Main_MAINSUBSTAGE)', 'AnotherStage'],
+    'value': [10, 20, 30, 40]
+}
+df = pd.DataFrame(data)
+
+# Define the pattern to match either "TccPrep_MAINSUBSTAGE" or "Stage(Main_MAINSUBSTAGE)"
+pattern = r'TccPrep_MAINSUBSTAGE|Stage\(Main_MAINSUBSTAGE\)'
+
+# Filter rows where the 'stage' column contains either string
+df_filtered = df[df['stage'].str.contains(pattern, regex=True)]
+
+print(df_filtered)
+
+
