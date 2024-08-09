@@ -1712,3 +1712,29 @@ print(df)
 
 
 
+___
+
+The relationship between diffraction orders, numerical aperture, and simulation complexity is accurately described.
+
+High NA: Captures more diffraction orders, leading to complex interference patterns and increased simulation complexity.
+Low NA: Captures fewer diffraction orders, leading to simpler interference patterns and reduced simulation complexity.
+This directly correlates with the earlier point about the impact of TCC reduction on simulation run time being more pronounced in low NA systems.
+
+To summarize:
+
+More diffraction orders = more complex simulations
+High NA systems typically involve more diffraction orders
+Reducing TCC has a greater impact on simulation time for low NA systems due to their inherent simplicity
+This understanding is fundamental to optimizing computational lithography processes.
+
+
+
+
+
+
+
+
+
+
+
+
