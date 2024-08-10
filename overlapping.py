@@ -1841,6 +1841,32 @@ for file in txt_files:
     print(file)
 
 
+___
+
+import os
+
+def get_file_types_in_directories(path):
+    file_types_in_dirs = []
+
+    # Traverse through the directories and files in the given path
+    for root, dirs, files in os.walk(path):
+        file_types = set()
+        
+        for file in files:
+            _, file_extension = os.path.splitext(file)
+            if file_extension:
+                file_types.add(file_extension)
+
+        if file_types:
+            file_types_in_dirs.append(list(file_types))
+
+    return file_types_in_dirs
+
+# Example usage
+path = "/your/path/here"
+result = get_file_types_in_directories(path)
+print(result)
+
 
 
 
