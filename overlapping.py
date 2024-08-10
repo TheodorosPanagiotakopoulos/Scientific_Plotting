@@ -1771,6 +1771,48 @@ print(result)  # Will print True if directories are identical, False otherwise
 print(message)  # Will print the reason if the directories are not identical
 
 
+___
+
+import os
+import filecmp
+
+def compare_directories(dir1, dir2):
+    # Get the folder names in both directories
+    folders1 = sorted([f for f in os.listdir(dir1) if os.path.isdir(os.path.join(dir1, f))])
+    folders2 = sorted([f for f in os.listdir(dir2) if os.path.isdir(os.path.join(dir2, f))])
+
+    # Check if folder names are the same
+    if folders1 != folders2:
+        return False, "Folder names do not match."
+
+    # Iterate through each folder and compare files
+    for folder in folders1:
+        path1 = os.path.join(dir1, folder)
+        path2 = os.path.join(dir2, folder)
+
+        files1 = sorted([f for f in os.listdir(path1) if os.path.isfile(os.path.join(path1, f))])
+        files2 = sorted([f for f in os.listdir(path2) if os.path.isfile(os.path.join(path2, f))])
+
+        # Check if file names in the folders are the same
+        if files1 != files2:
+            return False, f"Files in folder '{folder}' do not match."
+
+        # Compare the content of each file
+        for file in files1:
+            file1 = os.path.join(path1, file)
+            file2 = os.path.join(path2, file)
+            
+            if not filecmp.cmp(file1, file2, shallow=False):
+                return False, f"File '{file}' in folder '{folder}' differs in content."
+
+    return True, "The directories are identical."
+
+# Example usage:
+result, message = compare_directories("/path/to/dir1", "/path/to/dir2")
+print(result)  # Will print True if directories are identical, False otherwise
+print(message)  # Will print the reason if the directories are not identical
+
+
 
 
 
