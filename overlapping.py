@@ -1729,6 +1729,46 @@ This understanding is fundamental to optimizing computational lithography proces
 
 
 
+___
+
+import os
+import filecmp
+
+def compare_directories(dir1, dir2):
+    # Get the folder names in both directories
+    folders1 = sorted([f.name for f in os.scandir(dir1) if f.is_dir()])
+    folders2 = sorted([f.name for f in os.scandir(dir2) if f.is_dir()])
+
+    # Check if folder names are the same
+    if folders1 != folders2:
+        return False, "Folder names do not match."
+
+    # Iterate through each folder and compare files
+    for folder in folders1:
+        path1 = os.path.join(dir1, folder)
+        path2 = os.path.join(dir2, folder)
+
+        files1 = sorted([f.name for f in os.scandir(path1) if f.is_file()])
+        files2 = sorted([f.name for f in os.scandir(path2) if f.is_file()])
+
+        # Check if file names in the folders are the same
+        if files1 != files2:
+            return False, f"Files in folder '{folder}' do not match."
+
+        # Compare the content of each file
+        for file in files1:
+            file1 = os.path.join(path1, file)
+            file2 = os.path.join(path2, file)
+            
+            if not filecmp.cmp(file1, file2, shallow=False):
+                return False, f"File '{file}' in folder '{folder}' differs in content."
+
+    return True, "The directories are identical."
+
+# Example usage:
+result, message = compare_directories("/path/to/dir1", "/path/to/dir2")
+print(result)  # Will print True if directories are identical, False otherwise
+print(message)  # Will print the reason if the directories are not identical
 
 
 
