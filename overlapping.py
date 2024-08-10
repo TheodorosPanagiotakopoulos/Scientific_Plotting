@@ -1873,6 +1873,24 @@ ___
 find . -type f \( -name "*.txt" -o -name "*.dat" \) | wc -l
 
 
+___
+
+import os
+
+def find_txt_and_dat_files(directory):
+    file_list = []
+    
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith('.txt') or file.endswith('.dat'):
+                file_list.append(os.path.join(root, file))
+    
+    return file_list
+
+# Example usage:
+directory = '/path/to/your/directory'
+files = find_txt_and_dat_files(directory)
+print(files)
 
 
 
