@@ -1812,6 +1812,33 @@ result, message = compare_directories("/path/to/dir1", "/path/to/dir2")
 print(result)  # Will print True if directories are identical, False otherwise
 print(message)  # Will print the reason if the directories are not identical
 
+___
+
+import os
+import glob
+
+def list_txt_files(dirs):
+    txt_files = []
+    for directory in dirs:
+        # Search for all .txt files in the directory and its subdirectories
+        files = glob.glob(os.path.join(directory, '**', '*.txt'), recursive=True)
+        txt_files.extend(files)
+    return txt_files
+
+# Example usage
+dirs = [
+    '/path/to/dir1',
+    '/path/to/dir2',
+    '/path/to/dir3',
+    '/path/to/dir4',
+    '/path/to/dir5'
+]
+
+txt_files = list_txt_files(dirs)
+
+# Print the list of .txt files with their full paths
+for file in txt_files:
+    print(file)
 
 
 
