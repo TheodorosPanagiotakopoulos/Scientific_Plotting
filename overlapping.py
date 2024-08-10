@@ -1919,3 +1919,45 @@ print(f"Found {len(files)} files:")
 print(files)
 
 
+____
+
+import os
+import filecmp
+
+def get_file_paths(base_path, subdirs, suffix):
+    """
+    Generate a list of file paths for each subdirectory and file suffix.
+    """
+    file_paths = []
+    for subdir in subdirs:
+        path = os.path.join(base_path, subdir)
+        for file in os.listdir(path):
+            if file.endswith(suffix):
+                file_paths.append(os.path.join(path, file))
+    return file_paths
+
+def compare_files(file_list1, file_list2):
+    """
+    Compare files between two lists.
+    """
+    if len(file_list1) != len(file_list2):
+        raise ValueError("The number of files in both lists must be the same.")
+
+    for file1, file2 in zip(file_list1, file_list2):
+        if not filecmp.cmp(file1, file2, shallow=False):
+            print(f"Files differ:\n{file1}\n{file2}")
+
+# Define your paths and parameters
+base_path1 = "/nfs/PEG/FEM/tpanagio/knife_edge/out_40/"
+base_path2 = "/nfs/PEG/FEM/tpanagio/knife_edge/out_39/"
+subdirs = ["lib1", "lib2"]  # Add all relevant subdirectories
+file_suffix = ".txt"
+
+# Generate file lists
+files_out_40 = get_file_paths(base_path1, subdirs, file_suffix)
+files_out_39 = get_file_paths(base_path2, subdirs, file_suffix)
+
+# Compare files
+compare_files(files_out_40, files_out_39)
+
+
