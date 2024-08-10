@@ -1892,5 +1892,30 @@ directory = '/path/to/your/directory'
 files = find_txt_and_dat_files(directory)
 print(files)
 
+___
+
+import os
+
+def find_txt_and_dat_files(directory):
+    file_list = []
+    
+    # Get a list of all directories in the tree (including the root directory)
+    all_dirs = [os.path.join(dp, f) for dp, dn, filenames in os.walk(directory) for f in dn]
+    total_dirs = len(all_dirs)
+    
+    for i, (root, dirs, files) in enumerate(os.walk(directory), 1):
+        print(f'Processing directory {i} out of {total_dirs}: {root}')
+        
+        for file in files:
+            if file.endswith('.txt') or file.endswith('.dat'):
+                file_list.append(os.path.join(root, file))
+    
+    return file_list
+
+# Example usage:
+directory = '/path/to/your/directory'
+files = find_txt_and_dat_files(directory)
+print(f"Found {len(files)} files:")
+print(files)
 
 
