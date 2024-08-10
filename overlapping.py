@@ -1868,6 +1868,9 @@ result = get_file_types_in_directories(path)
 print(result)
 
 
+___
+
+find . -type f \( -name "*.txt" -o -name "*.dat" \) | wc -l
 
 
 
