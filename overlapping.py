@@ -2054,3 +2054,33 @@ with open(file_path, 'w') as file:
         file.write('%s  %9.2f  %s\n' % (key.ljust(max_key_length), max_rmse, position))
 
 print "Dictionary has been exported to %s" % file_path
+
+___
+
+# Sample dictionary
+sample_dict = {
+    'key1': [0.5, 'pos1'],
+    'key2': [0.3, 'pos2'],
+    'key3': [0.7, 'pos3']
+}
+
+# Define the file path
+file_path = 'output.txt'
+
+# Calculate the maximum length of keys for formatting
+max_key_length = max(len(key) for key in sample_dict)
+
+# Open the file for writing (overwrites if exists)
+with open(file_path, 'w') as file:
+    # Write the header with fixed-width fields
+    file.write('%s  %s  %s\n' % ('Key'.ljust(max_key_length), 'Max RMSE'.ljust(9), 'Position'))
+    
+    # Write each dictionary entry
+    for key, value in sample_dict.iteritems():  # Use iteritems() in older Python versions
+        max_rmse = value[0]
+        position = value[1]
+        # Write each entry with fixed-width fields
+        file.write('%s  %9.2f  %s\n' % (key.ljust(max_key_length), max_rmse, position))
+
+print "Dictionary has been exported to %s" % file_path
+
