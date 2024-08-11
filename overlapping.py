@@ -2001,3 +2001,29 @@ with open(file_path, 'w') as file:
 
 print("Dictionary has been exported to %s" % file_path)
 
+___
+
+# Sample dictionary
+sample_dict = {
+    'key1': [0.5, 'pos1'],
+    'key2': [0.3, 'pos2'],
+    'key3': [0.7, 'pos3']
+}
+
+# Define the file path
+file_path = 'output.txt'
+
+# Export the dictionary to a txt file (overwrites if exists)
+with open(file_path, 'w') as file:
+    # Write the header
+    file.write('Key\tMax RMSE\tPosition\n')
+    
+    for key, value in sample_dict.iteritems():  # Use iteritems() in older Python versions
+        max_rmse = value[0]
+        position = value[1]
+        # Write each entry in tab-separated format
+        file.write('%s\t%s\t%s\n' % (key, max_rmse, position))
+
+print("Dictionary has been exported to %s" % file_path)
+
+
