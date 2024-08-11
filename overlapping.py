@@ -1961,3 +1961,21 @@ files_out_39 = get_file_paths(base_path2, subdirs, file_suffix)
 compare_files(files_out_40, files_out_39)
 
 
+___
+
+# Sample dictionary
+sample_dict = {
+    'key1': 'value1',
+    'key2': 'value2',
+    'key3': 'value3'
+}
+
+# Define the file path
+file_path = 'output.txt'
+
+# Export the dictionary to a txt file
+with open(file_path, 'w') as file:
+    for key, value in sample_dict.iteritems():  # Use iteritems() in older Python versions
+        file.write('%s: %s\n' % (key, value))   # Use the older string formatting
+
+print("Dictionary has been exported to %s" % file_path)
