@@ -1979,3 +1979,25 @@ with open(file_path, 'w') as file:
         file.write('%s: %s\n' % (key, value))   # Use the older string formatting
 
 print("Dictionary has been exported to %s" % file_path)
+
+___
+
+# Sample dictionary
+sample_dict = {
+    'key1': [0.5, 'pos1'],
+    'key2': [0.3, 'pos2'],
+    'key3': [0.7, 'pos3']
+}
+
+# Define the file path
+file_path = 'output.txt'
+
+# Export the dictionary to a txt file (overwrites if exists)
+with open(file_path, 'w') as file:
+    for key, value in sample_dict.iteritems():  # Use iteritems() in older Python versions
+        max_rmse = value[0]
+        position = value[1]
+        file.write('%s: Max RMSE = %s, Position = %s\n' % (key, max_rmse, position))   # Use the older string formatting
+
+print("Dictionary has been exported to %s" % file_path)
+
