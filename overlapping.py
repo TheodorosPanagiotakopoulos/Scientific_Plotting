@@ -2086,4 +2086,18 @@ print "Dictionary has been exported to %s" % file_path
 
 
 suppo
+___
+
+def find_word_before_real(file_path, specific_word):
+    with open(file_path, 'r') as file:
+        for line in file:
+            words = line.strip().split()
+            if specific_word in words and words[-1] == 'real':
+                if len(words) > 1:  # Ensure there is a word before 'real'
+                    print(words[-2])
+
+# Example usage
+file_path = 'your_file.txt'
+specific_word = 'target_word'  # Replace with the specific word you're looking for
+find_word_before_real(file_path, specific_word)
 
