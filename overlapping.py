@@ -2101,3 +2101,26 @@ file_path = 'your_file.txt'
 specific_word = 'target_word'  # Replace with the specific word you're looking for
 find_word_before_real(file_path, specific_word)
 
+___
+
+import re
+
+def extract_first_number(path):
+    # Find all numbers in the path
+    numbers = re.findall(r'\d+', path)
+    # Return the first number found as an integer, or a large number if none are found
+    return int(numbers[0]) if numbers else float('inf')
+
+def sort_paths_by_first_number(paths):
+    return sorted(paths, key=extract_first_number)
+
+# Example usage
+paths = [
+    "folder12/file34.txt",
+    "folder2/file56.txt",
+    "folder/file78.txt",
+    "folder99/file1.txt"
+]
+
+sorted_paths = sort_paths_by_first_number(paths)
+print(sorted_paths)
