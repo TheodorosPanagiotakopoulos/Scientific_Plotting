@@ -2124,3 +2124,28 @@ paths = [
 
 sorted_paths = sort_paths_by_first_number(paths)
 print(sorted_paths)
+
+___
+
+import re
+
+def extract_first_number(path):
+    # Find all numbers in the path
+    numbers = re.findall(r'\d+', path)
+    # Return the first number found as an integer, or a large number if none are found
+    return int(numbers[0]) if numbers else float('inf')
+
+def sort_paths_by_first_number(paths):
+    return sorted(paths, key=lambda path: extract_first_number(path))
+
+# Example usage
+paths = [
+    "folder12/file34.txt",
+    "folder2/file56.txt",
+    "folder/file78.txt",
+    "folder99/file1.txt"
+]
+
+sorted_paths = sort_paths_by_first_number(paths)
+for path in sorted_paths:
+    print(path)
