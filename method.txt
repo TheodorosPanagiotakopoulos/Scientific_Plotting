@@ -1,1 +1,0 @@
-https://agr47vaex.accounts.cloud.sap/oauth2/authorize?client_id=7af4c815-532c-4bcc-b493-a9965ce1e85e&response_type=code&redirect_uri=https%3A%2F%2Fapp-prd-kf8grjqh.authentication.us10.hana.ondemand.com%2Flogin%2Fcallback%2Fsap.custom&state=lNDSjXE7lS&scope=email+openid+profile&nonce=YgVHw2Nl2Ptw
