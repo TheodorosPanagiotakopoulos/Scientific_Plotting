@@ -3,28 +3,35 @@
 # Function to process a single directory
 process_directory() {
     local dir="$1"
-    echo "Processing directory: $dir"
-
     shopt -s nullglob
     log_files=("$dir"/*.log)
 
-    if [ ${#log_files[@]} -eq 0 ]; then
-        echo "  No .log files found in $dir"
-    else
-        for logfile in "${log_files[@]}"; do
-            echo "  Found log file: $logfile"
-            echo "    Searching for 'error' in $logfile:"
-            grep -i error "$logfile" || echo "      No 'error' found."
-            echo "    Searching for 'fail' in $logfile:"
-            grep -i fail "$logfile" || echo "      No 'fail' found."
-        done
-    fi
-    echo
+    for logfile in "${log_files[@]}"; do
+        found_any=false
+
+        error_matches=$(grep -i error "$logfile")
+        fail_matches=$(grep -i fail "$logfile")
+
+        if [[ -n "$error_matches" || -n "$fail_matches" ]]; then
+            echo "In directory: $dir"
+            echo "  Log file: $logfile"
+
+            if [[ -n "$error_matches" ]]; then
+                echo "    Matches for 'error':"
+                echo "$error_matches"
+            fi
+
+            if [[ -n "$fail_matches" ]]; then
+                echo "    Matches for 'fail':"
+                echo "$fail_matches"
+            fi
+
+            echo
+        fi
+    done
 }
 
-# Start from the current directory and find all directories
+# Find all directories and process each
 find . -type d | while read -r subdir; do
     process_directory "$subdir"
 done
-
-echo "Log processing complete."
