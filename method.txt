@@ -1,8 +1,19 @@
 #!/bin/bash
 
-# Function to add yellow highlighting to specific words in a line
-highlight_yellow() {
-    sed -E 's/(no such file or directory|memory)/\x1b[1;33m\1\x1b[0m/Ig'
+# Function to highlight specific keywords in yellow
+highlight_specific_terms() {
+    sed -E \
+        -e 's/(no such file or directory)/\x1b[1;33m\1\x1b[0m/Ig' \
+        -e 's/(memory)/\x1b[1;33m\1\x1b[0m/Ig'
+}
+
+# Function to apply base color to entire line (for 'error' or 'fail'), then highlight terms
+color_lines_with_highlights() {
+    local color="$1"  # e.g., \x1b[1;32m for green, \x1b[1;33m for yellow
+    grep -i "$2" "$3" | while IFS= read -r line; do
+        highlighted=$(echo "$line" | highlight_specific_terms)
+        echo -e "${color}${highlighted}\x1b[0m"
+    done
 }
 
 # Function to process a single directory
@@ -12,10 +23,11 @@ process_directory() {
     log_files=("$dir"/*.log)
 
     for logfile in "${log_files[@]}"; do
-        # Search for 'error'
-        grep -i 'error' "$logfile" | sed 's/^/\x1b[1;32m/' | highlight_yellow > /tmp/grep_error.tmp
-        # Search for 'fail'
-        grep -i 'fail' "$logfile" | sed 's/^/\x1b[1;33m/' | highlight_yellow > /tmp/grep_fail.tmp
+        > /tmp/grep_error.tmp
+        > /tmp/grep_fail.tmp
+
+        color_lines_with_highlights $'\x1b[1;32m' 'error' "$logfile" > /tmp/grep_error.tmp
+        color_lines_with_highlights $'\x1b[1;33m' 'fail' "$logfile" > /tmp/grep_fail.tmp
 
         if [[ -s /tmp/grep_error.tmp || -s /tmp/grep_fail.tmp ]]; then
             echo "In directory: $dir"
