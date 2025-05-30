@@ -7,11 +7,11 @@ process_directory() {
     log_files=("$dir"/*.log)
 
     for logfile in "${log_files[@]}"; do  
-        # Search for 'error' not followed by ';'
+        # Match lines with 'error' not followed by ';' (case-insensitive)
         awk '{IGNORECASE=1} /error/ && $0 !~ /error *;/ {print}' "$logfile" > /tmp/grep_error.tmp
-        
-        # Search for 'fail'
-        GREP_COLOR='1;33' grep --color=always -i 'fail' "$logfile" > /tmp/grep_fail.tmp  
+
+        # Match lines with 'fail' (case-insensitive)
+        grep -i 'fail' "$logfile" > /tmp/grep_fail.tmp  
 
         if [[ -s /tmp/grep_error.tmp || -s /tmp/grep_fail.tmp ]]; then  
             echo "In directory: $dir"  
