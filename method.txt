@@ -1,65 +1,44 @@
 #!/bin/bash
 
-# Define ANSI colors
-GREEN='\033[1;32m'
-YELLOW='\033[1;33m'
-ORANGE='\033[38;5;208m'
-CYAN='\033[1;36m'
-RESET='\033[0m'
-
-# Highlight keywords in a line
-highlight_line() {
-    echo "$1" | sed -E \
-        -e "s/(error)/${GREEN}\1${RESET}/Ig" \
-        -e "s/(fail)/${YELLOW}\1${RESET}/Ig" \
-        -e "s/(no such file or directory)/${ORANGE}\1${RESET}/Ig" \
-        -e "s/(memory)/${CYAN}\1${RESET}/Ig"
+# Function to add yellow highlighting to specific words in a line
+highlight_yellow() {
+    sed -E 's/(no such file or directory|memory)/\x1b[1;33m\1\x1b[0m/Ig'
 }
 
-# Process a single directory
+# Function to process a single directory
 process_directory() {
     local dir="$1"
     shopt -s nullglob
     log_files=("$dir"/*.log)
 
     for logfile in "${log_files[@]}"; do
-        error_lines=()
-        fail_lines=()
+        # Search for 'error'
+        grep -i 'error' "$logfile" | sed 's/^/\x1b[1;32m/' | highlight_yellow > /tmp/grep_error.tmp
+        # Search for 'fail'
+        grep -i 'fail' "$logfile" | sed 's/^/\x1b[1;33m/' | highlight_yellow > /tmp/grep_fail.tmp
 
-        while IFS= read -r line; do
-            highlighted=$(highlight_line "$line")
-            error_lines+=("$highlighted")
-        done < <(grep -i 'error' "$logfile")
+        if [[ -s /tmp/grep_error.tmp || -s /tmp/grep_fail.tmp ]]; then
+            echo "In directory: $dir"
+            echo "  Log file: $logfile"
 
-        while IFS= read -r line; do
-            highlighted=$(highlight_line "$line")
-            fail_lines+=("$highlighted")
-        done < <(grep -i 'fail' "$logfile")
-
-        if [[ ${#error_lines[@]} -gt 0 || ${#fail_lines[@]} -gt 0 ]]; then
-            echo -e "In directory: $dir"
-            echo -e "  Log file: $logfile"
-
-            if [[ ${#error_lines[@]} -gt 0 ]]; then
-                echo -e "    Matches for 'error':"
-                for l in "${error_lines[@]}"; do
-                    echo -e "      $l"
-                done
+            if [[ -s /tmp/grep_error.tmp ]]; then
+                echo "    Matches for 'error':"
+                cat /tmp/grep_error.tmp
             fi
 
-            if [[ ${#fail_lines[@]} -gt 0 ]]; then
-                echo -e "    Matches for 'fail':"
-                for l in "${fail_lines[@]}"; do
-                    echo -e "      $l"
-                done
+            if [[ -s /tmp/grep_fail.tmp ]]; then
+                echo "    Matches for 'fail':"
+                cat /tmp/grep_fail.tmp
             fi
 
             echo
         fi
+
+        rm -f /tmp/grep_error.tmp /tmp/grep_fail.tmp
     done
 }
 
-# Find all directories and process each
+# Process all directories recursively
 find . -type d | while read -r subdir; do
     process_directory "$subdir"
 done
