@@ -7,31 +7,33 @@ process_directory() {
     log_files=("$dir"/*.log)
 
     for logfile in "${log_files[@]}"; do
-        found_any=false
+        # Search for 'error'
+        GREP_COLOR='1;32' grep --color=always -i 'error' "$logfile" > /tmp/grep_error.tmp
+        # Search for 'fail'
+        GREP_COLOR='1;33' grep --color=always -i 'fail' "$logfile" > /tmp/grep_fail.tmp
 
-        error_matches=$(grep -i error "$logfile")
-        fail_matches=$(grep -i fail "$logfile")
-
-        if [[ -n "$error_matches" || -n "$fail_matches" ]]; then
+        if [[ -s /tmp/grep_error.tmp || -s /tmp/grep_fail.tmp ]]; then
             echo "In directory: $dir"
             echo "  Log file: $logfile"
 
-            if [[ -n "$error_matches" ]]; then
+            if [[ -s /tmp/grep_error.tmp ]]; then
                 echo "    Matches for 'error':"
-                echo "$error_matches"
+                cat /tmp/grep_error.tmp
             fi
 
-            if [[ -n "$fail_matches" ]]; then
+            if [[ -s /tmp/grep_fail.tmp ]]; then
                 echo "    Matches for 'fail':"
-                echo "$fail_matches"
+                cat /tmp/grep_fail.tmp
             fi
 
             echo
         fi
+
+        rm -f /tmp/grep_error.tmp /tmp/grep_fail.tmp
     done
 }
 
-# Find all directories and process each
+# Process all directories recursively
 find . -type d | while read -r subdir; do
     process_directory "$subdir"
 done
