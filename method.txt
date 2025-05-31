@@ -1,8 +1,11 @@
 #!/bin/bash
 
-# Highlight "no such file or directory" in red (case-insensitive), preserving existing colors
-highlight_red_phrase() {
-    sed -E "s/(no such file or directory)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig"
+# Highlight special phrases: "no such file or directory" in red, "memory" in magenta
+highlight_special_phrases() {
+    sed -E "
+        s/(no such file or directory)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
+        s/(memory)/$(printf '\033[1;35m')\1$(printf '\033[0m')/Ig
+    "
 }
 
 # Process one directory
@@ -27,12 +30,12 @@ process_directory() {
 
             if [[ -s "$error_tmp" ]]; then  
                 echo "    Matches for 'error':"  
-                GREP_COLOR='1;32' grep --color=always -i 'error' "$error_tmp" | highlight_red_phrase
+                GREP_COLOR='1;32' grep --color=always -i 'error' "$error_tmp" | highlight_special_phrases
             fi  
 
             if [[ -s "$fail_tmp" ]]; then  
                 echo "    Matches for 'fail':"  
-                GREP_COLOR='1;33' grep --color=always -i 'fail' "$fail_tmp" | highlight_red_phrase
+                GREP_COLOR='1;33' grep --color=always -i 'fail' "$fail_tmp" | highlight_special_phrases
             fi  
 
             echo  
