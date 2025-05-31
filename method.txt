@@ -1,61 +1,41 @@
 #!/bin/bash
 
 OUTPUT_FILE="output.txt"
-> "$OUTPUT_FILE"  # Clear output file
-
-exec 3>&1  # Save original stdout (FD 3)
-exec > "$OUTPUT_FILE" 2>&1  # Redirect stdout/stderr to file
+: > "$OUTPUT_FILE" # Truncate the file at the beginning
+exec 3>&1 1>"$OUTPUT_FILE" 2>&1
+start_time=$(date +%s)
+echo "[INFO] Starting initialization..." >&3
+date >&3
 
 # Highlight key phrases
 highlight_special_phrases() {
-    sed -E "
-        s/(no such file or directory)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
-        s/(does not exist)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
-        s/(doesn[’']t exist)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
-        s/(memory)/$(printf '\033[1;35m')\1$(printf '\033[0m')/Ig
-    "
+    sed -E \
+        -e 's/(no such file or directory)/\033[0;33m\1\033[0m/Ig' \
+        -e 's/(does not exist|doesn.t exist)/\033[0;31m\1\033[0m/Ig' \
+        -e 's/(memory)/\033[0;35m\1\033[0m/Ig'
 }
 
-# Spinner animation on same line
-spinner_running=true
-spinner() {
-    dots=("" "." ".." "...")
-    i=0
-    while $spinner_running; do
-        printf "\rLocating log files%s   " "${dots[i]}" >&3
-        i=$(( (i + 1) % 4 ))
-        sleep 0.5
-    done
-}
-
-# Start spinner
-spinner &
-spinner_pid=$!
-
-# Locate log files in background
+# Collect all log files while showing live count
 log_files=()
-mapfile -d '' subdirs < <(find . -type d -print0)
+echo "[INFO] Collecting log files..." >&3
+subdirs=( $(find . -type d -print0 | xargs -0) )
 for dir in "${subdirs[@]}"; do
-    shopt -s nullglob
-    for logfile in "$dir"/*.log; do
-        [[ -f "$logfile" ]] || continue
-        log_files+=("$logfile")
-    done
+  echo "  - Scanning directory: $dir" >&3
+  for logfile in "$dir"/*.log; do
+    [[ -f "$logfile" ]] && log_files+=("$logfile")
+  done
 done
+echo "[INFO] Log file discovery complete." >&3
+date >&3
 
-# Stop spinner and clear line
-spinner_running=false
-wait "$spinner_pid" 2>/dev/null
-printf "\rFound %d .log files.%s\n" "${#log_files[@]}" "                     " >&3
-
-# Progress bar
+# Show progress bar
 show_progress() {
     local progress=$(( 100 * count / total ))
     local bar_width=50
     local filled=$(( progress * bar_width / 100 ))
     local bar=$(printf "%${filled}s" | tr ' ' '#')
     bar=$(printf "%-${bar_width}s" "$bar")
-    printf "\rProcessing: [%s] %3d%% (%d/%d)" "$bar" "$progress" "$count" "$total" >&3
+    printf "Processing [%s]: %3d%% (%d/%d)\r" "$bar" "$progress" "$count" "$total" >&3
 }
 
 # Process individual log file
@@ -67,33 +47,36 @@ process_logfile() {
     error_tmp=$(mktemp)
     fail_tmp=$(mktemp)
 
+    # Match 'error' not followed by ';'
     awk '{IGNORECASE=1} /error/ && $0 !~ /error *;/ {print}' "$logfile" > "$error_tmp"
+
+    # Match 'fail'
     grep -i 'fail' "$logfile" > "$fail_tmp"
 
-    if [[ -s "$error_tmp" || -s "$fail_tmp" ]]; then  
-        echo "In directory: $dir"  
-        echo "  Log file: $logfile"  
+    if [[ -s "$error_tmp" || -s "$fail_tmp" ]]; then
+        echo -e "\nIn directory: $dir" >&3
+        echo "  Log file: $logfile" >&3
 
-        if [[ -s "$error_tmp" ]]; then  
-            echo "    Matches for 'error':"  
-            GREP_COLOR='1;32' grep --color=always -i 'error' "$error_tmp" | highlight_special_phrases
-        fi  
+        if [[ -s "$error_tmp" ]]; then
+            echo "  Matches for 'error':" >&3
+            GREP_COLOR='1;32' grep --color=always -i 'error' "$error_tmp" | highlight_special_phrases >&3
+        fi
 
-        if [[ -s "$fail_tmp" ]]; then  
-            echo "    Matches for 'fail':"  
-            GREP_COLOR='1;33' grep --color=always -i 'fail' "$fail_tmp" | highlight_special_phrases
-        fi  
-
-        echo  
-    fi  
+        if [[ -s "$fail_tmp" ]]; then
+            echo "  Matches for 'fail':" >&3
+            GREP_COLOR='1;33' grep --color=always -i 'fail' "$fail_tmp" | highlight_special_phrases >&3
+        fi
+    fi
 
     rm -f "$error_tmp" "$fail_tmp"
 }
 
-# Process all log files with progress bar
+# Process all log files with progress
+echo "[INFO] Starting log file analysis..." >&3
+date >&3
+
 total=${#log_files[@]}
 count=0
-
 for logfile in "${log_files[@]}"; do
     ((count++))
     show_progress
@@ -101,4 +84,7 @@ for logfile in "${log_files[@]}"; do
 done
 
 # Final message
-echo -e "\nDone. Output saved to $OUTPUT_FILE" >&3
+end_time=$(date +%s)
+echo -e "\n[INFO] Done. Output saved to $OUTPUT_FILE" >&3
+echo "[INFO] Finished at: $(date)" >&3
+echo "[INFO] Total duration: $((end_time - start_time)) seconds" >&3
