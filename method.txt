@@ -8,10 +8,10 @@ exec 3>&1 1>"$OUTPUT_FILE" 2>&1
 echo "Looking for .log files" >&3
 sleep 0.3
 
-# Step 2: Real-time log file counting
+# Step 2: Real-time log file counting with final confirmation
 log_files=()
 log_count=0
-printf "0.log files found" >&3  # Initial count display
+printf "0.log files found" >&3  # Initial display
 
 subdirs=( $(find . -type d -print0 | xargs -0) )
 for dir in "${subdirs[@]}"; do
@@ -23,7 +23,10 @@ for dir in "${subdirs[@]}"; do
     done
 done
 
-# Step 3: Progress bar on same line
+# Final confirmation after discovery (printed on a new line)
+echo -e "\n$log_count.log files found" >&3
+
+# Step 3: Progress bar
 show_progress() {
     local progress=$(( 100 * count / total ))
     local bar_width=50
@@ -65,7 +68,7 @@ process_logfile() {
     rm -f "$error_tmp" "$fail_tmp"
 }
 
-# Step 5: Progress bar analysis
+# Step 5: Process logs with progress bar
 total=${#log_files[@]}
 count=0
 for logfile in "${log_files[@]}"; do
