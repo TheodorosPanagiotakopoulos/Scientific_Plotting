@@ -1,14 +1,18 @@
 #!/bin/bash
 
-# Highlight special phrases: "no such file or directory" in red, "memory" in magenta
+# Highlight key phrases:
+# - Red: "no such file or directory", "does not exist", "doesn't exist"
+# - Magenta: "memory"
 highlight_special_phrases() {
     sed -E "
         s/(no such file or directory)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
+        s/(does not exist)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
+        s/(doesn[’']t exist)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
         s/(memory)/$(printf '\033[1;35m')\1$(printf '\033[0m')/Ig
     "
 }
 
-# Process one directory
+# Process a single directory
 process_directory() {
     local dir="$1"
     shopt -s nullglob
@@ -21,7 +25,7 @@ process_directory() {
         # Match 'error' not followed by ';'
         awk '{IGNORECASE=1} /error/ && $0 !~ /error *;/ {print}' "$logfile" > "$error_tmp"
         
-        # Match 'fail' (case-insensitive)
+        # Match 'fail'
         grep -i 'fail' "$logfile" > "$fail_tmp"  
 
         if [[ -s "$error_tmp" || -s "$fail_tmp" ]]; then  
