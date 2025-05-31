@@ -1,14 +1,12 @@
 #!/bin/bash
 
 OUTPUT_FILE="output.txt"
-> "$OUTPUT_FILE"  # Truncate the file at the beginning
+> "$OUTPUT_FILE"  # Clear output file
 
-exec 3>&1  # Save original stdout (terminal) to FD 3
-exec > "$OUTPUT_FILE" 2>&1  # Redirect stdout and stderr to file
+exec 3>&1  # Save original stdout (FD 3)
+exec > "$OUTPUT_FILE" 2>&1  # Redirect stdout/stderr to file
 
-# Highlight key phrases:
-# - Red: "no such file or directory", "does not exist", "doesn't exist"
-# - Magenta: "memory"
+# Highlight key phrases
 highlight_special_phrases() {
     sed -E "
         s/(no such file or directory)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
@@ -18,25 +16,39 @@ highlight_special_phrases() {
     "
 }
 
-# Collect all .log files while showing live count
-log_count=0
+# Spinner animation on same line
+spinner_running=true
+spinner() {
+    dots=("" "." ".." "...")
+    i=0
+    while $spinner_running; do
+        printf "\rLocating log files%s   " "${dots[i]}" >&3
+        i=$(( (i + 1) % 4 ))
+        sleep 0.5
+    done
+}
+
+# Start spinner
+spinner &
+spinner_pid=$!
+
+# Locate log files in background
 log_files=()
-
 mapfile -d '' subdirs < <(find . -type d -print0)
-
 for dir in "${subdirs[@]}"; do
     shopt -s nullglob
     for logfile in "$dir"/*.log; do
         [[ -f "$logfile" ]] || continue
         log_files+=("$logfile")
-        ((log_count++))
-        printf "\r%d.log found..." "$log_count" >&3
     done
 done
 
-echo "" >&3  # Newline after final count display
+# Stop spinner and clear line
+spinner_running=false
+wait "$spinner_pid" 2>/dev/null
+printf "\rFound %d .log files.%s\n" "${#log_files[@]}" "                     " >&3
 
-# Show progress bar
+# Progress bar
 show_progress() {
     local progress=$(( 100 * count / total ))
     local bar_width=50
@@ -55,10 +67,7 @@ process_logfile() {
     error_tmp=$(mktemp)
     fail_tmp=$(mktemp)
 
-    # Match 'error' not followed by ';'
     awk '{IGNORECASE=1} /error/ && $0 !~ /error *;/ {print}' "$logfile" > "$error_tmp"
-    
-    # Match 'fail'
     grep -i 'fail' "$logfile" > "$fail_tmp"
 
     if [[ -s "$error_tmp" || -s "$fail_tmp" ]]; then  
@@ -81,7 +90,7 @@ process_logfile() {
     rm -f "$error_tmp" "$fail_tmp"
 }
 
-# Process all log files with progress
+# Process all log files with progress bar
 total=${#log_files[@]}
 count=0
 
