@@ -61,3 +61,87 @@ while IFS= read -r -d '' subdir; do
 done < <(find . -type d -print0)
 
 exit
+
+
+
+
+----
+
+#!/bin/bash
+
+OUTPUT_FILE="output.txt"
+> "$OUTPUT_FILE"  # Truncate the file at the beginning
+exec > "$OUTPUT_FILE" 2>&1  # Redirect all output to file
+
+# Highlight key phrases:
+# - Red: "no such file or directory", "does not exist", "doesn't exist"
+# - Magenta: "memory"
+highlight_special_phrases() {
+    sed -E "
+        s/(no such file or directory)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
+        s/(does not exist)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
+        s/(doesn[’']t exist)/$(printf '\033[1;31m')\1$(printf '\033[0m')/Ig;
+        s/(memory)/$(printf '\033[1;35m')\1$(printf '\033[0m')/Ig
+    "
+}
+
+# Process a single directory
+process_directory() {
+    local dir="$1"
+    shopt -s nullglob
+    log_files=("$dir"/*.log)
+
+    for logfile in "${log_files[@]}"; do  
+        error_tmp=$(mktemp)
+        fail_tmp=$(mktemp)
+
+        # Match 'error' not followed by ';'
+        awk '{IGNORECASE=1} /error/ && $0 !~ /error *;/ {print}' "$logfile" > "$error_tmp"
+        
+        # Match 'fail'
+        grep -i 'fail' "$logfile" > "$fail_tmp"  
+
+        if [[ -s "$error_tmp" || -s "$fail_tmp" ]]; then  
+            echo "In directory: $dir"  
+            echo "  Log file: $logfile"  
+
+            if [[ -s "$error_tmp" ]]; then  
+                echo "    Matches for 'error':"  
+                GREP_COLOR='1;32' grep --color=always -i 'error' "$error_tmp" | highlight_special_phrases
+            fi  
+
+            if [[ -s "$fail_tmp" ]]; then  
+                echo "    Matches for 'fail':"  
+                GREP_COLOR='1;33' grep --color=always -i 'fail' "$fail_tmp" | highlight_special_phrases
+            fi  
+
+            echo  
+        fi  
+
+        rm -f "$error_tmp" "$fail_tmp"  
+    done
+}
+
+# Progress bar
+show_progress() {
+    local progress=$(( 100 * count / total ))
+    local bar_width=50
+    local filled=$(( progress * bar_width / 100 ))
+    local bar=$(printf "%${filled}s" | tr ' ' '#')
+    bar=$(printf "%-${bar_width}s" "$bar")
+    printf "\rProcessing: [%s] %3d%% (%d/%d)" "$bar" "$progress" "$count" "$total"
+}
+
+# Get all subdirectories
+mapfile -d '' subdirs < <(find . -type d -print0)
+total=${#subdirs[@]}
+count=0
+
+# Process each directory
+for subdir in "${subdirs[@]}"; do
+    ((count++))
+    show_progress
+    process_directory "$subdir"
+done
+
+echo -e "\nDone. Output saved to $OUTPUT_FILE"
