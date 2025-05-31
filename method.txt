@@ -4,24 +4,26 @@ OUTPUT_FILE="output.txt"
 : > "$OUTPUT_FILE"
 exec 3>&1 1>"$OUTPUT_FILE" 2>&1
 
-# Print initial message
+# Step 1: One-time message
 echo "Looking for .log files" >&3
-sleep 0.5  # optional small pause for visual clarity
+sleep 0.3
 
-# Discover .log files and update count in real time
+# Step 2: Real-time log file counting
 log_files=()
 log_count=0
+printf "0.log files found" >&3  # Initial count display
+
 subdirs=( $(find . -type d -print0 | xargs -0) )
 for dir in "${subdirs[@]}"; do
     for logfile in "$dir"/*.log; do
         [[ -f "$logfile" ]] || continue
         log_files+=("$logfile")
-        printf "\r%d.log files found" "$log_count" >&3
         ((log_count++))
+        printf "\r%d.log files found" "$log_count" >&3
     done
 done
 
-# Show progress bar
+# Step 3: Progress bar on same line
 show_progress() {
     local progress=$(( 100 * count / total ))
     local bar_width=50
@@ -31,7 +33,7 @@ show_progress() {
     printf "\rProcessing [%s]: %3d%% (%d/%d)" "$bar" "$progress" "$count" "$total" >&3
 }
 
-# Process individual log file silently to output.txt
+# Step 4: Silent log file processing
 process_logfile() {
     local logfile="$1"
     local dir
@@ -63,7 +65,7 @@ process_logfile() {
     rm -f "$error_tmp" "$fail_tmp"
 }
 
-# Run analysis with progress bar
+# Step 5: Progress bar analysis
 total=${#log_files[@]}
 count=0
 for logfile in "${log_files[@]}"; do
@@ -72,5 +74,5 @@ for logfile in "${log_files[@]}"; do
     process_logfile "$logfile"
 done
 
-# Final line
+# Final status
 echo -e "\nDone. Output saved to $OUTPUT_FILE" >&3
