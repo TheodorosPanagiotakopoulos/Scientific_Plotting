@@ -56,11 +56,3 @@ done < <(find . -type d -print0)
 
 exit
 
----+++
-Hello Mr. Ming-Chun,
-
-The job with RC3 still did not complete. However, the data_prep_low_order_10 step was finished, and the job stopped when it was supposed to proceed to the training_low_order_20 step.
-
-Would you like me to retry it using RC3 or a different version, or should we wait until Monday to review it together?
-
-Also, the new version of RC is yet to be released.
