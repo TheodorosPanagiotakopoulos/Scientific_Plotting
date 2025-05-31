@@ -2,7 +2,9 @@
 
 OUTPUT_FILE="output.txt"
 > "$OUTPUT_FILE"  # Truncate the file at the beginning
-exec > "$OUTPUT_FILE" 2>&1  # Redirect all output to file
+
+exec 3>&1  # Save original stdout (terminal) to FD 3
+exec > "$OUTPUT_FILE" 2>&1  # Redirect all stdout and stderr to file
 
 # Highlight key phrases:
 # - Red: "no such file or directory", "does not exist", "doesn't exist"
@@ -60,7 +62,7 @@ show_progress() {
     local filled=$(( progress * bar_width / 100 ))
     local bar=$(printf "%${filled}s" | tr ' ' '#')
     bar=$(printf "%-${bar_width}s" "$bar")
-    printf "\rProcessing: [%s] %3d%% (%d/%d)" "$bar" "$progress" "$count" "$total"
+    printf "\rProcessing: [%s] %3d%% (%d/%d)" "$bar" "$progress" "$count" "$total" >&3
 }
 
 # Get all subdirectories
@@ -75,4 +77,5 @@ for subdir in "${subdirs[@]}"; do
     process_directory "$subdir"
 done
 
-echo -e "\nDone. Output saved to $OUTPUT_FILE"
+# Show final message on screen
+echo -e "\nDone. Output saved to $OUTPUT_FILE" >&3
