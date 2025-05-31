@@ -56,3 +56,12 @@ done < <(find . -type d -print0)
 
 exit
 
+
+
+The Newron job with RC3 did not complete. The data_prep_low_order_10 step finished, but the job stopped before moving to training_low_order_20. I’m investigating the issue.
+
+The CRMS file for training_low_order_20 had a path specified, while for data_prep_low_order_10, the path was left blank, likely triggering a default. Would you suggest I try removing the path to see if it works?
+
+Should I retry with RC3 or a different version, or wait until Monday to review it with you?
+
+Also, the new RC version hasn’t been released yet.
