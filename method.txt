@@ -1,5 +1,11 @@
 #!/bin/bash
 
+OUTPUT_FILE="output.txt"
+> "$OUTPUT_FILE"  # Truncate the file at the beginning
+
+# Redirect all stdout and stderr to the output file
+exec > "$OUTPUT_FILE" 2>&1
+
 # Highlight key phrases:
 # - Red: "no such file or directory", "does not exist", "doesn't exist"
 # - Magenta: "memory"
