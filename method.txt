@@ -27,21 +27,16 @@ delete_tachyon_jobs
 
 -----------------------
 
-import pyautogui
-import time
+#!/bin/bash
 
-def keep_awake(interval=30):
-    print("Starting mouse move script. Press Ctrl+C to stop.")
-    while True:
-        # Get current mouse position
-        x, y = pyautogui.position()
+echo "Disabling screen blanking and power saving"
+xset s off          # disable screen saver
+xset -dpms          # disable DPMS (Energy Star) features
+xset s noblank      # don't blank the video device
 
-        # Move slightly and return
-        pyautogui.moveTo(x + 1, y + 1, duration=0.1)
-        pyautogui.moveTo(x, y, duration=0.1)
+echo "Press Ctrl+C to exit and restore settings."
+trap 'xset s on; xset +dpms; xset s blank; echo "Settings restored."' EXIT
 
-        # Wait before repeating
-        time.sleep(interval)
-
-if __name__ == "__main__":
-    keep_awake()
+while true; do
+    sleep 60
+done
