@@ -23,3 +23,30 @@ delete_tachyon_jobs() {
 
 # Run the function
 delete_tachyon_jobs
+
+
+-----------------------
+
+import ctypes
+import time
+
+ES_CONTINUOUS = 0x80000000
+ES_SYSTEM_REQUIRED = 0x00000001
+ES_DISPLAY_REQUIRED = 0x00000002
+
+def prevent_sleep():
+    ctypes.windll.kernel32.SetThreadExecutionState(
+        ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
+    )
+
+def allow_sleep():
+    ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
+
+try:
+    print("Preventing system sleep. Press Ctrl+C to stop.")
+    while True:
+        prevent_sleep()
+        time.sleep(60)
+except KeyboardInterrupt:
+    print("Allowing system to sleep again.")
+    allow_sleep()
