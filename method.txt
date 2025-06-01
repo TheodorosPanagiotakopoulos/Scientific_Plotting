@@ -27,26 +27,21 @@ delete_tachyon_jobs
 
 -----------------------
 
-import ctypes
+import pyautogui
 import time
 
-ES_CONTINUOUS = 0x80000000
-ES_SYSTEM_REQUIRED = 0x00000001
-ES_DISPLAY_REQUIRED = 0x00000002
-
-def prevent_sleep():
-    ctypes.windll.kernel32.SetThreadExecutionState(
-        ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED
-    )
-
-def allow_sleep():
-    ctypes.windll.kernel32.SetThreadExecutionState(ES_CONTINUOUS)
-
-try:
-    print("Preventing system sleep. Press Ctrl+C to stop.")
+def keep_awake(interval=30):
+    print("Starting mouse move script. Press Ctrl+C to stop.")
     while True:
-        prevent_sleep()
-        time.sleep(60)
-except KeyboardInterrupt:
-    print("Allowing system to sleep again.")
-    allow_sleep()
+        # Get current mouse position
+        x, y = pyautogui.position()
+
+        # Move slightly and return
+        pyautogui.moveTo(x + 1, y + 1, duration=0.1)
+        pyautogui.moveTo(x, y, duration=0.1)
+
+        # Wait before repeating
+        time.sleep(interval)
+
+if __name__ == "__main__":
+    keep_awake()
