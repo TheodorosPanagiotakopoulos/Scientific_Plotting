@@ -1,42 +1,103 @@
-#!/bin/bash
-
-delete_tachyon_jobs() {
-    # Get the current working directory
-    current_dir=$(pwd)
-
-    # Extract base path up to /TCC
-    base_path=$(echo "$current_dir" | awk -F'/TCC/' '{print $1"/TCC"}')
-
-    # Extract the two subdirectories after /TCC
-    sub_path=$(echo "$current_dir" | awk -F'/TCC/' '{print $2}' | cut -d'/' -f1,2)
-
-    # Construct the root for deletion
-    root_path="${base_path}/${sub_path}"
-
-    for i in 1 2 3 4 5 6 7 8 9 10 11 12 24
-    do
-        target="${root_path}/TCC_${i}/model_check/h/work"
-        rm -rf "$target"
-        echo "tachyonjob $i deleted"
-    done
-}
-
-# Run the function
-delete_tachyon_jobs
 
 
------------------------
+Technical Summary: Use of Smooth L1 Loss for Model Regularization
 
-#!/bin/bash
+Objective
 
-echo "Disabling screen blanking and power saving"
-xset s off          # disable screen saver
-xset -dpms          # disable DPMS (Energy Star) features
-xset s noblank      # don't blank the video device
+The goal of this work was to reduce overfitting and improve generalization in a neural network model by applying parameter constraints via a modified loss function — specifically, by replacing the standard loss with a Smooth L1 (Huber) loss.
 
-echo "Press Ctrl+C to exit and restore settings."
-trap 'xset s on; xset +dpms; xset s blank; echo "Settings restored."' EXIT
 
-while true; do
-    sleep 60
-done
+---
+
+What Was Done
+
+Instead of adding regularization terms like L1 directly to the loss, the researcher replaced the main prediction loss function with a Smooth L1 loss, which blends the behavior of L2 and L1 losses:
+
+L2 behavior for small errors (to maintain stability and smooth convergence).
+
+L1 behavior for large errors (to prevent over-penalizing outliers and reduce sensitivity).
+
+
+
+---
+
+Mathematical Formulation
+
+The Smooth L1 (Huber) loss is defined as:
+
+L_\delta(a) =
+\begin{cases}
+\frac{1}{2} a^2, & \text{if } |a| < \delta \\
+\delta (|a| - \frac{1}{2} \delta), & \text{otherwise}
+\end{cases}
+
+Where:
+
+ is typically the prediction error 
+
+ (epsilon in this case) controls the transition point between L2 and L1 behavior (default: )
+
+
+This formulation is often used in robust regression to avoid exploding gradients caused by large errors, and has an implicit regularizing effect.
+
+
+---
+
+Experimental Results
+
+Two main strategies were tested:
+
+1. Add Smooth L1 Loss mid-training (after 18,000 steps):
+
+Slightly improved verification results
+
+Minor degradation in calibration accuracy
+
+Reduced coefficient magnitudes to ~20% of original
+
+Effective balance of constraint and performance
+
+
+
+2. Train from scratch with Smooth L1 enabled from the beginning:
+
+Significantly degraded calibration results
+
+Coefficient regularization strong, but model accuracy worsened
+
+Suggests early constraint is too harsh
+
+
+
+
+Additionally, the method was tested against thru-pitch wiggle issues:
+
+Smooth L1 had no clear impact on mitigating wiggle behavior.
+
+Increasing the weight of L1 further degraded accuracy.
+
+
+
+---
+
+Implementation
+
+The Smooth L1 loss was already supported in the tf1.2 package.
+
+Minimal change required: just switching the loss function name and setting epsilon (epsi) and weight (xl1) as parameters.
+
+
+
+---
+
+Conclusion
+
+The experiment shows that:
+
+Replacing the loss with Smooth L1 mid-training helps reduce overfitting without severely hurting performance.
+
+Direct L1 regularization was not applied — instead, the change affects the error function, not the model weights.
+
+Careful timing and tuning are critical: early over-constraint leads to underfitting.
+
+Wiggle performance was
