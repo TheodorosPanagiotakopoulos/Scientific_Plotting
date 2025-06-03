@@ -84,3 +84,189 @@ for logfile in "${log_files[@]}"; do
 done
 
 echo -e "\n\nDone. Output saved to $OUTPUT_FILE" >&3
+
+
+
+-------
+
+
+Objective
+
+To determine which after-simulation images in the validation set are not represented in the before-simulation images in the training set — using two analytical methods:
+
+1. ResNet + Cosine Similarity: captures deep, semantic similarity
+
+
+2. Perceptual Hashing: detects pixel-level or structural similarity
+
+
+
+
+---
+
+🧠 What Is ResNet?
+
+ResNet (Residual Network) is a deep convolutional neural network (CNN) architecture designed to learn high-level visual features from images. It introduces residual connections (skip connections) that allow very deep networks (like ResNet-18, ResNet-50, etc.) to train effectively.
+
+Why use ResNet here?
+
+We use ResNet not for classification, but to extract feature embeddings from images — mathematical vectors that describe the semantic content (patterns, shapes, structure).
+
+These embeddings are then used to compare images semantically — even if pixel-wise they differ.
+
+
+---
+
+🔍 What Is Semantic Similarity?
+
+Semantic similarity measures whether two images represent the same thing, even if they are not pixel-identical.
+
+For example, a semiconductor pattern before and after simulation might look different in brightness or alignment, but still mean the same layout or chip structure.
+
+
+ResNet captures this meaning through its internal embeddings, not raw pixels.
+
+
+---
+
+📏 What Is the Definition of Similarity We Use?
+
+We use cosine similarity between embeddings.
+
+🔢 Cosine Similarity Formula:
+
+Given two vectors A and B:
+
+cos_sim(A, B) = (A · B) / (||A|| * ||B||)
+
+1.0 → Perfectly similar (same direction in feature space)
+
+0.0 → Completely dissimilar
+
+Threshold (e.g., 0.99) → Cutoff to consider two images “the same”
+
+
+✅ Is there a built-in function?
+
+Yes. Popular libraries like scikit-learn, PyTorch, or NumPy provide cosine similarity:
+
+Example using scikit-learn:
+
+from sklearn.metrics.pairwise import cosine_similarity
+similarity = cosine_similarity([embedding1], [embedding2])
+
+
+---
+
+🔹 Method 1: Semantic Comparison Using Fine-Tuned ResNet
+
+🧠 Analytical Workflow:
+
+1. Label Your Data
+
+0 → before simulation (training)
+
+1 → after simulation (validation)
+
+
+2. Fine-Tune ResNet
+
+Load pretrained ResNet (e.g., ResNet-18)
+
+Replace last layer with a binary output layer
+
+Train on labeled images to make the model learn simulation-specific features
+
+
+3. Extract Embeddings
+
+Remove the classification head after training
+
+Pass each image through the network
+
+Get the 512-d feature vector from the penultimate layer
+
+
+4. Compare Embeddings Using Cosine Similarity
+
+For each after-simulation (validation) image:
+
+Compute cosine similarity to all before-simulation (training) embeddings
+
+If max similarity < 0.99, flag as unmatched
+
+
+
+
+---
+
+✅ Pros:
+
+Learns high-level, domain-specific features
+
+Works well for structural or geometric differences
+
+Robust to brightness, noise, or small alterations
+
+
+❌ Cons:
+
+Requires labeled data
+
+Training time is needed
+
+Slower than hashing
+
+
+
+---
+
+🔹 Method 2: Structural Comparison Using Perceptual Hashing
+
+🧠 Analytical Workflow:
+
+1. Generate Hashes
+
+Use imagehash.phash() for each before-simulation image
+
+Store results in a hash set
+
+
+2. Compare Hashes
+
+For each after-simulation image:
+
+Generate its perceptual hash
+
+Compare to training hashes using Hamming distance
+
+If distance > threshold (e.g., 5), consider it unmatched
+
+
+
+3. Interpret
+
+Near-zero Hamming distance → same visual structure
+
+Larger distance → visually different
+
+
+
+---
+
+✅ Pros:
+
+Very fast
+
+Simple to implement
+
+No training or labels needed
+
+
+❌ Cons:
+
+Sensitive to image changes
+
+Cannot detect semantic differences
+
+Not suitable for simulation-related visual shifts
