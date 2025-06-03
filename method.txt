@@ -464,3 +464,244 @@ Fails if simulation changes layout or structure
 
 Sensitive to transformations (rotation, resizing, noise)
 
+
+
+-----
+
+
+Certainly! Here's a clear, high-level, code-free version of the analytical report that includes:
+
+Fine-tuning of ResNet
+
+How embeddings are obtained
+
+The comparison logic
+
+The alternative hash-based method
+
+
+
+---
+
+📘 Analytical Report: Identifying Unmatched After-Simulation Images Using Fine-Tuned ResNet and Perceptual Hashing
+
+
+---
+
+🎯 Objective
+
+To identify which after-simulation images in the validation set are not represented in the training set’s after-simulation images, using two methods:
+
+1. Fine-tuned ResNet + Embedding Similarity
+
+
+2. Perceptual Hashing + Structural Fingerprint Matching
+
+
+
+
+---
+
+📂 Dataset Assumptions
+
+Each dataset contains pairs of images:
+
+Dataset	Before Simulation	After Simulation	Purpose
+
+Training	✅	✅	For training the model
+Validation	✅	✅	For testing and comparison
+
+
+
+---
+
+🔹 Method 1: Deep Feature Comparison Using Fine-Tuned ResNet
+
+
+---
+
+✅ Concept
+
+A ResNet model is fine-tuned to learn the difference between before and after simulation images using the training set.
+Then, we extract embedding vectors from the model for each after-simulation image, and compare the vectors from validation and training sets to find which validation outputs are unseen.
+
+
+---
+
+🧪 Step-by-Step Overview
+
+1. Label the Training Set
+
+Each before-simulation image is labeled as class 0
+
+Each after-simulation image is labeled as class 1
+
+
+These labels allow the model to learn the difference between pre- and post-simulation images.
+
+
+---
+
+2. Fine-Tune the ResNet Model (Training Set Only)
+
+A pretrained ResNet model is adapted to your semiconductor data by training it to classify between before and after simulation images.
+
+Only the training set is used for this.
+
+The model learns simulation-specific patterns, layout shifts, or defect features relevant to your domain.
+
+
+
+---
+
+3. Extract Embedding Vectors (Features)
+
+After fine-tuning, we remove the final classification layer from ResNet.
+
+What remains is the penultimate layer, which outputs a high-dimensional feature vector — this is called the embedding.
+
+These embeddings represent the semantic content of each image: its structure, patterns, and visual meaning.
+
+
+Each after-simulation image (in both training and validation sets) is passed through the model to get its embedding vector.
+
+
+---
+
+4. Compare Embeddings Using Cosine Similarity
+
+For each after-simulation image in the validation set, we compute its similarity to all after-simulation images in the training set using cosine similarity.
+
+If the highest similarity score is below a threshold (e.g., 0.99), the image is considered new or unseen.
+
+This allows us to detect images in validation that are semantically different from anything the model saw during training.
+
+
+
+---
+
+✅ Strengths of This Method
+
+Captures semantic meaning beyond pixels
+
+Detects new or altered layouts due to simulation effects
+
+Robust to minor noise, contrast changes, or small distortions
+
+Domain-adapted through fine-tuning
+
+
+
+---
+
+❌ Limitations
+
+Requires labeled training data (before vs after)
+
+Fine-tuning takes some time and compute
+
+More complex than hash-based methods
+
+
+
+---
+
+🔹 Method 2: Structural Matching Using Perceptual Hashing
+
+
+---
+
+✅ Concept
+
+Each image is converted into a compact visual fingerprint (called a perceptual hash).
+By comparing these fingerprints between validation and training sets, we can detect exact or near-duplicate images.
+
+
+---
+
+🧪 Step-by-Step Overview
+
+1. Generate a hash for every after-simulation image in both training and validation sets. This hash captures the image’s basic structure.
+
+
+2. For each validation image, compare its hash to all training hashes.
+
+
+3. If no match (or close match) is found, the image is considered unseen.
+
+
+
+Matching is typically based on Hamming distance — the number of bits that differ between two hashes.
+
+
+---
+
+✅ Strengths
+
+Very fast and easy to implement
+
+Requires no training or labels
+
+Ideal for exact or near-exact duplicates
+
+
+
+---
+
+❌ Limitations
+
+Cannot detect semantic similarity
+
+Fails if simulation changes layout, brightness, or introduces noise
+
+Not suitable for identifying new patterns or unseen behaviors
+
+
+
+---
+
+📊 Summary Table
+
+Feature	Fine-Tuned ResNet	Perceptual Hashing
+
+Type of comparison	Semantic (deep features)	Structural (pixel-level)
+Requires labels	✅ Yes	❌ No
+Training required	✅ Yes (on training set only)	❌ No
+Captures simulation effects	✅ Yes	❌ No
+Tolerant to small visual changes	✅ Yes	⚠️ Limited
+Speed and simplicity	⚠️ Slower	✅ Very fast
+Detects completely new layout changes	✅ Yes	❌ No
+
+
+
+---
+
+✅ Final Recommendation
+
+Goal	Best Method
+
+Check for exact duplicates	Perceptual Hashing
+Detect unseen simulation outputs	Fine-Tuned ResNet
+Need robustness to subtle layout differences	Fine-Tuned ResNet
+Need fast filtering at low complexity	Perceptual Hashing
+
+
+
+---
+
+🧾 Final Summary
+
+Fine-tuned ResNet is trained using labeled before/after images from the training set only.
+
+After fine-tuning, it generates embedding vectors for each after-simulation image.
+
+Cosine similarity is then used to compare validation embeddings to training embeddings to detect which validation images are not semantically represented in training.
+
+As a faster but less flexible alternative, perceptual hashing compares image fingerprints at the pixel level.
+
+
+
+---
+
+Let me know if you’d like a visual workflow diagram or a version formatted for presentation.
+
