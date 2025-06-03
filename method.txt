@@ -703,5 +703,92 @@ As a faster but less flexible alternative, perceptual hashing compares image fin
 
 ---
 
-Let me know if you’d like a visual workflow diagram or a version formatted for presentation.
+Let me know if you’d like a visual workflow diagram or a version formatted for presentation.---
+
+
+----
+
+
+Certainly — here is the high-level analytical summary of Method 2 only:
+
+
+---
+
+🔹 Method 2: Image Hashing for Fast Structural Similarity Detection
+
+
+---
+
+🎯 Objective
+
+To detect which after-simulation images in the validation set are already represented in the training set, based on their visual structure, using image hashing.
+
+
+---
+
+✅ High-Level Process
+
+1. Generate Image Hashes
+
+For each after-simulation image in both training and validation sets, compute a perceptual hash (e.g., phash).
+
+This hash is a short binary string (usually 64 bits) that captures the image’s overall visual structure.
+
+
+
+2. Compare Hashes Using Hamming Distance
+
+For each validation hash, compare it to all training hashes.
+
+Compute the Hamming distance — the number of bits that differ between two hashes.
+
+
+
+3. Decide Similarity
+
+If the Hamming distance between a validation image and any training image is below a threshold (commonly ≤ 5), the image is considered similar (already seen).
+
+If no match is close enough, mark the validation image as unseen or new.
+
+
+
+
+
+---
+
+🧠 What This Captures
+
+Overall layout and structure
+
+Basic visual similarity (brightness, contrast, patterns)
+
+Very fast comparison
+
+
+
+---
+
+⚠️ Limitations
+
+Not robust to minor layout changes, transformations, or simulation noise
+
+Does not capture semantic meaning — only structural resemblance
+
+
+
+---
+
+✅ When to Use
+
+For fast, large-scale duplicate detection
+
+When you expect validation images to be nearly identical to some in training
+
+As a pre-filter before deeper comparison methods
+
+
+
+---
+
+Let me know if you want this formatted into a slide or want code for hash generation and comparison.
 
