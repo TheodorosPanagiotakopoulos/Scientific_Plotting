@@ -2,17 +2,17 @@
 
 OUTPUT_FILE="output.txt"
 : > "$OUTPUT_FILE"
-exec 3>&1 1>>"$OUTPUT_FILE" 2>&1
 
-echo "Looking for .log files" >&3
-sleep 0.3
+# Save original stdout to FD 3 (for progress bar only)
+exec 3>&1
 
 log_files=()
 log_count=0
-printf "\nLog files found" >&3
 
-shopt -s nocaseglob  # Enable case-insensitive globbing
+# Enable case-insensitive globbing
+shopt -s nocaseglob
 
+# Find all subdirectories
 subdirs=( $(find . -type d -print0 | xargs -0) )
 for dir in "${subdirs[@]}"; do
     for logfile in "$dir"/leaf*.log "$dir"/host*.log; do
@@ -24,12 +24,14 @@ done
 
 echo -e "\n$log_count .log files found" >&3
 
+# Function to colorize special phrases
 highlight_special_phrases() {
     sed -E \
-        -e 's/no such file or directory/\x1b[0;31m\1\x1b[0m/Ig' \
+        -e 's/(no such file or directory)/\x1b[0;31m\1\x1b[0m/Ig' \
         -e 's/(memory)/\x1b[0;33m\1\x1b[0m/Ig'
 }
 
+# Show progress bar to FD 3 (terminal)
 show_progress() {
     local count=$1
     local total=$2
@@ -41,6 +43,7 @@ show_progress() {
     printf "\rProcessing [%s]: %3d%% (%d/%d)" "$bar" "$progress" "$count" "$total" >&3
 }
 
+# Process a single logfile
 process_logfile() {
     local logfile="$1"
     local dir
@@ -53,37 +56,37 @@ process_logfile() {
     grep -i 'fail' "$logfile" > "$fail_tmp"
 
     if [[ -s "$error_tmp" || -s "$fail_tmp" ]]; then
-        echo -e "\n\nIn directory: $dir" >&3
-        echo -e " Log file: $logfile" >&3
-
-        if [[ -s "$error_tmp" ]]; then
-            echo -e " Matches for 'error':" >&3
-            GREP_COLOR='0;32' grep --color=always -i 'error' "$error_tmp" | highlight_special_phrases
-        fi
-
-        if [[ -s "$fail_tmp" ]]; then
-            echo -e " Matches for 'fail':" >&3
-            GREP_COLOR='0;33' grep --color=always -i 'fail' "$fail_tmp" | highlight_special_phrases
-        fi
-
         {
-            [[ -s "$error_tmp" ]] && cat "$error_tmp"
-            [[ -s "$fail_tmp" ]] && cat "$fail_tmp"
+            echo -e "\n\nIn directory: $dir"
+            echo -e " Log file: $logfile"
+
+            if [[ -s "$error_tmp" ]]; then
+                echo -e " Matches for 'error':"
+                GREP_COLOR='0;32' grep --color=always -i 'error' "$error_tmp" | highlight_special_phrases
+            fi
+
+            if [[ -s "$fail_tmp" ]]; then
+                echo -e " Matches for 'fail':"
+                GREP_COLOR='0;33' grep --color=always -i 'fail' "$fail_tmp" | highlight_special_phrases
+            fi
         } >> "$OUTPUT_FILE"
     fi
 
     rm -f "$error_tmp" "$fail_tmp"
 }
 
+# Loop through log files with progress
 total=${#log_files[@]}
 count=0
 for logfile in "${log_files[@]}"; do
     ((count++))
     show_progress "$count" "$total"
-    process_logfile "$logfile"
+    process_logfile "$logfile" >> "$OUTPUT_FILE" 2>&1
 done
 
 echo -e "\n\nDone. Output saved to $OUTPUT_FILE" >&3
+
+
 
 
 
