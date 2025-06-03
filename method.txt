@@ -1,3 +1,0 @@
-Are you open to using ResNet (a pretrained CNN) and fine-tuning it to identify which validation images are not in the training set? This will help us compare the semantic content of images, even if they differ at the pixel level.
-
-We can fine-tune on CPU using a few epochs with input and target data (before vs. after simulation). Then, by computing cosine similarity between embedding vectors, we can compare after-simulation validation images with before-simulation training images.
