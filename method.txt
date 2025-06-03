@@ -5,7 +5,7 @@ OUTPUT_FILE="output.txt"
 
 # Save original stdout to FD 3 for progress bar only
 exec 3>&1
-exec 1>>"$OUTPUT_FILE" 2>&1
+exec 1>>"$OUTPUT_FILE" 2>&1  # All standard output and error go to output.txt
 
 log_files=()
 log_count=0
@@ -13,7 +13,7 @@ log_count=0
 # Enable case-insensitive globbing
 shopt -s nocaseglob
 
-# Find all .log files starting with leaf or host
+# Find .log files starting with leaf or host
 subdirs=( $(find . -type d -print0 | xargs -0) )
 for dir in "${subdirs[@]}"; do
     for logfile in "$dir"/leaf*.log "$dir"/host*.log; do
@@ -23,14 +23,14 @@ for dir in "${subdirs[@]}"; do
     done
 done
 
-# Function to add color to specific phrases
+# Highlight special phrases using ANSI colors
 highlight_special_phrases() {
     sed -E \
         -e 's/(no such file or directory)/\x1b[0;31m\1\x1b[0m/Ig' \
         -e 's/(memory)/\x1b[0;33m\1\x1b[0m/Ig'
 }
 
-# Show progress bar to terminal (FD 3 only)
+# Show progress bar to terminal only (FD 3)
 show_progress() {
     local count=$1
     local total=$2
@@ -51,7 +51,8 @@ process_logfile() {
     error_tmp=$(mktemp)
     fail_tmp=$(mktemp)
 
-    awk '(!IGNORECASE=1) /error/ && $0 !~ /error.*\/.*\// {print}' "$logfile" > "$error_tmp"
+    # Case-insensitive error match with awk, skip if path included
+    awk '{ if (tolower($0) ~ /error/ && $0 !~ /error.*\/.*\//) print }' "$logfile" > "$error_tmp"
     grep -i 'fail' "$logfile" > "$fail_tmp"
 
     if [[ -s "$error_tmp" || -s "$fail_tmp" ]]; then
@@ -72,7 +73,7 @@ process_logfile() {
     rm -f "$error_tmp" "$fail_tmp"
 }
 
-# Main loop with progress bar
+# Loop through all log files with progress
 total=${#log_files[@]}
 count=0
 for logfile in "${log_files[@]}"; do
@@ -81,8 +82,8 @@ for logfile in "${log_files[@]}"; do
     process_logfile "$logfile"
 done
 
+# Final message
 echo -e "\n\nDone. Output saved to $OUTPUT_FILE" >&3
-
 
 -------
 
