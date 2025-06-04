@@ -1,3 +1,8 @@
 
-"Is the performance of the same neural network affected by different illumination sources?"
+
+"Is the current dataset sufficient for accurate predictions, or should we move validation data to the training set and/or remove redundant data?"
+
+Suggested Project Title:
+
+"Optimizing Dataset Quality for Improved Prediction Accuracy"
 
