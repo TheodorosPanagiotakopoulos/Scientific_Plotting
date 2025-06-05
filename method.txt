@@ -123,3 +123,128 @@ def data_pipeline(path_to_last_childjob, path_to_rigAI):
 if __name__ == "__main__":
 	path = "/nfs/PEG/FEM/tpanagio/newron/tutorial_newron/childjobs/modelchk_84080_NC"
 	df_AI_CD = get_gauge_data(path, verbose=True)
+
+---------
+
+import os
+import jobresult
+import FEMPlusJob
+import numpy as np
+import pandas as pd
+
+#	Gets a list of all callable methods from a class, excluding special methods.
+#	cls: The class to inspect.
+#	Returns:
+#	A list of method names that are callable and do not start with '__'.
+def get_methods(cls):
+	methods = [method for method in dir(cls) if callable(getattr(cls, method)) and not method.startswith("__")]
+	return methods
+
+#	Extracts the column names from a DataFrame.
+#	dataframe: The DataFrame from which to extract columns.
+#	verbose: If True, prints the columns.
+#	Returns:
+#	A list of column names.
+def get_columns(dataframe, verbose=False):
+	columns = list(i for i in dataframe.columns)
+	if verbose:
+		print(columns)
+	return columns
+
+#	Retrieves the process ID from a job result object.
+#	result: The job result object.
+#	verbose: If True, prints the process ID.
+#	Returns:
+#	The process ID as an integer.
+def get_process_id(result, verbose=False):
+	table_id = result.getProcessTable()
+	if verbose:
+		print(table_id.data[0][0])
+	return int(table_id.data[0][0])
+
+#	Lists all subdirectories within a given path.
+#	path: The directory path to search.
+#	verbose: If True, prints the subdirectory list.
+#	Returns:
+#	A list of subdirectory names.
+def get_subdirectories(path, verbose=False):
+	subdirectories = list()
+	for item in os.listdir(path):
+		if os.path.isdir(os.path.join(path, item)):
+			subdirectories.append(item)
+	if verbose:
+		print("subdirectories are:", subdirectories)
+	return subdirectories
+
+#	Drops all rows or columns except the ones specified.
+#	df: The DataFrame to process.
+#	rows_columns_names_to_keep: List of names to keep.
+#	row_or_column: 0 to drop rows, 1 to drop columns.
+#	verbose: If True, prints what was dropped.
+#	Returns:
+#	A modified DataFrame with only the specified items kept.
+def drop_all_except_one(df, rows_columns_names_to_keep, row_or_column, verbose=False):
+	to_drop = df.columns.difference(rows_columns_names_to_keep)
+	df = df.drop(to_drop, axis=row_or_column)
+	if verbose:
+		print("to_drop =", to_drop)
+	return df
+
+#	Concatenates a list of DataFrames along a given axis.
+#	dataframes_to_merge: The list of DataFrames to concatenate.
+#	axis: 0 for vertical, 1 for horizontal merge.
+#	verbose: If True, prints the resulting DataFrame.
+#	Returns:
+#	The concatenated DataFrame.
+def concat_dataframes(dataframes_to_merge, axis, verbose=False):
+	result = pd.concat([i for i in dataframes_to_merge], axis=axis)
+	if verbose:
+		print(result)
+	return result
+
+#	Extracts AI_CD data from a job path using all available conditions.
+#	path_to_job: Path to the job directory.
+#	verbose: If True, prints the intermediate results and final DataFrame.
+#	Returns:
+#	The final merged DataFrame containing AI_CD values for all conditions.
+def get_gauge_data(path_to_job, verbose=False):
+	result = jobresult.JobResult(path_to_job, readOnly=True)
+	process_id = get_process_id(result, verbose=False)
+	dataframes_conditions = {}
+
+	for condition in range(0, 9):
+		table = result.getGaugeTableWithResult(process_id, condition)
+		df = pd.DataFrame(np.array(table.data), columns=list(table.header))
+		df_new = drop_all_except_one(df, ["AI_CD"], row_or_column=1)
+		dataframes_conditions["df_" + str(condition)] = df_new
+
+	dataframes_conditions_keys = [i for i in dataframes_conditions.keys()]
+	df_final = concat_dataframes([dataframes_conditions[i] for i in dataframes_conditions_keys], axis=0)
+	df_final = df_final.reset_index()
+	df_final.index = df_final.index + 1
+
+	if verbose:
+		print("Dictionary hashmap for all conditions, keys:", dataframes_conditions.keys())
+		print("The total gauges from all conditions are:", len(df_final))
+		print(df_final.to_string())
+
+	columns_final = get_columns(df_final, verbose=verbose)
+	print("Condition " + str(condition) + " gauges:", len(df_final))
+
+	return df_final
+
+#	Runs gauge data extraction across all subdirectories in a given path.
+#	path_to_rigAI: Path where subdirectories containing AI_CD data exist.
+def collect_Rig_AI_CD(path_to_rigAI):
+	get_subdirectories(path_to_rigAI, verbose=True)
+
+#	Runs the full data pipeline for AI_CD gauge extraction.
+#	path_to_last_childjob: Path to the last child job directory.
+#	path_to_rigAI: Path to the rig AI data (unused here but passed).
+def data_pipeline(path_to_last_childjob, path_to_rigAI):
+	df_AI_CD = get_gauge_data(path_to_last_childjob, verbose=True)
+
+#	Script entry point for manual testing or execution.
+if __name__ == "__main__":
+	path = "/nfs/PEG/FEM/tpanagio/newron/tutorial_newron/childjobs/modelchk_84080_NC"
+	df_AI_CD = get_gauge_data(path, verbose=True)
