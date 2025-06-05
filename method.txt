@@ -126,6 +126,8 @@ if __name__ == "__main__":
 
 ---------
 
+----not opimal---
+
 import os
 import jobresult
 import FEMPlusJob
