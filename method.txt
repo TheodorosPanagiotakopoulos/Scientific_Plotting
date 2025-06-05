@@ -250,3 +250,25 @@ def data_pipeline(path_to_last_childjob, path_to_rigAI):
 if __name__ == "__main__":
 	path = "/nfs/PEG/FEM/tpanagio/newron/tutorial_newron/childjobs/modelchk_84080_NC"
 	df_AI_CD = get_gauge_data(path, verbose=True)
+
+
+
+
+--+
+
+import pandas as pd
+
+# Sample structure
+# df_small = pd.DataFrame({'gauge': [...], 'AI_CD': [...]})
+# df_large = pd.DataFrame({'gauge': [...], 'AI_CD': [...]})
+
+# Merge to get the AI_CD from large df
+df_small = df_small.merge(
+    df_large[['gauge', 'AI_CD']],
+    on='gauge',
+    how='left',
+    suffixes=('', '_updated')
+)
+
+# Rename the merged AI_CD column
+df_small.rename(columns={'AI_CD_updated': 'updated'}, inplace=True)
