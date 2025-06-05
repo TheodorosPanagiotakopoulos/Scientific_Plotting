@@ -1,27 +1,17 @@
-# Identify the last column
-last_col = df.columns[-1]
+import pandas as pd
 
-# Get row with max value in the last column
-max_row = df.loc[df[last_col].idxmax()]
+# Assuming df1 and df2 are already defined
 
-# Get row with min value in the last column
-min_row = df.loc[df[last_col].idxmin()]
+# Filter df2 to keep only gauges that are in df1
+df2_filtered = df2[df2['gauge'].isin(df1['gauge'])].copy()
 
-# Print max value info
-print("Max Value Info:")
-print(last_col + ":", max_row[last_col])
-print("gauge:", max_row["gauge"])
-print("Model_CD:", max_row["Model_CD"])
-print("RigModel_CD:", max_row["RigModel_CD"])
-print("Rig_ILS:", max_row["Rig_ILS"])
-print("ILS:", max_row["ILS"])
-print()
+# Rename columns in df2
+df2_filtered = df2_filtered.rename(columns={
+    'Model_CD': 'RigModel_CD',
+    'ILS': 'Rig_ILS'
+})
 
-# Print min value info
-print("Min Value Info:")
-print(last_col + ":", min_row[last_col])
-print("gauge:", min_row["gauge"])
-print("Model_CD:", min_row["Model_CD"])
-print("RigModel_CD:", min_row["RigModel_CD"])
-print("Rig_ILS:", min_row["Rig_ILS"])
-print("ILS:", min_row["ILS"])
+# Merge df1 with df2_filtered on 'gauge'
+merged_df = pd.merge(df1, df2_filtered, on='gauge', how='left')
+
+# merged_df now contains df1 data, and appended df2 (filtered) data with renamed columns
