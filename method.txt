@@ -1,8 +1,18 @@
+# About Me
 
+I'm a Software Engineering Intern in the **Product Engineering** group.  
+Working under **[Manager’s Full Name]**, I contribute to internal tools, maintain consistency across merge requests, and follow team workflows for issue tracking, code reviews, and documentation.
 
-"Is the current dataset sufficient for accurate predictions, or should we move validation data to the training set and/or remove redundant data?"
+## My Focus
+- Writing clean, testable code
+- Following GitLab flow (issues → branches → MRs)
+- Regular commits with meaningful messages
+- Participating in team rituals (standups, retros, demos)
 
-Suggested Project Title:
+## Manager
+**Name:** [Manager’s Full Name]  
+**Role:** Engineering Manager, Product Engineering  
+**GitLab:** [Internal GitLab username or profile link, if applicable]
 
-"Optimizing Dataset Quality for Improved Prediction Accuracy"
-
+## Notes
+This file serves to document intern presence, contribution consistency, and alignment with Product Engineering practices.
