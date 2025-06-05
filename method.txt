@@ -19,3 +19,16 @@ df_small = df_small.merge(
 df_small.rename(columns={'AI_CD_updated': 'updated'}, inplace=True)
 
 # Now df_small contains: ['gauge', 'AI_CD', 'updated']
+
+
+
+-----
+
+# Step 0: Check for duplicates in df_large
+duplicates = df_large[df_large.duplicated(subset='gauge', keep=False)]
+
+if not duplicates.empty:
+    print("Duplicate 'gauge' values found in df_large:")
+    print(duplicates['gauge'].unique())
+else:
+    print("No duplicate 'gauge' values found in df_large.")
