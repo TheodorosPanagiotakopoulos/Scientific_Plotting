@@ -1,30 +1,24 @@
-import pandas as pd
+# Find row with max value
+max_row = df.loc[df["column_name"].idxmax()]
 
-# Assume df_small and df_large already exist
+# Find row with min value
+min_row = df.loc[df["column_name"].idxmin()]
 
-# Step 0: Check for problematic duplicates that match df_small
-dupes_in_large = df_large[df_large.duplicated(subset='gauge', keep=False)]
-common_gauges = set(df_small['gauge']).intersection(dupes_in_large['gauge'])
+# Print max value info
+print("Max Value Info:")
+print("Value:", max_row["column_name"])
+print("Gauge:", max_row["gauge"])
+print("Model_CD:", max_row["Model_CD"])
+print("RigModel_CD:", max_row["RigModel_CD"])
+print("Rig_ILS:", max_row["Rig_ILS"])
+print("ILS:", max_row["ILS"])
+print()
 
-if common_gauges:
-    print("Warning: These 'gauge' values appear multiple times in df_large and exist in df_small:")
-    for g in common_gauges:
-        matches = df_large[df_large['gauge'] == g]
-        print(f"\nGauge: {g}")
-        print(matches[['gauge', 'AI_CD']])
-else:
-    print("No duplicate gauges in df_large match gauges in df_small.")
-
-# Step 1: Drop duplicates in df_large to avoid row explosion
-df_large_unique = df_large.drop_duplicates(subset='gauge', keep='first')
-
-# Step 2: Merge as before
-df_small = df_small.merge(
-    df_large_unique[['gauge', 'AI_CD']],
-    on='gauge',
-    how='left',
-    suffixes=('', '_updated')
-)
-
-# Step 3: Rename column
-df_small.rename(columns={'AI_CD_updated': 'updated'}, inplace=True)
+# Print min value info
+print("Min Value Info:")
+print("Value:", min_row["column_name"])
+print("Gauge:", min_row["gauge"])
+print("Model_CD:", min_row["Model_CD"])
+print("RigModel_CD:", min_row["RigModel_CD"])
+print("Rig_ILS:", min_row["Rig_ILS"])
+print("ILS:", min_row["ILS"])
