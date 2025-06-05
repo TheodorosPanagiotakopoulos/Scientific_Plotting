@@ -1,13 +1,24 @@
 import pandas as pd
 
-# Example setup (replace this with your actual data)
-# df_small = pd.DataFrame({'gauge': [...], 'AI_CD': [...]})
-# df_large = pd.DataFrame({'gauge': [...], 'AI_CD': [...]})
+# Assume df_small and df_large already exist
 
-# Step 1: Drop duplicates in df_large to prevent row expansion
-df_large_unique = df_large.drop_duplicates(subset='gauge')
+# Step 0: Check for problematic duplicates that match df_small
+dupes_in_large = df_large[df_large.duplicated(subset='gauge', keep=False)]
+common_gauges = set(df_small['gauge']).intersection(dupes_in_large['gauge'])
 
-# Step 2: Merge to add AI_CD from df_large into df_small as 'updated'
+if common_gauges:
+    print("Warning: These 'gauge' values appear multiple times in df_large and exist in df_small:")
+    for g in common_gauges:
+        matches = df_large[df_large['gauge'] == g]
+        print(f"\nGauge: {g}")
+        print(matches[['gauge', 'AI_CD']])
+else:
+    print("No duplicate gauges in df_large match gauges in df_small.")
+
+# Step 1: Drop duplicates in df_large to avoid row explosion
+df_large_unique = df_large.drop_duplicates(subset='gauge', keep='first')
+
+# Step 2: Merge as before
 df_small = df_small.merge(
     df_large_unique[['gauge', 'AI_CD']],
     on='gauge',
@@ -15,52 +26,5 @@ df_small = df_small.merge(
     suffixes=('', '_updated')
 )
 
-# Step 3: Rename the new column
-df_small.rename(columns={'AI_CD_updated': 'updated'}, inplace=True)
-
-# Now df_small contains: ['gauge', 'AI_CD', 'updated']
-
-
-
------
-
-# Step 0: Check for duplicates in df_large
-duplicates = df_large[df_large.duplicated(subset='gauge', keep=False)]
-
-if not duplicates.empty:
-    print("Duplicate 'gauge' values found in df_large:")
-    print(duplicates['gauge'].unique())
-else:
-    print("No duplicate 'gauge' values found in df_large.")
-
-
----
-
-import pandas as pd
-
-# Example setup (replace these with your actual data)
-# df_small = pd.DataFrame(...)
-# df_large = pd.DataFrame(...)
-
-# Step 0: Find duplicates in df_large based on 'gauge'
-duplicates = df_large[df_large.duplicated(subset='gauge', keep=False)]
-
-if not duplicates.empty:
-    print("Duplicate 'gauge' values found in df_large with their AI_CD values:")
-    print(duplicates[['gauge', 'AI_CD']].sort_values(by='gauge'))
-else:
-    print("No duplicate 'gauge' values found in df_large.")
-
-# Step 1: Remove duplicates for a clean merge
-df_large_unique = df_large.drop_duplicates(subset='gauge')
-
-# Step 2: Merge
-df_small = df_small.merge(
-    df_large_unique[['gauge', 'AI_CD']],
-    on='gauge',
-    how='left',
-    suffixes=('', '_updated')
-)
-
-# Step 3: Rename the merged column
+# Step 3: Rename column
 df_small.rename(columns={'AI_CD_updated': 'updated'}, inplace=True)
