@@ -1,13 +1,16 @@
-# Find row with max value
-max_row = df.loc[df["column_name"].idxmax()]
+# Identify the last column
+last_col = df.columns[-1]
 
-# Find row with min value
-min_row = df.loc[df["column_name"].idxmin()]
+# Get row with max value in the last column
+max_row = df.loc[df[last_col].idxmax()]
+
+# Get row with min value in the last column
+min_row = df.loc[df[last_col].idxmin()]
 
 # Print max value info
 print("Max Value Info:")
-print("Value:", max_row["column_name"])
-print("Gauge:", max_row["gauge"])
+print(last_col + ":", max_row[last_col])
+print("gauge:", max_row["gauge"])
 print("Model_CD:", max_row["Model_CD"])
 print("RigModel_CD:", max_row["RigModel_CD"])
 print("Rig_ILS:", max_row["Rig_ILS"])
@@ -16,8 +19,8 @@ print()
 
 # Print min value info
 print("Min Value Info:")
-print("Value:", min_row["column_name"])
-print("Gauge:", min_row["gauge"])
+print(last_col + ":", min_row[last_col])
+print("gauge:", min_row["gauge"])
 print("Model_CD:", min_row["Model_CD"])
 print("RigModel_CD:", min_row["RigModel_CD"])
 print("Rig_ILS:", min_row["Rig_ILS"])
