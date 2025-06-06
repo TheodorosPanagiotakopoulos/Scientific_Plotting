@@ -1,11 +1,21 @@
-import pandas as pd
+import matplotlib.pyplot as plt
 
-# Example DataFrame
-df = pd.DataFrame({
-    'text': ['apple pie', 'banana bread', 'cherry tart', 'apple crumble']
-})
+# Assuming your dictionary is called `df_dict`
+# and looks like: {'df1': df1, 'df2': df2, ...}
 
-# Drop rows if 'apple' is not in the 'text' column
-df = df[df['text'].str.contains('apple', case=False, na=False)]
+data_to_plot = []
+labels = []
 
-print(df)
+for key, df in df_dict.items():
+    last_column_data = df.iloc[:, -1]  # Select the last column
+    data_to_plot.append(last_column_data.dropna())  # dropna to clean missing values
+    labels.append(key)
+
+# Create the boxplot
+plt.figure(figsize=(10, 6))
+plt.boxplot(data_to_plot, labels=labels)
+plt.title("Boxplot of the Last Column of Each DataFrame")
+plt.ylabel("Values")
+plt.xlabel("DataFrames")
+plt.grid(True)
+plt.show()
