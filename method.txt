@@ -1,17 +1,7 @@
-import pandas as pd
-
-# Assuming df1 and df2 are already defined
-
-# Filter df2 to keep only gauges that are in df1
-df2_filtered = df2[df2['gauge'].isin(df1['gauge'])].copy()
-
-# Rename columns in df2
-df2_filtered = df2_filtered.rename(columns={
-    'Model_CD': 'RigModel_CD',
-    'ILS': 'Rig_ILS'
-})
-
-# Merge df1 with df2_filtered on 'gauge'
-merged_df = pd.merge(df1, df2_filtered, on='gauge', how='left')
-
-# merged_df now contains df1 data, and appended df2 (filtered) data with renamed columns
+def filter_df(df):
+    filtered_df = df[
+        (df["RIG_ILS"] >= 60) &
+        (df["RIG_Model_CD"] >= 8) &
+        (df["RIG_Model_CD"] <= 9999)
+    ]
+    return filtered_df
