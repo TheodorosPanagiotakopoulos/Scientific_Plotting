@@ -1,7 +1,14 @@
 def filter_df(df):
-    filtered_df = df[
-        (df["RIG_ILS"] >= 60) &
-        (df["RIG_Model_CD"] >= 8) &
-        (df["RIG_Model_CD"] <= 9999)
-    ]
-    return filtered_df
+    # Clean column names to be safe
+    df = df.copy()
+    df.columns = df.columns.str.strip()
+
+    # Apply filters only if columns exist
+    if "RIG_ILS" in df.columns and "RIG_Model_CD" in df.columns:
+        return df[
+            (df["RIG_ILS"] >= 60) &
+            (df["RIG_Model_CD"] >= 8) &
+            (df["RIG_Model_CD"] <= 9999)
+        ]
+    else:
+        raise KeyError("Expected columns 'RIG_ILS' and 'RIG_Model_CD' not found.")
