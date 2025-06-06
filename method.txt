@@ -1,14 +1,45 @@
-def filter_df(df):
-    # Clean column names to be safe
-    df = df.copy()
-    df.columns = df.columns.str.strip()
+def drop_except(df, names_to_keep, axis = 0, verbose = False ):
+    #Drops all rows or columns except the ones specified.
+    #df: The DataFrame to process.
+    #names_to_keep: List of column/row names to keep.
+    #axis: 0 to drop rows, 1 to drop columns.
+    #verbose: If True, prints what was dropped.
+    to_drop = df.index.difference(names_to_keep) if axis == 0 else df.columns.difference(names_to_keep)
+    df.drop(to_drop, axis = axis, inplace = True)
+    if verbose:
+        print(to_drop)
 
-    # Apply filters only if columns exist
-    if "RIG_ILS" in df.columns and "RIG_Model_CD" in df.columns:
-        return df[
-            (df["RIG_ILS"] >= 60) &
-            (df["RIG_Model_CD"] >= 8) &
-            (df["RIG_Model_CD"] <= 9999)
-        ]
-    else:
-        raise KeyError("Expected columns 'RIG_ILS' and 'RIG_Model_CD' not found.")
+
+def concat_dataframes(dataframes, axis = 1, verbose = False):
+    #Concatenates a list of DataFrames along a given axis.
+    #dataframes: The list of DataFrames to concatenate.
+    #axis: 0 for vertical merge, 1 for horizontal merge.
+    #verbose: If True, print the resulting DataFrame.
+    result = pd.concat(dataframes, axis = axis)
+    if verbose:
+        print(result)
+    return result
+
+
+def drop_duplicates(dataframe, verbose = False ):
+    #Removes duplicate gauge values from a DataFrame.
+    #dataframe: DataFrame to clean.
+    #verbose: If True, print out duplicates found and removed.
+    duplicates = dataframe.duplicated(subset = ["gauge"], keep = False )
+    if verbose:
+        if duplicates.empty:
+            print("No duplicate gauge values found in dataframe.")
+        else:
+            print("Duplicate gauge values found in the dataframe:")
+            print(duplicates[["gauge", "Model_CD"]].sort_values(by = "gauge"))
+    dataframe_unique = dataframe.drop_duplicates(subset = ["gauge"])
+    return dataframe_unique
+
+
+def apply_filters(df):
+    #Applies filter conditions to the DataFrame.
+    #df: The DataFrame to filter.
+    #Returns: A filtered DataFrame based on conditions on 'Rig_TLS', 'RigModel_CD', 'Model_CD', and 'ILS'.
+    df_filtered = df[ (df["Rig_TLS"] >= 60) & (df["RigModel_CD"] >= 9999) & 
+                      (df["Model_CD"] <= 9988) & (df["ILS"] >= 50) ]
+    return df_filtered
