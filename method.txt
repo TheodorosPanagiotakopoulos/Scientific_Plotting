@@ -1,0 +1,11 @@
+import pandas as pd
+
+# Example DataFrame
+df = pd.DataFrame({
+    'text': ['apple pie', 'banana bread', 'cherry tart', 'apple crumble']
+})
+
+# Drop rows if 'apple' is not in the 'text' column
+df = df[df['text'].str.contains('apple', case=False, na=False)]
+
+print(df)
