@@ -11,16 +11,18 @@ def split_gauges_by_slit(df):
 
 		if match:
 			num = match.group(1)
-			key = f"df_{num}" if not num.startswith('-') else f"df_n_{num[1:]}"
+			if num.startswith('-'):
+				key = 'df_n_' + num[1:]
+			else:
+				key = 'df_' + num
 		else:
-			key = "df_no_slit"
+			key = 'df_no_slit'
 
 		if key not in result:
 			result[key] = []
 
 		result[key].append(row)
 
-	# Convert lists of rows to DataFrames
 	for key in result:
 		result[key] = pd.DataFrame(result[key])
 
