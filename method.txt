@@ -1,21 +1,25 @@
 import matplotlib.pyplot as plt
 
-# Assuming your dictionary is called `df_dict`
-# and looks like: {'df1': df1, 'df2': df2, ...}
-
 data_to_plot = []
 labels = []
 
-for key, df in df_dict.items():
-    last_column_data = df.iloc[:, -1]  # Select the last column
-    data_to_plot.append(last_column_data.dropna())  # dropna to clean missing values
-    labels.append(key)
+# Extract the last column from each DataFrame
+for name, df in df_dict.items():
+    if not df.empty:
+        last_col = df.iloc[:, -1].dropna()
+        data_to_plot.append(last_col)
+        labels.append(name)
 
-# Create the boxplot
-plt.figure(figsize=(10, 6))
-plt.boxplot(data_to_plot, labels=labels)
-plt.title("Boxplot of the Last Column of Each DataFrame")
+# Set custom positions to increase spacing
+spacing = 2  # change this to control spacing
+positions = [i * spacing for i in range(len(data_to_plot))]
+
+plt.figure(figsize=(spacing * len(data_to_plot), 6))
+plt.boxplot(data_to_plot, positions=positions)
+plt.xticks(positions, labels)  # set x-tick labels at custom positions
+plt.title("Boxplots of Last Columns from Each DataFrame")
 plt.ylabel("Values")
 plt.xlabel("DataFrames")
 plt.grid(True)
+plt.tight_layout()
 plt.show()
