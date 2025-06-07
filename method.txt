@@ -1,19 +1,27 @@
 import pandas as pd
 import numpy as np
 
-def process_column(df, column_name):
+def process_column(df, column_name, result_column='result'):
     """
     Squares each element of the specified column, divides the sum by the number of elements,
-    and returns the square root of the result.
+    and assigns the square root of the result to a new column with all other rows as NaN.
 
     Parameters:
     df (pd.DataFrame): The input DataFrame.
     column_name (str): The name of the column to process.
+    result_column (str): The name of the new column to store the result.
 
     Returns:
-    float: The final computed value.
+    pd.DataFrame: The modified DataFrame with the new result column.
     """
     squared = df[column_name] ** 2
     mean_squared = squared.sum() / len(squared)
     result = np.sqrt(mean_squared)
-    return result
+
+    # Create a new column filled with NaN
+    df[result_column] = np.nan
+
+    # Assign result to the first row only
+    df.at[0, result_column] = result
+
+    return df
