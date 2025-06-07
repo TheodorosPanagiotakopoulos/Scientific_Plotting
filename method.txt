@@ -1,1 +1,4 @@
-print("group: ", str(df["group"][i]) + " " * (len("titlline_line") - len(str(df["group"][i]))) , "RMSE: ", round(df["RMSE"][i], 2))
+def get_longest_element(lst):
+    if not lst:
+        return None  # or raise ValueError("Empty list provided")
+    return max(lst, key=len)
