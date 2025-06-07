@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+import numpy as np
 
 def split_gauges_by_slit(final_dataframe):
 	dataframes_dictionary = {}
@@ -24,7 +25,18 @@ def split_gauges_by_slit(final_dataframe):
 		dataframes_dictionary[key].append(idx)
 
 	for key in dataframes_dictionary:
-		dataframes_dictionary[key] = final_dataframe.loc[dataframes_dictionary[key]].reset_index(drop=True)
-		dataframes_dictionary[key].index += 1  # Reindex starting from 1
+		df_part = final_dataframe.loc[dataframes_dictionary[key]].reset_index(drop=True)
+		df_part.index += 1  # Reindex starting from 1
+
+		# Calculate RMSE from last column
+		last_col = df_part.columns[-1]
+		squared = df_part[last_col] ** 2
+		rmse = np.sqrt(squared.sum() / len(df_part))
+
+		# Add RMSE column
+		rmse_column = [rmse] + [np.nan] * (len(df_part) - 1)
+		df_part['rmse'] = rmse_column
+
+		dataframes_dictionary[key] = df_part
 
 	return dataframes_dictionary
