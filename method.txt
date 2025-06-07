@@ -1,27 +1,10 @@
-import pandas as pd
-import numpy as np
-
-def process_column(df, column_name, result_column='result'):
-    """
-    Squares each element of the specified column, divides the sum by the number of elements,
-    and assigns the square root of the result to a new column with all other rows as NaN.
-
-    Parameters:
-    df (pd.DataFrame): The input DataFrame.
-    column_name (str): The name of the column to process.
-    result_column (str): The name of the new column to store the result.
-
-    Returns:
-    pd.DataFrame: The modified DataFrame with the new result column.
-    """
-    squared = df[column_name] ** 2
-    mean_squared = squared.sum() / len(squared)
-    result = np.sqrt(mean_squared)
-
-    # Create a new column filled with NaN
-    df[result_column] = np.nan
-
-    # Assign result to the first row only
-    df.at[0, result_column] = result
-
-    return df
+def drop_duplicates(dataframe, verbose=False):
+    if verbose:
+        duplicates = dataframe[dataframe.duplicated(subset="gauge", keep=False)]
+        if not duplicates.empty:
+            print("Duplicate gauge values found in the dataframe with their Model_CD values:")
+            print(duplicates[["gauge", "Model_CD"]].sort_values(by="gauge"))
+        else:
+            print("No duplicate gauge values found in the dataframe")
+    dataframe_unique = dataframe.drop_duplicates(subset="gauge")
+    return dataframe_unique
