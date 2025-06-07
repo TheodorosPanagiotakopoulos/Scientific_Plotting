@@ -1,42 +1,14 @@
-import pandas as pd
-import re
-import numpy as np
+def get_RMSE_per_slit(dataframes_dictionary):
+	pattern = re.compile(r'slit_-?\d+(?:\.\d+)?')
 
-def split_gauges_by_slit(final_dataframe):
-	dataframes_dictionary = {}
-	pattern = re.compile(r'slit_(-?\d+(?:\.\d+)?)')
-
-	for idx, row in final_dataframe.iterrows():
-		gauge = row['gauge']
-		match = pattern.search(gauge)
-
+	for key in dataframes_dictionary.keys():
+		df = dataframes_dictionary[key]
+		gauge_val = df["gauge"].iloc[1]
+		match = pattern.search(gauge_val)
 		if match:
-			num = match.group(1)
-			if num.startswith('-'):
-				key = 'df_n_' + num[1:]
-			else:
-				key = 'df_' + num
+			slit_label = match.group(0)
 		else:
-			key = 'df_no_slit'
+			slit_label = "no slit"
 
-		if key not in dataframes_dictionary:
-			dataframes_dictionary[key] = []
-
-		dataframes_dictionary[key].append(idx)
-
-	for key in dataframes_dictionary:
-		df_part = final_dataframe.loc[dataframes_dictionary[key]].reset_index(drop=True)
-		df_part.index += 1  # Reindex starting from 1
-
-		# Calculate RMSE from last column
-		last_col = df_part.columns[-1]
-		squared = df_part[last_col] ** 2
-		rmse = np.sqrt(squared.sum() / len(df_part))
-
-		# Add RMSE column
-		rmse_column = [rmse] + [np.nan] * (len(df_part) - 1)
-		df_part['rmse'] = rmse_column
-
-		dataframes_dictionary[key] = df_part
-
-	return dataframes_dictionary
+		rmse_value = round(df["rmse"].iloc[1], 2)
+		print("slit: " + slit_label + "\tRMSE: " + str(rmse_value))
