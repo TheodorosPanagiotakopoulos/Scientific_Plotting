@@ -1,35 +1,15 @@
-def drop_duplicates(dataframe, verbose=False):
-    if verbose:
-        duplicates = dataframe[dataframe.duplicated(subset="gauge", keep=False)]
-        if not duplicates.empty:
-            print("Duplicate gauge values found in the dataframe with their Model_CD values:")
-            print(duplicates[["gauge", "Model_CD"]].sort_values(by="gauge"))
-        else:
-            print("No duplicate gauge values found in the dataframe")
-    dataframe_unique = dataframe.drop_duplicates(subset="gauge")
-    return dataframe_unique
+import pandas as pd
+import numpy as np
 
+# Example DataFrame
+df = pd.DataFrame({
+    'column': [np.nan, np.nan, 42, np.nan, np.nan]
+})
 
-def combine_df_Model_CD_and_df_RigModel_CD(df_Model_CD, df_RIG_Model_CD, verbose=False):
-    df_RIG_Model_CD_filtered = df_RIG_Model_CD[df_RIG_Model_CD["gauge"].isin(df_Model_CD["gauge"])].copy()
-    df_combined = pd.merge(df_Model_CD, df_RIG_Model_CD_filtered, on="gauge", how="left")
-    groups_to_drop = ["Anchor"]
-    df_combined = df_combined[~df_combined["group"].isin(groups_to_drop)]
+# Get the non-NaN value
+non_nan_value = df['column'].dropna().iloc[0]  # assumes only one non-NaN value
 
-    for i in get_columns(df_combined, "group")[:5] + get_columns(df_combined)[6:]:
-        cols = get_columns(df_combined, versioned=i)
-        df_combined[cols] = df_combined[cols].astype(float)
+# Create a new column with that value at the top and the rest as NaN
+df['column'] = [non_nan_value] + [np.nan] * (len(df) - 1)
 
-    df_final = apply_filters(df_combined)
-    df_final.reset_index(drop=True, inplace=True)
-    df_final = df_final.copy()  # To avoid SettingWithCopyWarning
-    df_final.loc[:, "Model_CD - Rig_Model_CD"] = df_final["Model_CD"] - df_final["Rig_Model_CD"]
-
-    colS1 = get_columns(df_final)
-    t_result_column = "RMSE"
-    df_final = df_final[df_final["Model_CD - Rig_Model_CD"] <= 0.2].copy()  # Optional filtering
-
-    if verbose:
-        print(df_final)
-
-    return df_final
+print(df)
