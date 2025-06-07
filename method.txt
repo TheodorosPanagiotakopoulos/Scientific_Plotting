@@ -1,15 +1,19 @@
-import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 
-# Loop through each DataFrame in the dictionary
-for name, df in df_dict.items():
-    if not df.empty:
-        last_col = df.iloc[:, -1].dropna()
+def process_column(df, column_name):
+    """
+    Squares each element of the specified column, divides the sum by the number of elements,
+    and returns the square root of the result.
 
-        plt.figure(figsize=(4, 6))
-        plt.boxplot(last_col)
-        plt.title(f"Boxplot of Last Column - {name}")
-        plt.ylabel("Values")
-        plt.xlabel(name)
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
+    Parameters:
+    df (pd.DataFrame): The input DataFrame.
+    column_name (str): The name of the column to process.
+
+    Returns:
+    float: The final computed value.
+    """
+    squared = df[column_name] ** 2
+    mean_squared = squared.sum() / len(squared)
+    result = np.sqrt(mean_squared)
+    return result
