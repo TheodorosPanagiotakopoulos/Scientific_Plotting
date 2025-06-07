@@ -1,11 +1,11 @@
 import pandas as pd
 import re
 
-def split_gauges_by_slit(df):
-	result = {}
+def split_gauges_by_slit(final_dataframe):
+	dataframes_dictionary = {}
 	pattern = re.compile(r'slit_(-?\d+(?:\.\d+)?)')
 
-	for _, row in df.iterrows():
+	for idx, row in final_dataframe.iterrows():
 		gauge = row['gauge']
 		match = pattern.search(gauge)
 
@@ -18,12 +18,13 @@ def split_gauges_by_slit(df):
 		else:
 			key = 'df_no_slit'
 
-		if key not in result:
-			result[key] = []
+		if key not in dataframes_dictionary:
+			dataframes_dictionary[key] = []
 
-		result[key].append(row)
+		dataframes_dictionary[key].append(idx)
 
-	for key in result:
-		result[key] = pd.DataFrame(result[key])
+	for key in dataframes_dictionary:
+		dataframes_dictionary[key] = final_dataframe.loc[dataframes_dictionary[key]].reset_index(drop=True)
+		dataframes_dictionary[key].index += 1  # Reindex starting from 1
 
-	return result
+	return dataframes_dictionary
