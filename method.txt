@@ -1,4 +1,27 @@
-def get_longest_element(lst):
-    if not lst:
-        return None  # or raise ValueError("Empty list provided")
-    return max(lst, key=len)
+import pandas as pd
+import re
+
+def split_gauges_by_slit(df):
+	result = {}
+	pattern = re.compile(r'slit_(-?\d+(?:\.\d+)?)')
+
+	for _, row in df.iterrows():
+		gauge = row['gauge']
+		match = pattern.search(gauge)
+
+		if match:
+			num = match.group(1)
+			key = f"df_{num}" if not num.startswith('-') else f"df_n_{num[1:]}"
+		else:
+			key = "df_no_slit"
+
+		if key not in result:
+			result[key] = []
+
+		result[key].append(row)
+
+	# Convert lists of rows to DataFrames
+	for key in result:
+		result[key] = pd.DataFrame(result[key])
+
+	return result
