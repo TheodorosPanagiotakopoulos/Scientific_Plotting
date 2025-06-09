@@ -1,14 +1,3 @@
-def get_RMSE_per_slit(dataframes_dictionary):
-	pattern = re.compile(r'slit_-?\d+(?:\.\d+)?')
+https://lms.traliant.com/
 
-	for key in dataframes_dictionary.keys():
-		df = dataframes_dictionary[key]
-		gauge_val = df["gauge"].iloc[1]
-		match = pattern.search(gauge_val)
-		if match:
-			slit_label = match.group(0)
-		else:
-			slit_label = "no slit"
-
-		rmse_value = round(df["rmse"].iloc[1], 2)
-		print("slit: " + slit_label + "\tRMSE: " + str(rmse_value))
+Password@123
