@@ -1,4 +1,17 @@
 import pandas as pd
 
-# Assuming df is your original DataFrame
-new_df = df[['group', 'Rmse']].iloc[[0]]
+# List to store DataFrames
+dfs = []
+
+for i in range(5):
+    col1 = 'group_' + str(i)
+    col2 = 'Rmse_' + str(i)
+    
+    df = pd.DataFrame({
+        col1: ['A'],
+        col2: [0.1 * i]
+    })
+    dfs.append(df)
+
+# Concatenate all DataFrames horizontally
+final_df = pd.concat(dfs, axis=1)
