@@ -1,16 +1,17 @@
 import pandas as pd
+import re
 
-# Dictionary to collect DataFrames keyed by loop variable
-df_dict = {}
+final_data = {}
 
-for i in some_iterable:
-    df = produce_dataframe(i)  # Replace with your actual function
-    df_dict[i] = df
+for key, df in data_dict.items():
+    # Extract slit numbers from all gauge entries (index may start at 1)
+    slit_numbers = df['gauge'].astype(str).str.extract(r'slit_([-+]?\d*\.\d+|\d+)')[0].astype(float)
 
-# Concatenate, using the dictionary keys as new index
-final_df = pd.concat(df_dict, names=['loop_key'])  # Adds a named index level
+    # Ensure all slit numbers are the same
+    if slit_numbers.nunique() == 1:
+        slit_number = slit_numbers.iloc[0]
+        # Get Rmse at index 1 (explicit index lookup)
+        rmse_value = df.loc[1, 'Rmse']
+        final_data[slit_number] = rmse_value
 
-# If you want a flat index with loop elements as rows:
-final_df = final_df.reset_index(level=1, drop=True)  # Optional: remove inner integer index
-
-print(final_df)
+final_df = pd.DataFrame([final_data])
