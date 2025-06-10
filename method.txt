@@ -1,20 +1,16 @@
 import pandas as pd
 
-# Example structure
-df_dict = {
-    'model1': pd.DataFrame({'group': ['A', 'B', 'C'], 'Rmse': [1.1, 2.2, 3.3]}),
-    'model2': pd.DataFrame({'group': ['X', 'Y', 'Z'], 'Rmse': [0.9, 1.8, 2.7]})
-}
+# Initialize an empty list to store DataFrames
+df_list = []
 
-# Initialize dict to collect data
-row_data = {}
+for item in some_iterable:
+    # Generate or load your DataFrame in the loop
+    df = produce_dataframe(item)  # replace with your actual logic
+    
+    # Append it to the list
+    df_list.append(df)
 
-for key, df in df_dict.items():
-    group_value = df.loc[1, 'group']  # e.g., 'B' or 'Y'
-    rmse_value = df.loc[1, 'Rmse']
-    row_data[group_value] = rmse_value  # Use group value as column name
-
-# Build the final DataFrame with index 1
-final_df = pd.DataFrame(row_data, index=[1])
+# Concatenate all DataFrames vertically
+final_df = pd.concat(df_list, ignore_index=True)
 
 print(final_df)
