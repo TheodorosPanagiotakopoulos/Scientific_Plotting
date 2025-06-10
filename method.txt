@@ -1,16 +1,16 @@
 import pandas as pd
 
-# Initialize an empty list to store DataFrames
-df_list = []
+# Dictionary to collect DataFrames keyed by loop variable
+df_dict = {}
 
-for item in some_iterable:
-    # Generate or load your DataFrame in the loop
-    df = produce_dataframe(item)  # replace with your actual logic
-    
-    # Append it to the list
-    df_list.append(df)
+for i in some_iterable:
+    df = produce_dataframe(i)  # Replace with your actual function
+    df_dict[i] = df
 
-# Concatenate all DataFrames vertically
-final_df = pd.concat(df_list, ignore_index=True)
+# Concatenate, using the dictionary keys as new index
+final_df = pd.concat(df_dict, names=['loop_key'])  # Adds a named index level
+
+# If you want a flat index with loop elements as rows:
+final_df = final_df.reset_index(level=1, drop=True)  # Optional: remove inner integer index
 
 print(final_df)
