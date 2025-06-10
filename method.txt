@@ -1,19 +1,8 @@
-import matplotlib.pyplot as plt
+import pandas as pd
 
-# Example: your dictionary of DataFrames
-# data_dict = {
-#     'df1': df1,
-#     'df2': df2,
-#     ...
-# }
+# Assuming df is your DataFrame
+# Select columns that start with 'ai' (case insensitive)
+ai_cols = [col for col in df.columns if col.lower().startswith('ai')]
 
-for key, df in data_dict.items():
-    # Get the second-to-last column name
-    if df.shape[1] >= 2:
-        col_name = df.columns[-2]
-        
-        # Create a new figure for each boxplot
-        plt.figure()
-        df.boxplot(column=col_name)
-        plt.title(f'Boxplot of "{col_name}" in {key}')
-        plt.show()
+# Create new column with max values across these columns
+df['max ai'] = df[ai_cols].max(axis=1)
