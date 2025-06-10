@@ -1,17 +1,23 @@
 import pandas as pd
 
-# List to store DataFrames
-dfs = []
+# Example structure: dictionary of dataframes
+df_dict = {
+    'model1': pd.DataFrame({'group': ['A', 'B', 'C'], 'Rmse': [1.1, 2.2, 3.3], 'other': [5, 6, 7]}),
+    'model2': pd.DataFrame({'group': ['A', 'B', 'C'], 'Rmse': [1.0, 2.1, 3.4], 'other': [8, 9, 10]})
+}
 
-for i in range(5):
-    col1 = 'group_' + str(i)
-    col2 = 'Rmse_' + str(i)
-    
-    df = pd.DataFrame({
-        col1: ['A'],
-        col2: [0.1 * i]
-    })
-    dfs.append(df)
+# Initialize a dictionary to collect the data
+result_data = {}
 
-# Concatenate all DataFrames horizontally
-final_df = pd.concat(dfs, axis=1)
+for key, df in df_dict.items():
+    group_value = df.loc[1, 'group']
+    rmse_value = df.loc[1, 'Rmse']
+    result_data[key] = {group_value: rmse_value}
+
+# Convert the collected data to a DataFrame and transpose
+result_df = pd.DataFrame(result_data).T
+
+# Reset index if needed (optional)
+# result_df.reset_index(inplace=True)
+
+print(result_df)
