@@ -1,11 +1,1 @@
-import matplotlib.pyplot as plt
-
-# Sample data
-x = [1000, 2000, 3000, 4000]
-y = [10, 20, 25, 30]
-plt.plot(x, y)
-
-# Set x-axis label using LaTeX formatting
-plt.xlabel(r'Distance ($\times 10^3$ m)')
-
-plt.show()
+Final_df = Final_df[Final_df["group"].str.lower() == group.lower()]
