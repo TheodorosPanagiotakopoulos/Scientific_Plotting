@@ -1,20 +1,23 @@
 import matplotlib.pyplot as plt
 
-# Sample data
-x = [0, 1, 2]                # x-axis points
-y = [123, 150, 90]           # central values (main point)
-y_min = [-5, 100, 50]        # minimum values
-y_max = [300, 180, 130]      # maximum values
+# Example data
+x_vals = [1, 2, 3, 4, 5]
+y_vals = [2.0, 2.5, 3.7, 3.2, 4.1]
+y_err_low = [0.2, 0.1, 0.3, 0.2, 0.4]
+y_err_high = [0.3, 0.2, 0.4, 0.3, 0.5]
 
-# Calculate error values
-yerr_lower = [y_i - y_min_i for y_i, y_min_i in zip(y, y_min)]
-yerr_upper = [y_max_i - y_i for y_i, y_max_i in zip(y, y_max)]
-yerr = [yerr_lower, yerr_upper]
+# Combine lower and upper errors for asymmetric error bars
+yerr = [y_err_low, y_err_high]
 
-# Plot with asymmetric error bars
-plt.errorbar(x, y, yerr=yerr, fmt='o', capsize=5)
-plt.xlabel('X')
-plt.ylabel('Values with Intervals')
-plt.title('Main Point with Interval')
-plt.grid(True)
+# Create plot
+fig, ax = plt.subplots()
+ax.errorbar(x_vals, y_vals, yerr=yerr, fmt='o', capsize=5, label='Asymmetric Errors')
+
+# Add labels and legend
+ax.set_title('Error Bars with Asymmetric Errors')
+ax.set_xlabel('X-axis')
+ax.set_ylabel('Y-axis')
+ax.legend()
+
+# Show the plot
 plt.show()
