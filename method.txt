@@ -1,1 +1,13 @@
-L = [-i if i < 0 else i for i in L]
+import matplotlib.pyplot as plt
+
+x = [1, 2, 3]
+y = [10, 20, 30]
+low = [8, 18, 29]
+up = [13, 22, 31]
+
+# Convert to asymmetric yerr
+yerr = [[y[i] - low[i] for i in range(len(y))],
+        [up[i] - y[i] for i in range(len(y))]]
+
+plt.errorbar(x, y, yerr=yerr, fmt='o', capsize=5)
+plt.show()
