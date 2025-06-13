@@ -1,17 +1,50 @@
-import matplotlib.pyplot as plt
+Here’s a clean, presentation-ready explanation slide you can use to explain:
 
-fig, ax = plt.subplots()
 
-ax.plot([1, 2, 3], label='One breath')
-ax.plot([3, 2, 1], label='The other')
+---
 
-legend = ax.legend(loc='best')
+📉 Why Are RMSE Values Increasing? (And Why is Validation < Training?)
 
-# Set vertical alignment and rotation
-for text in legend.get_texts():
-    text.set_rotation(90)
-    text.set_ha('left')   # or 'right' or 'center'
-    text.set_va('center') # keeps text centered vertically
+🚨 Unexpected Trend Observed:
 
-plt.tight_layout()
-plt.show()
+Both Training and Validation RMSE increase over epochs.
+
+Validation RMSE is lower than Training RMSE – counterintuitive!
+
+
+
+---
+
+🔍 What This Might Mean
+
+Possible Cause	Description	Impact
+
+Data Leakage	Validation set may contain seen data	Validation error appears deceptively low
+Incorrect RMSE Calculation	Training/validation metrics not computed equally	Misleading performance metrics
+Too-High Learning Rate	Model overshoots optimal weights	Training becomes unstable
+Model Misconfiguration	Wrong .train() or .eval() mode (e.g., BatchNorm, Dropout)	Evaluation mismatch
+
+
+
+---
+
+✅ Recommended Actions
+
+1. Check data splits for overlap or leakage.
+
+
+2. Verify RMSE computation on both datasets.
+
+
+3. Reduce learning rate (e.g., divide by 10).
+
+
+4. Ensure proper mode switching between training and evaluation.
+
+
+
+
+---
+
+Let me know if you want this styled as a PowerPoint or with visuals/graphs!
+
