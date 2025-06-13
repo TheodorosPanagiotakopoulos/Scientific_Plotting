@@ -1,13 +1,17 @@
 import matplotlib.pyplot as plt
 
-x = [1, 2, 3]
-y = [10, 20, 30]
-low = [8, 18, 29]
-up = [13, 22, 31]
+fig, ax = plt.subplots()
 
-# Convert to asymmetric yerr
-yerr = [[y[i] - low[i] for i in range(len(y))],
-        [up[i] - y[i] for i in range(len(y))]]
+ax.plot([1, 2, 3], label='One breath')
+ax.plot([3, 2, 1], label='The other')
 
-plt.errorbar(x, y, yerr=yerr, fmt='o', capsize=5)
+legend = ax.legend(loc='best')
+
+# Set vertical alignment and rotation
+for text in legend.get_texts():
+    text.set_rotation(90)
+    text.set_ha('left')   # or 'right' or 'center'
+    text.set_va('center') # keeps text centered vertically
+
+plt.tight_layout()
 plt.show()
