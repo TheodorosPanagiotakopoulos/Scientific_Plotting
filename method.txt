@@ -1,33 +1,50 @@
 import matplotlib.pyplot as plt
 
-# 1. Generate training dataset: various tones and directions
-train_cd = list(range(12, 81, 8))  # CD from ~12 to 80
-train_pitch = list(range(40, 241, 8)) + list(range(260, 401, 20)) + [1000]
-train_tones = [+1, -1]
+# 1. Generate training dataset with specified CD and pitch ranges by tone
+train_cd = (
+    list(range(12, 73, 4)) +   # 12 to 72 step 4
+    list(range(80, 121, 8)) +  # 80 to 120 step 8
+    list(range(136, 201, 16))  # 136 to 200 step 16
+)
 train_directions = [0, 90]
 
-train_points = [
-    (cd, pitch, tone, direction)
-    for cd in train_cd
-    for pitch in train_pitch
-    for tone in train_tones
-    for direction in train_directions
-]
+# Tone +1 pitch ranges
+pitch_pos = (
+    list(range(40, 241, 8)) +      # 40 to 240 step 8
+    list(range(260, 401, 20)) +    # 260 to 400 step 20
+    list(range(136, 201)) +        # 136 to 200 step 1
+    [100]                          # explicitly include 100
+)
 
-# 2. Generate validation dataset: only +1 tone and 0° direction
-val_cd = list(range(20, 201, 2))
-val_tones = [+1]
-val_directions = [0]
+# Tone -1 pitch ranges
+pitch_neg = (
+    list(range(200, 241, 8)) +     # 200 to 240 step 8
+    list(range(260, 401, 20))      # 260 to 400 step 20
+)
+
+# Build training data points
+train_points = []
+
+# Tone +1
+for cd in train_cd:
+    for pitch in pitch_pos:
+        for direction in train_directions:
+            train_points.append((cd, pitch, +1, direction))
+
+# Tone -1
+for cd in train_cd:
+    for pitch in pitch_neg:
+        for direction in train_directions:
+            train_points.append((cd, pitch, -1, direction))
+
+# 2. Generate updated validation dataset
+val_cd = list(range(20, 201, 2))  # 20 to 200 step 2
 val_points = []
-
 for cd in val_cd:
-    for mult in [2, 3, 4]:
-        for tone in val_tones:
-            for direction in val_directions:
-                val_points.append((cd, mult * cd, tone, direction))
-    val_points.append((cd, 1000, +1, 0))  # Always include 1000 pitch
+    for pitch in [2 * cd, 3 * cd, 4 * cd, 1000]:
+        val_points.append((cd, pitch, +1, 0))  # tone +1, direction 0
 
-# 3. Compute set relationships
+# 3. Compare datasets
 train_set = set(train_points)
 val_set = set(val_points)
 intersection = train_set & val_set
@@ -35,16 +52,16 @@ train_only = list(train_set - intersection)
 val_only = list(val_set - intersection)
 both = list(intersection)
 
-# 4. Helper to extract (CD, Pitch) for plotting
+# 4. Helper to extract CD and Pitch for plotting
 def extract_cd_pitch(points):
     if not points:
         return [], []
     return zip(*[(cd, pitch) for cd, pitch, tone, direction in points])
 
-# 5. Plotting: 3-panel scatter layout
+# 5. Plotting layout
 fig, axes = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
 
-# Training-only points
+# Left: Training only
 x_train, y_train = extract_cd_pitch(train_only)
 axes[0].scatter(x_train, y_train, color='red', alpha=0.6, s=10)
 axes[0].set_title('Training Only')
@@ -52,21 +69,20 @@ axes[0].set_xlabel('CD (nm)')
 axes[0].set_ylabel('Pitch (nm)')
 axes[0].grid(True)
 
-# Shared points
+# Center: Shared in both
 x_both, y_both = extract_cd_pitch(both)
 axes[1].scatter(x_both, y_both, color='blue', alpha=0.6, s=10)
 axes[1].set_title('Shared in Both')
 axes[1].set_xlabel('CD (nm)')
 axes[1].grid(True)
 
-# Validation-only points
+# Right: Validation only
 x_val, y_val = extract_cd_pitch(val_only)
 axes[2].scatter(x_val, y_val, color='green', alpha=0.6, s=10)
 axes[2].set_title('Validation Only')
 axes[2].set_xlabel('CD (nm)')
 axes[2].grid(True)
 
-# Final layout adjustments
 fig.suptitle('Dataset Point Distribution (CD, Pitch, Tone, Direction)', fontsize=14)
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
 plt.show()
