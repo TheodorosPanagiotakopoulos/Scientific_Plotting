@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Circle
 
 # Training CD and pitch ranges
 train_cd = np.concatenate([
@@ -35,40 +36,31 @@ val_flat = set((cd, pitch) for cd, pitch, tone, direction in val_points)
 common_points = train_pos_dir0.intersection(val_flat)
 
 # Plotting
-fig, axes = plt.subplots(1, 3, figsize=(21, 6), sharey=True)
+fig, ax = plt.subplots(figsize=(10, 7))
 
-# 1. Training plot
+# Training points
 for tone, color in [(-1, 'blue'), (+1, 'red')]:
     for direction, marker in [(0, 'o'), (1, 'x')]:
         cds = [cd for cd, pitch, t, d in train_points if t == tone and d == direction]
         pitches = [pitch for cd, pitch, t, d in train_points if t == tone and d == direction]
-        axes[0].scatter(cds, pitches, c=color, marker=marker, s=10, alpha=0.5,
-                        label=f"Tone={tone}, Dir={direction}")
-axes[0].set_title("Training Data")
-axes[0].set_xlabel("CD (nm)")
-axes[0].set_ylabel("Pitch (nm)")
-axes[0].grid(True)
-axes[0].legend()
+        ax.scatter(cds, pitches, c=color, marker=marker, s=10, alpha=0.4,
+                   label=f"Train Tone={tone}, Dir={direction}")
 
-# 2. Validation plot
+# Validation points
 val_cds = [cd for cd, pitch, tone, dir in val_points]
 val_pitches = [pitch for cd, pitch, tone, dir in val_points]
-axes[1].scatter(val_cds, val_pitches, color='green', marker='*', s=60, label='Validation (Tone=+1, Dir=0)')
-axes[1].set_title("Validation Data")
-axes[1].set_xlabel("CD (nm)")
-axes[1].grid(True)
-axes[1].legend()
+ax.scatter(val_cds, val_pitches, color='green', marker='*', s=60, label='Validation (Tone=+1, Dir=0)')
 
-# 3. Common points
-if common_points:
-    common_cds, common_pitches = zip(*common_points)
-    axes[2].scatter(common_cds, common_pitches, color='orange', s=30, label='Common Points')
-else:
-    axes[2].text(0.5, 0.5, 'No Overlap Found', ha='center', va='center', fontsize=12)
-axes[2].set_title("Common CD–Pitch Pairs (Tone=+1, Dir=0)")
-axes[2].set_xlabel("CD (nm)")
-axes[2].grid(True)
-axes[2].legend()
+# Highlight common points with a circle
+for cd, pitch in common_points:
+    circle = Circle((cd, pitch), radius=2, edgecolor='black', facecolor='none', linewidth=1.2)
+    ax.add_patch(circle)
 
+# Labels and legend
+ax.set_title("CD–Pitch Sampling with Common Points Circled")
+ax.set_xlabel("CD (nm)")
+ax.set_ylabel("Pitch (nm)")
+ax.grid(True)
+ax.legend()
 plt.tight_layout()
 plt.show()
