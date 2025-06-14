@@ -1,47 +1,54 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.patches import Ellipse
 
-# Simulate points in 2D space
+# Simulate sets
 np.random.seed(0)
+train_set = {"T" + str(i) for i in range(1, 21)}      # 20 training samples
+val_set = {"V" + str(i) for i in range(11, 31)}       # 20 validation samples, 10 overlap with training
 
-# Generate training set: Gaussian blob centered left
-train_x = np.random.normal(loc=40, scale=10, size=150)
-train_y = np.random.normal(loc=60, scale=10, size=150)
-train_set = set(zip(train_x.round(1), train_y.round(1)))
+# Compute set partitions
+common = train_set & val_set
+train_only = train_set - common
+val_only = val_set - common
 
-# Generate validation set: Gaussian blob centered slightly right
-val_x = np.random.normal(loc=50, scale=10, size=150)
-val_y = np.random.normal(loc=60, scale=10, size=150)
-val_set = set(zip(val_x.round(1), val_y.round(1)))
+# Function to generate random points inside an ellipse
+def generate_points(center, width, height, count):
+    cx, cy = center
+    theta = np.random.uniform(0, 2*np.pi, count)
+    r = np.sqrt(np.random.uniform(0, 1, count))
+    x = cx + (width / 2) * r * np.cos(theta)
+    y = cy + (height / 2) * r * np.sin(theta)
+    return x, y
 
-# Find overlaps
-common_set = train_set & val_set
-train_only = train_set - common_set
-val_only = val_set - common_set
+# Generate point locations
+train_x, train_y = generate_points(center=(2, 2), width=4, height=3, count=len(train_only))
+val_x, val_y = generate_points(center=(4, 2), width=4, height=3, count=len(val_only))
+common_x, common_y = generate_points(center=(3, 2), width=2.5, height=2, count=len(common))
 
-# Plotting
+# Plot setup
 fig, ax = plt.subplots(figsize=(8, 6))
+ax.set_aspect('equal')
+ax.axis('off')  # Hide axes
 
-# Train-only
-if train_only:
-    tx, ty = zip(*train_only)
-    ax.scatter(tx, ty, color='blue', label='Train Only', alpha=0.5)
+# Draw ellipses
+train_ellipse = Ellipse((2, 2), width=4, height=3, alpha=0.2, color='blue', label='Training')
+val_ellipse = Ellipse((4, 2), width=4, height=3, alpha=0.2, color='green', label='Validation')
+ax.add_patch(train_ellipse)
+ax.add_patch(val_ellipse)
 
-# Val-only
-if val_only:
-    vx, vy = zip(*val_only)
-    ax.scatter(vx, vy, color='green', label='Validation Only', alpha=0.5)
+# Plot points
+for x, y, label in zip(train_x, train_y, sorted(train_only)):
+    ax.text(x, y, label, ha='center', va='center', fontsize=8, color='blue')
 
-# Common
-if common_set:
-    cx, cy = zip(*common_set)
-    ax.scatter(cx, cy, color='red', edgecolors='black', label='Common', s=60)
+for x, y, label in zip(val_x, val_y, sorted(val_only)):
+    ax.text(x, y, label, ha='center', va='center', fontsize=8, color='green')
 
-# Labels
-ax.set_title("Venn-style 2D Set Overlap (Simulated Layout Sampling)")
-ax.set_xlabel("CD (or Feature X)")
-ax.set_ylabel("Pitch (or Feature Y)")
-ax.grid(True)
-ax.legend()
+for x, y, label in zip(common_x, common_y, sorted(common)):
+    ax.text(x, y, label, ha='center', va='center', fontsize=8, color='red', weight='bold')
+
+# Legend and title
+ax.legend(loc='upper center')
+ax.set_title("Venn Diagram with Training, Validation, and Common Points")
 plt.tight_layout()
 plt.show()
