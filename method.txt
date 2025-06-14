@@ -1,54 +1,37 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.patches import Ellipse
+We observe…
 
-# Simulate sets
-np.random.seed(0)
-train_set = {"T" + str(i) for i in range(1, 21)}      # 20 training samples
-val_set = {"V" + str(i) for i in range(11, 31)}       # 20 validation samples, 10 overlap with training
+1. Both training and validation RMSE steadily increase over epochs.
 
-# Compute set partitions
-common = train_set & val_set
-train_only = train_set - common
-val_only = val_set - common
 
-# Function to generate random points inside an ellipse
-def generate_points(center, width, height, count):
-    cx, cy = center
-    theta = np.random.uniform(0, 2*np.pi, count)
-    r = np.sqrt(np.random.uniform(0, 1, count))
-    x = cx + (width / 2) * r * np.cos(theta)
-    y = cy + (height / 2) * r * np.sin(theta)
-    return x, y
+2. Validation RMSE remains below training RMSE at every epoch.
 
-# Generate point locations
-train_x, train_y = generate_points(center=(2, 2), width=4, height=3, count=len(train_only))
-val_x, val_y = generate_points(center=(4, 2), width=4, height=3, count=len(val_only))
-common_x, common_y = generate_points(center=(3, 2), width=2.5, height=2, count=len(common))
 
-# Plot setup
-fig, ax = plt.subplots(figsize=(8, 6))
-ax.set_aspect('equal')
-ax.axis('off')  # Hide axes
+3. The absolute train–val RMSE gap shrinks only because both errors worsen.
 
-# Draw ellipses
-train_ellipse = Ellipse((2, 2), width=4, height=3, alpha=0.2, color='blue', label='Training')
-val_ellipse = Ellipse((4, 2), width=4, height=3, alpha=0.2, color='green', label='Validation')
-ax.add_patch(train_ellipse)
-ax.add_patch(val_ellipse)
 
-# Plot points
-for x, y, label in zip(train_x, train_y, sorted(train_only)):
-    ax.text(x, y, label, ha='center', va='center', fontsize=8, color='blue')
 
-for x, y, label in zip(val_x, val_y, sorted(val_only)):
-    ax.text(x, y, label, ha='center', va='center', fontsize=8, color='green')
+This means…
+The model is under-fitting its heterogeneous training set and, with an overly aggressive learning rate, is beginning to diverge rather than converge.
 
-for x, y, label in zip(common_x, common_y, sorted(common)):
-    ax.text(x, y, label, ha='center', va='center', fontsize=8, color='red', weight='bold')
+Solution…
 
-# Legend and title
-ax.legend(loc='upper center')
-ax.set_title("Venn Diagram with Training, Validation, and Common Points")
-plt.tight_layout()
-plt.show()
+Boost model capacity (add layers/neurons or relax regularization)
+
+Align training distribution to the real operating CD/pitch/tone/direction of validation
+
+Lower the learning rate (or adjust optimizer settings) for stable convergence
+
+
+
+---
+
+> Slide-ready (one line):
+“Under-fitting with slight optimizer divergence: boost capacity, rebalance data, and dial back learning rate to drive both RMSE curves down.”
+
+
+
+
+---
+
+> Detailed Take-Home for Presentation:
+Over epochs, both train and validation errors climb—an unusual sign of divergence driven by too-large gradient steps—and validation remains easier than the mixed training set, so its RMSE sits below the training RMSE. Although the gap narrows, it’s only because both errors worsen, not because generalization improves. To address this, we’ll increase the network’s capacity (more neurons or less regularization), refocus our training samples on the key CD/pitch regime we actually care about, and reduce the learning rate so the optimizer can steadily descend the loss landscape. These actions should lower both errors and restore a healthy train < validation relationship
