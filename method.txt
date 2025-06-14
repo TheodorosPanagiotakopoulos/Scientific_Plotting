@@ -1,166 +1,60 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
-# 1. Generate training dataset with specified CD and pitch ranges by tone
-train_cd = (
-    list(range(12, 73, 4)) +   # 12 to 72 step 4
-    list(range(80, 121, 8)) +  # 80 to 120 step 8
-    list(range(136, 201, 16))  # 136 to 200 step 16
-)
-train_directions = [0, 90]
+# Define training CD and pitch ranges
+train_cd_1 = np.arange(12, 72 + 1, 4)
+train_cd_2 = np.arange(80, 120 + 1, 8)
+train_cd_3 = np.arange(136, 200 + 1, 16)
+train_cd = np.concatenate([train_cd_1, train_cd_2, train_cd_3])
 
-# Tone +1 pitch ranges
-pitch_pos = (
-    list(range(40, 241, 8)) +      # 40 to 240 step 8
-    list(range(260, 401, 20)) +    # 260 to 400 step 20
-    list(range(136, 201)) +        # 136 to 200 step 1
-    [100]                          # explicitly include 100
-)
+train_pitch_1 = np.arange(40, 240 + 1, 8)
+train_pitch_2 = np.arange(260, 400 + 1, 20)
+train_pitch_3 = np.array([1000])
+train_pitch = np.concatenate([train_pitch_1, train_pitch_2, train_pitch_3])
 
-# Tone -1 pitch ranges
-pitch_neg = (
-    list(range(200, 241, 8)) +     # 200 to 240 step 8
-    list(range(260, 401, 20))      # 260 to 400 step 20
-)
+# Create training set as Cartesian product
+train_cd_grid, train_pitch_grid = np.meshgrid(train_cd, train_pitch)
+train_cd_flat = train_cd_grid.flatten()
+train_pitch_flat = train_pitch_grid.flatten()
+train_points = set(zip(train_cd_flat, train_pitch_flat))
 
-# Build training data points
-train_points = []
-
-# Tone +1
-for cd in train_cd:
-    for pitch in pitch_pos:
-        for direction in train_directions:
-            train_points.append((cd, pitch, +1, direction))
-
-# Tone -1
-for cd in train_cd:
-    for pitch in pitch_neg:
-        for direction in train_directions:
-            train_points.append((cd, pitch, -1, direction))
-
-# 2. Generate updated validation dataset
-val_cd = list(range(20, 201, 2))  # 20 to 200 step 2
-val_points = []
+# Define validation CD and pitch pairs
+val_cd = np.arange(20, 200 + 1, 2)
+val_points = set()
 for cd in val_cd:
-    for pitch in [2 * cd, 3 * cd, 4 * cd, 1000]:
-        val_points.append((cd, pitch, +1, 0))  # tone +1, direction 0
+    for multiplier in [2, 3, 4]:
+        val_points.add((cd, multiplier * cd))
+    val_points.add((cd, 1000))
 
-# 3. Compare datasets
-train_set = set(train_points)
-val_set = set(val_points)
-intersection = train_set & val_set
-train_only = list(train_set - intersection)
-val_only = list(val_set - intersection)
-both = list(intersection)
+# Compute intersection
+common_points = train_points.intersection(val_points)
 
-# 4. Helper to extract CD and Pitch for plotting
-def extract_cd_pitch(points):
-    if not points:
-        return [], []
-    return zip(*[(cd, pitch) for cd, pitch, tone, direction in points])
+# Split for plotting
+train_cd_plot, train_pitch_plot = zip(*train_points)
+val_cd_plot, val_pitch_plot = zip(*val_points)
+common_cd_plot, common_pitch_plot = zip(*common_points) if common_points else ([], [])
 
-# 5. Plotting layout
-fig, axes = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
+# Plotting
+fig, axes = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
 
-# Left: Training only
-x_train, y_train = extract_cd_pitch(train_only)
-axes[0].scatter(x_train, y_train, color='red', alpha=0.6, s=10)
-axes[0].set_title('Training Only')
+# Training data
+axes[0].scatter(train_cd_plot, train_pitch_plot, s=10, alpha=0.6)
+axes[0].set_title('Training Data')
 axes[0].set_xlabel('CD (nm)')
 axes[0].set_ylabel('Pitch (nm)')
 axes[0].grid(True)
 
-# Center: Shared in both
-x_both, y_both = extract_cd_pitch(both)
-axes[1].scatter(x_both, y_both, color='blue', alpha=0.6, s=10)
-axes[1].set_title('Shared in Both')
+# Validation data
+axes[1].scatter(val_cd_plot, val_pitch_plot, color='green', s=10, alpha=0.6)
+axes[1].set_title('Validation Data')
 axes[1].set_xlabel('CD (nm)')
 axes[1].grid(True)
 
-# Right: Validation only
-x_val, y_val = extract_cd_pitch(val_only)
-axes[2].scatter(x_val, y_val, color='green', alpha=0.6, s=10)
-axes[2].set_title('Validation Only')
+# Common data
+axes[2].scatter(common_cd_plot, common_pitch_plot, color='red', s=10, alpha=0.6)
+axes[2].set_title('CD–Pitch Pairs in Both Train & Val')
 axes[2].set_xlabel('CD (nm)')
 axes[2].grid(True)
 
-fig.suptitle('Dataset Point Distribution (CD, Pitch, Tone, Direction)', fontsize=14)
-plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-plt.show()
-
-
-Do they train on a full grid (all CD–pitch combinations) or only specific pairs they generate?
-
-
------++++
-
-
-import matplotlib.pyplot as plt
-import numpy as np
-
-# 1. Define parameter ranges
-cd_values = list(range(40, 81, 8))                 # CD: 40 to 80 step 8
-pitch_values = [208, 240, 288]                     # Pitch
-p1_values = list(range(40, 205, 16))               # P1: 40 to 204 step 16
-p2_values = [8, 10, 12, 16, 20]                    # P2 values
-tones = [+1, -1]                                   # Both tones
-directions = [0, 90]                               # Both directions
-
-# 2. Generate all data points
-data_points = []
-
-for cd in cd_values:
-    for pitch in pitch_values:
-        for p1 in p1_values:
-            for p2 in p2_values:
-                for tone in tones:
-                    for direction in directions:
-                        data_points.append((cd, pitch, p1, p2, tone, direction))
-
-# 3. Prepare for plotting
-cd_list = []
-pitch_list = []
-tone_list = []
-dir_list = []
-p2_list = []
-
-for cd, pitch, p1, p2, tone, direction in data_points:
-    cd_list.append(cd)
-    pitch_list.append(pitch)
-    tone_list.append(tone)
-    dir_list.append(direction)
-    p2_list.append(p2)
-
-# 4. Define marker shape based on direction
-def get_marker(direction):
-    return 'o' if direction == 0 else 's'
-
-# 5. Split data by direction for separate plotting
-fig, ax = plt.subplots(figsize=(10, 6))
-
-for direction_val in [0, 90]:
-    indices = [i for i, d in enumerate(dir_list) if d == direction_val]
-    x = [cd_list[i] for i in indices]
-    y = [pitch_list[i] for i in indices]
-    colors = [tone_list[i] for i in indices]
-    sizes = [p2_list[i] * 10 for i in indices]  # scale for visibility
-    marker = get_marker(direction_val)
-    
-    scatter = ax.scatter(
-        x, y,
-        c=colors,
-        s=sizes,
-        marker=marker,
-        cmap='bwr',      # blue = -1, red = +1
-        alpha=0.6,
-        label=f'Direction {direction_val}°'
-    )
-
-# 6. Final formatting
-plt.xlabel("CD (nm)")
-plt.ylabel("Pitch (nm)")
-plt.title("CD vs Pitch Coverage (Tone = Color, P2 = Size, Direction = Shape)")
-plt.grid(True)
-plt.colorbar(scatter, label='Tone (+1 / -1)')
-plt.legend()
 plt.tight_layout()
 plt.show()
