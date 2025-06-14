@@ -63,3 +63,7 @@ Final diagnosis
 
 > Under-fitting with slight optimizer divergence.
 The network is too simple (or too strongly regularized) to capture the lithography behavior, and the current learning rate is pushing it toward divergence rather than convergence.
+
+
+---------____
+After a couple of epochs the optimizer’s weight updates begin to “overshoot” minima in the loss landscape. With a learning rate that’s too high (or inadequate decay), each gradient step pushes parameters further from the optimal region rather than settling into it. As a result, the error grows on both the training set (all CD/pitch, both tones/directions) and the simpler validation slice.
