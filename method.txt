@@ -1,55 +1,39 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib_venn import venn3
 
-# Function to generate pitch ranges
-def generate_pitches(tone):
+# Helper to generate (CD, Pitch) pairs
+def generate_pattern_pairs(tone):
     if tone == 1:
         pitch1 = np.arange(40, 240+1, 8)
         pitch2 = np.arange(260, 400+1, 20)
-        pitches = np.concatenate([pitch1, pitch2])
-    elif tone == -1:
+    else:
         pitch1 = np.arange(200, 250+1, 8)
         pitch2 = np.arange(260, 400+1, 20)
-        pitches = np.concatenate([pitch1, pitch2])
-    else:
-        pitches = []
-    return pitches
+    pitches = np.concatenate([pitch1, pitch2])
+    cd_vals = np.concatenate([
+        np.arange(12, 72+1, 4),
+        np.arange(80, 120+1, 8),
+        np.arange(136, 200+1, 16)
+    ])
+    CDs, Pitches = np.meshgrid(cd_vals, pitches)
+    return set(zip(CDs.flatten(), Pitches.flatten()))
 
-# Generate CD values
-cd_range = np.concatenate([
-    np.arange(12, 72+1, 4),
-    np.arange(80, 120+1, 8),
-    np.arange(136, 200+1, 16)
-])
-
-# Generate CD and pitch combinations
-def generate_pattern_points(tone):
-    pitches = generate_pitches(tone)
-    CDs, Pitches = np.meshgrid(cd_range, pitches)
-    return CDs.flatten(), Pitches.flatten()
-
-# Validation set (tone = 1)
+# Generate validation (CD, Pitch) pairs
 val_cd = np.arange(20, 200+1, 2)
-val_pitch = []
+val_pairs = set()
 for cd in val_cd:
-    val_pitch.extend([2*cd, 3*cd, 4*cd, 1000])
-val_cd = np.repeat(val_cd, 4)
-val_pitch = np.array(val_pitch)
+    for mult in [2, 3, 4]:
+        val_pairs.add((cd, mult*cd))
+    val_pairs.add((cd, 1000))
 
-# Generate points
-cds_tone1, pitch_tone1 = generate_pattern_points(1)
-cds_tone_1, pitch_tone_1 = generate_pattern_points(-1)
+# Define the sets
+set_A = generate_pattern_pairs(1)   # Pattern Tone 1
+set_B = generate_pattern_pairs(-1)  # Pattern Tone -1
+set_C = val_pairs                   # Validation
 
-# Plotting
-plt.figure(figsize=(12, 8))
-plt.scatter(cds_tone1, pitch_tone1, c='blue', label='Pattern Tone 1', alpha=0.5, s=10)
-plt.scatter(cds_tone_1, pitch_tone_1, c='red', label='Pattern Tone -1', alpha=0.5, s=10)
-plt.scatter(val_cd, val_pitch, c='green', label='Validation Tone 1', alpha=0.8, s=20, marker='x')
-
-plt.xlabel('CD')
-plt.ylabel('Pitch')
-plt.title('CD vs Pitch for 1DLS Pattern and Validation Sets')
-plt.legend()
-plt.grid(True)
-plt.tight_layout()
+# Plot the Venn diagram
+plt.figure(figsize=(8, 6))
+venn3([set_A, set_B, set_C], ('Pattern Tone 1', 'Pattern Tone -1', 'Validation Tone 1'))
+plt.title("Overlap of CD-Pitch Pairs (1DLS)")
 plt.show()
