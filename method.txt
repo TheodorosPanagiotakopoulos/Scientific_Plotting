@@ -1,71 +1,83 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Helper: generate (CD, Pitch) pairs for tone
-def generate_pattern_pairs(tone):
-    if tone == 1:
-        pitches = np.concatenate([
-            np.arange(40, 240 + 1, 8),
-            np.arange(260, 400 + 1, 20)
-        ])
-    else:
-        pitches = np.concatenate([
-            np.arange(200, 250 + 1, 8),
-            np.arange(260, 400 + 1, 20)
-        ])
+# Common CD range for all tones
+cd_range = np.concatenate([
+    np.arange(12, 73, 4),
+    np.arange(80, 121, 8),
+    np.arange(136, 201, 16)
+])
 
-    cds = np.concatenate([
-        np.arange(12, 72 + 1, 4),
-        np.arange(80, 120 + 1, 8),
-        np.arange(136, 200 + 1, 16)
-    ])
-    cd_mesh, pitch_mesh = np.meshgrid(cds, pitches)
-    return set(zip(cd_mesh.flatten(), pitch_mesh.flatten()))
+# Pitch ranges
+pitch_range_tone1 = np.concatenate([
+    np.arange(40, 241, 8),
+    np.arange(260, 401, 20)
+])
+pitch_range_tone_minus1 = np.concatenate([
+    np.arange(200, 251, 8),
+    np.arange(260, 401, 20)
+])
 
-# Generate validation (CD, Pitch) pairs
-val_cd = np.arange(20, 200 + 1, 2)
-val_pairs = set()
-for cd in val_cd:
-    for mult in [2, 3, 4]:
-        val_pairs.add((cd, mult * cd))
-    val_pairs.add((cd, 1000))
+# Directions
+directions = [0, 90]
 
-# Define sets
-tone1_set = generate_pattern_pairs(1)
-tone_1_set = generate_pattern_pairs(-1)
-val_set = val_pairs
+# Store training data
+train_data = []
 
-# Compute intersections
-val_in_tone1 = val_set & tone1_set
-val_in_tone_1 = val_set & tone_1_set
-tone1_and_tone_1 = tone1_set & tone_1_set
+# Tone 1
+for cd in cd_range:
+    for pitch in pitch_range_tone1:
+        for direction in directions:
+            train_data.append((cd, pitch, 1, direction))
 
-# Unique values
-only_val = val_set - (tone1_set | tone_1_set)
-only_tone1 = tone1_set - (val_set | tone_1_set)
-only_tone_1 = tone_1_set - (val_set | tone1_set)
+# Tone -1
+for cd in cd_range:
+    for pitch in pitch_range_tone_minus1:
+        for direction in directions:
+            train_data.append((cd, pitch, -1, direction))
+
+# Validation data (only tone=1, no directions)
+cd_val = np.arange(20, 201, 2)
+val_data = []
+for cd in cd_val:
+    for pitch in [2 * cd, 3 * cd, 4 * cd, 1000]:
+        val_data.append((cd, pitch))
+
+# Prepare training scatter plot
+train_cd = [item[0] for item in train_data]
+train_pitch = [item[1] for item in train_data]
+train_tone = [item[2] for item in train_data]
+train_dir = [item[3] for item in train_data]
+
+# Validation
+val_cd = [item[0] for item in val_data]
+val_pitch = [item[1] for item in val_data]
 
 # Plotting
-def scatter_points(points, label, color, marker, size=25):
-    if not points:
-        return
-    x, y = zip(*points)
-    plt.scatter(x, y, label=label, color=color, marker=marker, s=size, alpha=0.8)
-
 plt.figure(figsize=(12, 8))
 
-scatter_points(only_tone1, "Only Tone 1", 'blue', 'o')
-scatter_points(only_tone_1, "Only Tone -1", 'red', '^')
-scatter_points(only_val, "Only Validation", 'green', 'x', size=40)
+# Plot training by tone and direction
+for tone in [1, -1]:
+    for direction in directions:
+        tone_mask = np.array(train_tone) == tone
+        dir_mask = np.array(train_dir) == direction
+        mask = tone_mask & dir_mask
+        label = f"Train: Tone {tone}, Dir {direction}"
+        marker = 'o' if direction == 0 else '^'
+        color = 'blue' if tone == 1 else 'green'
+        plt.scatter(np.array(train_cd)[mask],
+                    np.array(train_pitch)[mask],
+                    s=10, alpha=0.5,
+                    label=label,
+                    marker=marker, color=color)
 
-scatter_points(val_in_tone1, "Val ∩ Tone 1", 'black', 's')
-scatter_points(val_in_tone_1, "Val ∩ Tone -1", 'purple', 'D')
-scatter_points(tone1_and_tone_1, "Tone 1 ∩ Tone -1", 'orange', '*')
+# Plot validation
+plt.scatter(val_cd, val_pitch, s=12, color='red', alpha=0.8, label='Validation (Tone 1)')
 
-plt.xlabel("CD")
-plt.ylabel("Pitch")
-plt.title("Overlap Visualization of CD-Pitch Points (1DLS)")
+plt.xlabel("CD (nm)")
+plt.ylabel("Pitch (nm)")
+plt.title("Training vs Validation Data (1DLS) - Tones and Directions")
+plt.legend()
 plt.grid(True)
-plt.legend(loc='upper right')
 plt.tight_layout()
 plt.show()
