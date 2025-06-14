@@ -86,3 +86,6 @@ axes[2].grid(True)
 fig.suptitle('Dataset Point Distribution (CD, Pitch, Tone, Direction)', fontsize=14)
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
 plt.show()
+
+
+Do they train on a full grid (all CD–pitch combinations) or only specific pairs they generate?
