@@ -21,26 +21,54 @@ for cd in val_cd:
         val_points.add((cd, multiplier * cd, +1, 0))
     val_points.add((cd, 1000, +1, 0))
 
-# Prepare figure
-fig, ax = plt.subplots(figsize=(10, 7))
+# Compute training points
+train_points = []
+for cd in train_cd:
+    for pitch in train_pitch:
+        for tone in [+1, -1]:
+            for direction in [0, 1]:
+                train_points.append((cd, pitch, tone, direction))
 
-# Plot all training data with tone and direction
+# Find common points
+train_pos_dir0 = set((cd, pitch) for cd, pitch, tone, direction in train_points if tone == +1 and direction == 0)
+val_flat = set((cd, pitch) for cd, pitch, tone, direction in val_points)
+common_points = train_pos_dir0.intersection(val_flat)
+
+# Plotting
+fig, axes = plt.subplots(1, 3, figsize=(21, 6), sharey=True)
+
+# 1. Training plot
 for tone, color in [(-1, 'blue'), (+1, 'red')]:
     for direction, marker in [(0, 'o'), (1, 'x')]:
-        points = [(cd, pitch) for cd in train_cd for pitch in train_pitch]
-        cds, pitches = zip(*points)
-        ax.scatter(cds, pitches, c=color, marker=marker, s=10, alpha=0.4,
-                   label=f"Train (Tone={tone}, Dir={direction})")
+        cds = [cd for cd, pitch, t, d in train_points if t == tone and d == direction]
+        pitches = [pitch for cd, pitch, t, d in train_points if t == tone and d == direction]
+        axes[0].scatter(cds, pitches, c=color, marker=marker, s=10, alpha=0.5,
+                        label=f"Tone={tone}, Dir={direction}")
+axes[0].set_title("Training Data")
+axes[0].set_xlabel("CD (nm)")
+axes[0].set_ylabel("Pitch (nm)")
+axes[0].grid(True)
+axes[0].legend()
 
-# Overlay validation points
-val_cds, val_pitches = zip(*[(cd, pitch) for cd, pitch, tone, direction in val_points])
-ax.scatter(val_cds, val_pitches, color='green', marker='*', s=60, label='Validation (Tone=+1, Dir=0)')
+# 2. Validation plot
+val_cds = [cd for cd, pitch, tone, dir in val_points]
+val_pitches = [pitch for cd, pitch, tone, dir in val_points]
+axes[1].scatter(val_cds, val_pitches, color='green', marker='*', s=60, label='Validation (Tone=+1, Dir=0)')
+axes[1].set_title("Validation Data")
+axes[1].set_xlabel("CD (nm)")
+axes[1].grid(True)
+axes[1].legend()
 
-# Labels and legend
-ax.set_title("CD–Pitch Sampling (Training & Validation)")
-ax.set_xlabel("CD (nm)")
-ax.set_ylabel("Pitch (nm)")
-ax.grid(True)
-ax.legend()
+# 3. Common points
+if common_points:
+    common_cds, common_pitches = zip(*common_points)
+    axes[2].scatter(common_cds, common_pitches, color='orange', s=30, label='Common Points')
+else:
+    axes[2].text(0.5, 0.5, 'No Overlap Found', ha='center', va='center', fontsize=12)
+axes[2].set_title("Common CD–Pitch Pairs (Tone=+1, Dir=0)")
+axes[2].set_xlabel("CD (nm)")
+axes[2].grid(True)
+axes[2].legend()
+
 plt.tight_layout()
 plt.show()
