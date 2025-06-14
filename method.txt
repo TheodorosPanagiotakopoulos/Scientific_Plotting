@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Circle
+from matplotlib.patches import Ellipse
 
-# Training CD and pitch ranges
+# === Generate Training and Validation Sets ===
+
 train_cd = np.concatenate([
     np.arange(12, 72 + 1, 4),
     np.arange(80, 120 + 1, 8),
@@ -14,50 +15,44 @@ train_pitch = np.concatenate([
     np.array([1000])
 ])
 
-# Validation CD and pitch (tone=+1, direction=0 only)
+# Build training set (tone +1, dir=0 only, to match val)
+train_points = set((cd, pitch) for cd in train_cd for pitch in train_pitch)
+
+# Validation CD and pitch (tone = +1, dir = 0 only)
 val_cd = np.arange(20, 200 + 1, 2)
 val_points = set()
 for cd in val_cd:
     for multiplier in [2, 3, 4]:
-        val_points.add((cd, multiplier * cd, +1, 0))
-    val_points.add((cd, 1000, +1, 0))
+        val_points.add((cd, multiplier * cd))
+    val_points.add((cd, 1000))
 
-# Compute training points
-train_points = []
-for cd in train_cd:
-    for pitch in train_pitch:
-        for tone in [+1, -1]:
-            for direction in [0, 1]:
-                train_points.append((cd, pitch, tone, direction))
+# Compute sets
+common_points = train_points.intersection(val_points)
+train_only = train_points - common_points
+val_only = val_points - common_points
 
-# Find common points
-train_pos_dir0 = set((cd, pitch) for cd, pitch, tone, direction in train_points if tone == +1 and direction == 0)
-val_flat = set((cd, pitch) for cd, pitch, tone, direction in val_points)
-common_points = train_pos_dir0.intersection(val_flat)
-
-# Plotting
+# === Plotting ===
 fig, ax = plt.subplots(figsize=(10, 7))
 
-# Training points
-for tone, color in [(-1, 'blue'), (+1, 'red')]:
-    for direction, marker in [(0, 'o'), (1, 'x')]:
-        cds = [cd for cd, pitch, t, d in train_points if t == tone and d == direction]
-        pitches = [pitch for cd, pitch, t, d in train_points if t == tone and d == direction]
-        ax.scatter(cds, pitches, c=color, marker=marker, s=10, alpha=0.4,
-                   label=f"Train Tone={tone}, Dir={direction}")
+# 1. Train-only
+train_cds, train_pitches = zip(*train_only)
+ax.scatter(train_cds, train_pitches, c='blue', s=20, alpha=0.4, label='Train Only')
 
-# Validation points
-val_cds = [cd for cd, pitch, tone, dir in val_points]
-val_pitches = [pitch for cd, pitch, tone, dir in val_points]
-ax.scatter(val_cds, val_pitches, color='green', marker='*', s=60, label='Validation (Tone=+1, Dir=0)')
+# 2. Val-only
+val_cds, val_pitches = zip(*val_only)
+ax.scatter(val_cds, val_pitches, c='green', marker='*', s=60, alpha=0.7, label='Validation Only')
 
-# Highlight common points with a circle
-for cd, pitch in common_points:
-    circle = Circle((cd, pitch), radius=2, edgecolor='black', facecolor='none', linewidth=1.2)
-    ax.add_patch(circle)
+# 3. Common points
+common_cds, common_pitches = zip(*common_points)
+ax.scatter(common_cds, common_pitches, facecolors='red', edgecolors='black',
+           s=50, linewidth=1.2, label='Common (Train ∩ Val)')
 
-# Labels and legend
-ax.set_title("CD–Pitch Sampling with Common Points Circled")
+# Optional: Ellipse-like region shading (manual)
+ax.add_patch(Ellipse((100, 300), 200, 600, alpha=0.05, color='blue'))   # training region
+ax.add_patch(Ellipse((100, 600), 200, 600, alpha=0.05, color='green'))  # validation region
+
+# Labels and layout
+ax.set_title("Venn-style CD–Pitch Sampling Visualization")
 ax.set_xlabel("CD (nm)")
 ax.set_ylabel("Pitch (nm)")
 ax.grid(True)
