@@ -89,3 +89,78 @@ plt.show()
 
 
 Do they train on a full grid (all CD–pitch combinations) or only specific pairs they generate?
+
+
+-----++++
+
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1. Define parameter ranges
+cd_values = list(range(40, 81, 8))                 # CD: 40 to 80 step 8
+pitch_values = [208, 240, 288]                     # Pitch
+p1_values = list(range(40, 205, 16))               # P1: 40 to 204 step 16
+p2_values = [8, 10, 12, 16, 20]                    # P2 values
+tones = [+1, -1]                                   # Both tones
+directions = [0, 90]                               # Both directions
+
+# 2. Generate all data points
+data_points = []
+
+for cd in cd_values:
+    for pitch in pitch_values:
+        for p1 in p1_values:
+            for p2 in p2_values:
+                for tone in tones:
+                    for direction in directions:
+                        data_points.append((cd, pitch, p1, p2, tone, direction))
+
+# 3. Prepare for plotting
+cd_list = []
+pitch_list = []
+tone_list = []
+dir_list = []
+p2_list = []
+
+for cd, pitch, p1, p2, tone, direction in data_points:
+    cd_list.append(cd)
+    pitch_list.append(pitch)
+    tone_list.append(tone)
+    dir_list.append(direction)
+    p2_list.append(p2)
+
+# 4. Define marker shape based on direction
+def get_marker(direction):
+    return 'o' if direction == 0 else 's'
+
+# 5. Split data by direction for separate plotting
+fig, ax = plt.subplots(figsize=(10, 6))
+
+for direction_val in [0, 90]:
+    indices = [i for i, d in enumerate(dir_list) if d == direction_val]
+    x = [cd_list[i] for i in indices]
+    y = [pitch_list[i] for i in indices]
+    colors = [tone_list[i] for i in indices]
+    sizes = [p2_list[i] * 10 for i in indices]  # scale for visibility
+    marker = get_marker(direction_val)
+    
+    scatter = ax.scatter(
+        x, y,
+        c=colors,
+        s=sizes,
+        marker=marker,
+        cmap='bwr',      # blue = -1, red = +1
+        alpha=0.6,
+        label=f'Direction {direction_val}°'
+    )
+
+# 6. Final formatting
+plt.xlabel("CD (nm)")
+plt.ylabel("Pitch (nm)")
+plt.title("CD vs Pitch Coverage (Tone = Color, P2 = Size, Direction = Shape)")
+plt.grid(True)
+plt.colorbar(scatter, label='Tone (+1 / -1)')
+plt.legend()
+plt.tight_layout()
+plt.show()
