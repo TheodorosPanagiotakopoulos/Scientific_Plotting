@@ -1,60 +1,46 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Ellipse
 
-# === Generate Training and Validation Sets ===
+# Simulate points in 2D space
+np.random.seed(0)
 
-train_cd = np.concatenate([
-    np.arange(12, 72 + 1, 4),
-    np.arange(80, 120 + 1, 8),
-    np.arange(136, 200 + 1, 16)
-])
-train_pitch = np.concatenate([
-    np.arange(40, 240 + 1, 8),
-    np.arange(260, 400 + 1, 20),
-    np.array([1000])
-])
+# Generate training set: Gaussian blob centered left
+train_x = np.random.normal(loc=40, scale=10, size=150)
+train_y = np.random.normal(loc=60, scale=10, size=150)
+train_set = set(zip(train_x.round(1), train_y.round(1)))
 
-# Build training set (tone +1, dir=0 only, to match val)
-train_points = set((cd, pitch) for cd in train_cd for pitch in train_pitch)
+# Generate validation set: Gaussian blob centered slightly right
+val_x = np.random.normal(loc=50, scale=10, size=150)
+val_y = np.random.normal(loc=60, scale=10, size=150)
+val_set = set(zip(val_x.round(1), val_y.round(1)))
 
-# Validation CD and pitch (tone = +1, dir = 0 only)
-val_cd = np.arange(20, 200 + 1, 2)
-val_points = set()
-for cd in val_cd:
-    for multiplier in [2, 3, 4]:
-        val_points.add((cd, multiplier * cd))
-    val_points.add((cd, 1000))
+# Find overlaps
+common_set = train_set & val_set
+train_only = train_set - common_set
+val_only = val_set - common_set
 
-# Compute sets
-common_points = train_points.intersection(val_points)
-train_only = train_points - common_points
-val_only = val_points - common_points
+# Plotting
+fig, ax = plt.subplots(figsize=(8, 6))
 
-# === Plotting ===
-fig, ax = plt.subplots(figsize=(10, 7))
+# Train-only
+if train_only:
+    tx, ty = zip(*train_only)
+    ax.scatter(tx, ty, color='blue', label='Train Only', alpha=0.5)
 
-# 1. Train-only
-train_cds, train_pitches = zip(*train_only)
-ax.scatter(train_cds, train_pitches, c='blue', s=20, alpha=0.4, label='Train Only')
+# Val-only
+if val_only:
+    vx, vy = zip(*val_only)
+    ax.scatter(vx, vy, color='green', label='Validation Only', alpha=0.5)
 
-# 2. Val-only
-val_cds, val_pitches = zip(*val_only)
-ax.scatter(val_cds, val_pitches, c='green', marker='*', s=60, alpha=0.7, label='Validation Only')
+# Common
+if common_set:
+    cx, cy = zip(*common_set)
+    ax.scatter(cx, cy, color='red', edgecolors='black', label='Common', s=60)
 
-# 3. Common points
-common_cds, common_pitches = zip(*common_points)
-ax.scatter(common_cds, common_pitches, facecolors='red', edgecolors='black',
-           s=50, linewidth=1.2, label='Common (Train ∩ Val)')
-
-# Optional: Ellipse-like region shading (manual)
-ax.add_patch(Ellipse((100, 300), 200, 600, alpha=0.05, color='blue'))   # training region
-ax.add_patch(Ellipse((100, 600), 200, 600, alpha=0.05, color='green'))  # validation region
-
-# Labels and layout
-ax.set_title("Venn-style CD–Pitch Sampling Visualization")
-ax.set_xlabel("CD (nm)")
-ax.set_ylabel("Pitch (nm)")
+# Labels
+ax.set_title("Venn-style 2D Set Overlap (Simulated Layout Sampling)")
+ax.set_xlabel("CD (or Feature X)")
+ax.set_ylabel("Pitch (or Feature Y)")
 ax.grid(True)
 ax.legend()
 plt.tight_layout()
