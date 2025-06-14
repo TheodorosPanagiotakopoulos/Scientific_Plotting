@@ -1,50 +1,55 @@
-Here’s a clean, presentation-ready explanation slide you can use to explain:
+import numpy as np
+import matplotlib.pyplot as plt
 
+# Function to generate pitch ranges
+def generate_pitches(tone):
+    if tone == 1:
+        pitch1 = np.arange(40, 240+1, 8)
+        pitch2 = np.arange(260, 400+1, 20)
+        pitches = np.concatenate([pitch1, pitch2])
+    elif tone == -1:
+        pitch1 = np.arange(200, 250+1, 8)
+        pitch2 = np.arange(260, 400+1, 20)
+        pitches = np.concatenate([pitch1, pitch2])
+    else:
+        pitches = []
+    return pitches
 
----
+# Generate CD values
+cd_range = np.concatenate([
+    np.arange(12, 72+1, 4),
+    np.arange(80, 120+1, 8),
+    np.arange(136, 200+1, 16)
+])
 
-📉 Why Are RMSE Values Increasing? (And Why is Validation < Training?)
+# Generate CD and pitch combinations
+def generate_pattern_points(tone):
+    pitches = generate_pitches(tone)
+    CDs, Pitches = np.meshgrid(cd_range, pitches)
+    return CDs.flatten(), Pitches.flatten()
 
-🚨 Unexpected Trend Observed:
+# Validation set (tone = 1)
+val_cd = np.arange(20, 200+1, 2)
+val_pitch = []
+for cd in val_cd:
+    val_pitch.extend([2*cd, 3*cd, 4*cd, 1000])
+val_cd = np.repeat(val_cd, 4)
+val_pitch = np.array(val_pitch)
 
-Both Training and Validation RMSE increase over epochs.
+# Generate points
+cds_tone1, pitch_tone1 = generate_pattern_points(1)
+cds_tone_1, pitch_tone_1 = generate_pattern_points(-1)
 
-Validation RMSE is lower than Training RMSE – counterintuitive!
+# Plotting
+plt.figure(figsize=(12, 8))
+plt.scatter(cds_tone1, pitch_tone1, c='blue', label='Pattern Tone 1', alpha=0.5, s=10)
+plt.scatter(cds_tone_1, pitch_tone_1, c='red', label='Pattern Tone -1', alpha=0.5, s=10)
+plt.scatter(val_cd, val_pitch, c='green', label='Validation Tone 1', alpha=0.8, s=20, marker='x')
 
-
-
----
-
-🔍 What This Might Mean
-
-Possible Cause	Description	Impact
-
-Data Leakage	Validation set may contain seen data	Validation error appears deceptively low
-Incorrect RMSE Calculation	Training/validation metrics not computed equally	Misleading performance metrics
-Too-High Learning Rate	Model overshoots optimal weights	Training becomes unstable
-Model Misconfiguration	Wrong .train() or .eval() mode (e.g., BatchNorm, Dropout)	Evaluation mismatch
-
-
-
----
-
-✅ Recommended Actions
-
-1. Check data splits for overlap or leakage.
-
-
-2. Verify RMSE computation on both datasets.
-
-
-3. Reduce learning rate (e.g., divide by 10).
-
-
-4. Ensure proper mode switching between training and evaluation.
-
-
-
-
----
-
-Let me know if you want this styled as a PowerPoint or with visuals/graphs!
-
+plt.xlabel('CD')
+plt.ylabel('Pitch')
+plt.title('CD vs Pitch for 1DLS Pattern and Validation Sets')
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
