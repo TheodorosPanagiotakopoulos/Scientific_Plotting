@@ -1,60 +1,46 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Define training CD and pitch ranges
-train_cd_1 = np.arange(12, 72 + 1, 4)
-train_cd_2 = np.arange(80, 120 + 1, 8)
-train_cd_3 = np.arange(136, 200 + 1, 16)
-train_cd = np.concatenate([train_cd_1, train_cd_2, train_cd_3])
+# Training CD and pitch ranges
+train_cd = np.concatenate([
+    np.arange(12, 72 + 1, 4),
+    np.arange(80, 120 + 1, 8),
+    np.arange(136, 200 + 1, 16)
+])
+train_pitch = np.concatenate([
+    np.arange(40, 240 + 1, 8),
+    np.arange(260, 400 + 1, 20),
+    np.array([1000])
+])
 
-train_pitch_1 = np.arange(40, 240 + 1, 8)
-train_pitch_2 = np.arange(260, 400 + 1, 20)
-train_pitch_3 = np.array([1000])
-train_pitch = np.concatenate([train_pitch_1, train_pitch_2, train_pitch_3])
-
-# Create training set as Cartesian product
-train_cd_grid, train_pitch_grid = np.meshgrid(train_cd, train_pitch)
-train_cd_flat = train_cd_grid.flatten()
-train_pitch_flat = train_pitch_grid.flatten()
-train_points = set(zip(train_cd_flat, train_pitch_flat))
-
-# Define validation CD and pitch pairs
+# Validation CD and pitch (tone=+1, direction=0 only)
 val_cd = np.arange(20, 200 + 1, 2)
 val_points = set()
 for cd in val_cd:
     for multiplier in [2, 3, 4]:
-        val_points.add((cd, multiplier * cd))
-    val_points.add((cd, 1000))
+        val_points.add((cd, multiplier * cd, +1, 0))
+    val_points.add((cd, 1000, +1, 0))
 
-# Compute intersection
-common_points = train_points.intersection(val_points)
+# Prepare figure
+fig, ax = plt.subplots(figsize=(10, 7))
 
-# Split for plotting
-train_cd_plot, train_pitch_plot = zip(*train_points)
-val_cd_plot, val_pitch_plot = zip(*val_points)
-common_cd_plot, common_pitch_plot = zip(*common_points) if common_points else ([], [])
+# Plot all training data with tone and direction
+for tone, color in [(-1, 'blue'), (+1, 'red')]:
+    for direction, marker in [(0, 'o'), (1, 'x')]:
+        points = [(cd, pitch) for cd in train_cd for pitch in train_pitch]
+        cds, pitches = zip(*points)
+        ax.scatter(cds, pitches, c=color, marker=marker, s=10, alpha=0.4,
+                   label=f"Train (Tone={tone}, Dir={direction})")
 
-# Plotting
-fig, axes = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
+# Overlay validation points
+val_cds, val_pitches = zip(*[(cd, pitch) for cd, pitch, tone, direction in val_points])
+ax.scatter(val_cds, val_pitches, color='green', marker='*', s=60, label='Validation (Tone=+1, Dir=0)')
 
-# Training data
-axes[0].scatter(train_cd_plot, train_pitch_plot, s=10, alpha=0.6)
-axes[0].set_title('Training Data')
-axes[0].set_xlabel('CD (nm)')
-axes[0].set_ylabel('Pitch (nm)')
-axes[0].grid(True)
-
-# Validation data
-axes[1].scatter(val_cd_plot, val_pitch_plot, color='green', s=10, alpha=0.6)
-axes[1].set_title('Validation Data')
-axes[1].set_xlabel('CD (nm)')
-axes[1].grid(True)
-
-# Common data
-axes[2].scatter(common_cd_plot, common_pitch_plot, color='red', s=10, alpha=0.6)
-axes[2].set_title('CD–Pitch Pairs in Both Train & Val')
-axes[2].set_xlabel('CD (nm)')
-axes[2].grid(True)
-
+# Labels and legend
+ax.set_title("CD–Pitch Sampling (Training & Validation)")
+ax.set_xlabel("CD (nm)")
+ax.set_ylabel("Pitch (nm)")
+ax.grid(True)
+ax.legend()
 plt.tight_layout()
 plt.show()
