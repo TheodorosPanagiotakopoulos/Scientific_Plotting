@@ -67,3 +67,6 @@ The network is too simple (or too strongly regularized) to capture the lithograp
 
 ---------____
 After a couple of epochs the optimizer’s weight updates begin to “overshoot” minima in the loss landscape. With a learning rate that’s too high (or inadequate decay), each gradient step pushes parameters further from the optimal region rather than settling into it. As a result, the error grows on both the training set (all CD/pitch, both tones/directions) and the simpler validation slice.
+
+
+The validation set covers a narrow, densely sampled grid (CD 20–200 nm in 2 nm steps; pitch = 2×, 3×, 4× CD or 1000 nm; tone = 1; direction = 0). These patterns are “easier” because they lie in a well-represented region of the training distribution. In contrast, the training set includes coarse, uneven CD/pitch ranges, two tones and both directions, introducing harder examples that inflate the average training error.
