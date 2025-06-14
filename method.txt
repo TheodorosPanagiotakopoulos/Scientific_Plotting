@@ -1,83 +1,72 @@
-import numpy as np
 import matplotlib.pyplot as plt
 
-# Common CD range for all tones
-cd_range = np.concatenate([
-    np.arange(12, 73, 4),
-    np.arange(80, 121, 8),
-    np.arange(136, 201, 16)
-])
+# 1. Generate training dataset: various tones and directions
+train_cd = list(range(12, 81, 8))  # CD from ~12 to 80
+train_pitch = list(range(40, 241, 8)) + list(range(260, 401, 20)) + [1000]
+train_tones = [+1, -1]
+train_directions = [0, 90]
 
-# Pitch ranges
-pitch_range_tone1 = np.concatenate([
-    np.arange(40, 241, 8),
-    np.arange(260, 401, 20)
-])
-pitch_range_tone_minus1 = np.concatenate([
-    np.arange(200, 251, 8),
-    np.arange(260, 401, 20)
-])
+train_points = [
+    (cd, pitch, tone, direction)
+    for cd in train_cd
+    for pitch in train_pitch
+    for tone in train_tones
+    for direction in train_directions
+]
 
-# Directions
-directions = [0, 90]
+# 2. Generate validation dataset: only +1 tone and 0° direction
+val_cd = list(range(20, 201, 2))
+val_tones = [+1]
+val_directions = [0]
+val_points = []
 
-# Store training data
-train_data = []
+for cd in val_cd:
+    for mult in [2, 3, 4]:
+        for tone in val_tones:
+            for direction in val_directions:
+                val_points.append((cd, mult * cd, tone, direction))
+    val_points.append((cd, 1000, +1, 0))  # Always include 1000 pitch
 
-# Tone 1
-for cd in cd_range:
-    for pitch in pitch_range_tone1:
-        for direction in directions:
-            train_data.append((cd, pitch, 1, direction))
+# 3. Compute set relationships
+train_set = set(train_points)
+val_set = set(val_points)
+intersection = train_set & val_set
+train_only = list(train_set - intersection)
+val_only = list(val_set - intersection)
+both = list(intersection)
 
-# Tone -1
-for cd in cd_range:
-    for pitch in pitch_range_tone_minus1:
-        for direction in directions:
-            train_data.append((cd, pitch, -1, direction))
+# 4. Helper to extract (CD, Pitch) for plotting
+def extract_cd_pitch(points):
+    if not points:
+        return [], []
+    return zip(*[(cd, pitch) for cd, pitch, tone, direction in points])
 
-# Validation data (only tone=1, no directions)
-cd_val = np.arange(20, 201, 2)
-val_data = []
-for cd in cd_val:
-    for pitch in [2 * cd, 3 * cd, 4 * cd, 1000]:
-        val_data.append((cd, pitch))
+# 5. Plotting: 3-panel scatter layout
+fig, axes = plt.subplots(1, 3, figsize=(15, 5), sharey=True)
 
-# Prepare training scatter plot
-train_cd = [item[0] for item in train_data]
-train_pitch = [item[1] for item in train_data]
-train_tone = [item[2] for item in train_data]
-train_dir = [item[3] for item in train_data]
+# Training-only points
+x_train, y_train = extract_cd_pitch(train_only)
+axes[0].scatter(x_train, y_train, color='red', alpha=0.6, s=10)
+axes[0].set_title('Training Only')
+axes[0].set_xlabel('CD (nm)')
+axes[0].set_ylabel('Pitch (nm)')
+axes[0].grid(True)
 
-# Validation
-val_cd = [item[0] for item in val_data]
-val_pitch = [item[1] for item in val_data]
+# Shared points
+x_both, y_both = extract_cd_pitch(both)
+axes[1].scatter(x_both, y_both, color='blue', alpha=0.6, s=10)
+axes[1].set_title('Shared in Both')
+axes[1].set_xlabel('CD (nm)')
+axes[1].grid(True)
 
-# Plotting
-plt.figure(figsize=(12, 8))
+# Validation-only points
+x_val, y_val = extract_cd_pitch(val_only)
+axes[2].scatter(x_val, y_val, color='green', alpha=0.6, s=10)
+axes[2].set_title('Validation Only')
+axes[2].set_xlabel('CD (nm)')
+axes[2].grid(True)
 
-# Plot training by tone and direction
-for tone in [1, -1]:
-    for direction in directions:
-        tone_mask = np.array(train_tone) == tone
-        dir_mask = np.array(train_dir) == direction
-        mask = tone_mask & dir_mask
-        label = f"Train: Tone {tone}, Dir {direction}"
-        marker = 'o' if direction == 0 else '^'
-        color = 'blue' if tone == 1 else 'green'
-        plt.scatter(np.array(train_cd)[mask],
-                    np.array(train_pitch)[mask],
-                    s=10, alpha=0.5,
-                    label=label,
-                    marker=marker, color=color)
-
-# Plot validation
-plt.scatter(val_cd, val_pitch, s=12, color='red', alpha=0.8, label='Validation (Tone 1)')
-
-plt.xlabel("CD (nm)")
-plt.ylabel("Pitch (nm)")
-plt.title("Training vs Validation Data (1DLS) - Tones and Directions")
-plt.legend()
-plt.grid(True)
-plt.tight_layout()
+# Final layout adjustments
+fig.suptitle('Dataset Point Distribution (CD, Pitch, Tone, Direction)', fontsize=14)
+plt.tight_layout(rect=[0, 0.03, 1, 0.95])
 plt.show()
