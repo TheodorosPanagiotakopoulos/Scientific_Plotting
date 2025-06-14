@@ -35,3 +35,31 @@ Lower the learning rate (or adjust optimizer settings) for stable convergence
 
 > Detailed Take-Home for Presentation:
 Over epochs, both train and validation errors climb—an unusual sign of divergence driven by too-large gradient steps—and validation remains easier than the mixed training set, so its RMSE sits below the training RMSE. Although the gap narrows, it’s only because both errors worsen, not because generalization improves. To address this, we’ll increase the network’s capacity (more neurons or less regularization), refocus our training samples on the key CD/pitch regime we actually care about, and reduce the learning rate so the optimizer can steadily descend the loss landscape. These actions should lower both errors and restore a healthy train < validation relationship
+
+
+----
+
+1. Why both RMSE curves climb
+
+Learning-rate overshoot: After a couple of epochs, weight updates begin to overshoot loss minima, pushing errors higher on both training and validation sets.
+
+Under-parameterization (or over-regularization): The model lacks sufficient capacity to learn the underlying CD/pitch relationships. As a result, it can’t reduce loss and gradient noise drives both errors upward.
+
+
+2. Why Validation RMSE < Training RMSE
+
+“Easier” validation slice: Validation only covers CD 20–200 nm in tight 2 nm steps, pitch = {2×CD, 3×CD, 4×CD, 1000}, tone = 1, direction = 0—well sampled by the network.
+
+Heterogeneous training set: Training spans coarse CD/pitch ranges (12–200 nm in uneven steps, plus extremes), both tones and both directions, so the average training error is higher.
+
+
+3. Shrinking Δ(RMSE) is misleading
+Although |RMSEₜᵣₐᵢₙ – RMSEᵥₐₗ| drops from 0.17 → 0.14, it’s only because both curves are rising—not because the model is generalizing better.
+
+
+---
+
+Final diagnosis
+
+> Under-fitting with slight optimizer divergence.
+The network is too simple (or too strongly regularized) to capture the lithography behavior, and the current learning rate is pushing it toward divergence rather than convergence.
