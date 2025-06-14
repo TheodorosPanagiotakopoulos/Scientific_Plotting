@@ -1,39 +1,71 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib_venn import venn3
 
-# Helper to generate (CD, Pitch) pairs
+# Helper: generate (CD, Pitch) pairs for tone
 def generate_pattern_pairs(tone):
     if tone == 1:
-        pitch1 = np.arange(40, 240+1, 8)
-        pitch2 = np.arange(260, 400+1, 20)
+        pitches = np.concatenate([
+            np.arange(40, 240 + 1, 8),
+            np.arange(260, 400 + 1, 20)
+        ])
     else:
-        pitch1 = np.arange(200, 250+1, 8)
-        pitch2 = np.arange(260, 400+1, 20)
-    pitches = np.concatenate([pitch1, pitch2])
-    cd_vals = np.concatenate([
-        np.arange(12, 72+1, 4),
-        np.arange(80, 120+1, 8),
-        np.arange(136, 200+1, 16)
+        pitches = np.concatenate([
+            np.arange(200, 250 + 1, 8),
+            np.arange(260, 400 + 1, 20)
+        ])
+
+    cds = np.concatenate([
+        np.arange(12, 72 + 1, 4),
+        np.arange(80, 120 + 1, 8),
+        np.arange(136, 200 + 1, 16)
     ])
-    CDs, Pitches = np.meshgrid(cd_vals, pitches)
-    return set(zip(CDs.flatten(), Pitches.flatten()))
+    cd_mesh, pitch_mesh = np.meshgrid(cds, pitches)
+    return set(zip(cd_mesh.flatten(), pitch_mesh.flatten()))
 
 # Generate validation (CD, Pitch) pairs
-val_cd = np.arange(20, 200+1, 2)
+val_cd = np.arange(20, 200 + 1, 2)
 val_pairs = set()
 for cd in val_cd:
     for mult in [2, 3, 4]:
-        val_pairs.add((cd, mult*cd))
+        val_pairs.add((cd, mult * cd))
     val_pairs.add((cd, 1000))
 
-# Define the sets
-set_A = generate_pattern_pairs(1)   # Pattern Tone 1
-set_B = generate_pattern_pairs(-1)  # Pattern Tone -1
-set_C = val_pairs                   # Validation
+# Define sets
+tone1_set = generate_pattern_pairs(1)
+tone_1_set = generate_pattern_pairs(-1)
+val_set = val_pairs
 
-# Plot the Venn diagram
-plt.figure(figsize=(8, 6))
-venn3([set_A, set_B, set_C], ('Pattern Tone 1', 'Pattern Tone -1', 'Validation Tone 1'))
-plt.title("Overlap of CD-Pitch Pairs (1DLS)")
+# Compute intersections
+val_in_tone1 = val_set & tone1_set
+val_in_tone_1 = val_set & tone_1_set
+tone1_and_tone_1 = tone1_set & tone_1_set
+
+# Unique values
+only_val = val_set - (tone1_set | tone_1_set)
+only_tone1 = tone1_set - (val_set | tone_1_set)
+only_tone_1 = tone_1_set - (val_set | tone1_set)
+
+# Plotting
+def scatter_points(points, label, color, marker, size=25):
+    if not points:
+        return
+    x, y = zip(*points)
+    plt.scatter(x, y, label=label, color=color, marker=marker, s=size, alpha=0.8)
+
+plt.figure(figsize=(12, 8))
+
+scatter_points(only_tone1, "Only Tone 1", 'blue', 'o')
+scatter_points(only_tone_1, "Only Tone -1", 'red', '^')
+scatter_points(only_val, "Only Validation", 'green', 'x', size=40)
+
+scatter_points(val_in_tone1, "Val ∩ Tone 1", 'black', 's')
+scatter_points(val_in_tone_1, "Val ∩ Tone -1", 'purple', 'D')
+scatter_points(tone1_and_tone_1, "Tone 1 ∩ Tone -1", 'orange', '*')
+
+plt.xlabel("CD")
+plt.ylabel("Pitch")
+plt.title("Overlap Visualization of CD-Pitch Points (1DLS)")
+plt.grid(True)
+plt.legend(loc='upper right')
+plt.tight_layout()
 plt.show()
