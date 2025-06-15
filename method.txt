@@ -1,34 +1,55 @@
-You're thinking in the right direction, and you've clearly put effort into analyzing the data generation and RMSE trends. Here's a corrected and refined analysis, along with a succinct diagnosis for your slide:
+import matplotlib.pyplot as plt
 
+# === Training Data Generation ===
+train_cd = list(range(24, 121, 8))  # 24–120 step 8
+train_pitch = 1690  # not used in 2D plot
+train_space_continuous = list(range(24, 121, 8))
+train_space_discrete = [160, 200, 240, 320, 400, 560]
 
----
+# Combine all train (CD, Space) pairs
+train_set = set()
+for cd in train_cd:
+    for space in train_space_continuous + train_space_discrete:
+        train_set.add((cd, space))
 
-✅ Correct Points:
+# === Validation Data Generation ===
+val_cd = [36, 40, 50, 60, 80, 100]
+val_pitch = 1600  # not used in plot
+val_space = [40, 50, 60, 80, 100, 140, 180, 260]
 
-Yes, both training and validation RMSE are increasing, which suggests the model isn’t learning effectively.
+val_set = set()
+for cd in val_cd:
+    for space in val_space:
+        val_set.add((cd, space))
 
-Validation RMSE being lower than training RMSE can happen when the validation set is easier — as you said, due to smoother distributions or better coverage within the training distribution.
+# === Identify Overlaps ===
+common_set = train_set & val_set
+train_only = train_set - common_set
+val_only = val_set - common_set
 
+# === Plotting ===
+fig, ax = plt.subplots(figsize=(10, 7))
 
+# Train-only
+if train_only:
+    tx, ty = zip(*train_only)
+    ax.scatter(tx, ty, color='blue', label='Train Only', alpha=0.4)
 
----
+# Val-only
+if val_only:
+    vx, vy = zip(*val_only)
+    ax.scatter(vx, vy, color='green', label='Validation Only', alpha=0.4)
 
-❌ Misconceptions / Clarifications:
+# Common
+if common_set:
+    cx, cy = zip(*common_set)
+    ax.scatter(cx, cy, color='red', edgecolors='black', label='Common', s=60)
 
-It's not overshooting minima due to optimizer behavior alone — overshooting usually causes instability or oscillation, not steady RMSE increase.
-
-The issue is more likely that the model is underfitting: it hasn't captured enough complexity to reduce errors, possibly due to inadequate model capacity or poor feature representations.
-
-
-
----
-
-✅ Correct Diagnosis for Slide (1–3 sentences):
-
-> Diagnosis: The model is underfitting — both training and validation RMSE increase with epochs, indicating it fails to capture the data distribution effectively. Validation RMSE is consistently lower because the validation set is simpler and better aligned with the training distribution.
-Fixes: Increase model capacity (e.g., deeper network), improve input features, or rebalance the training data for better CD/pitch/tone coverage.
-
-
-
-Let me know if you want help turning this into a more visual or bullet-point slide.
-
+# Labels
+ax.set_title("2-Bar Pattern: Training vs Validation Coverage in CD–Space")
+ax.set_xlabel("CD")
+ax.set_ylabel("Space")
+ax.grid(True)
+ax.legend()
+plt.tight_layout()
+plt.show()
