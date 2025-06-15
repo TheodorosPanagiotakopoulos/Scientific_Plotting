@@ -33,57 +33,66 @@ The model exhibits training divergence after initial learning. Its RMSE rises fo
 
 -----
 
+ 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Ellipse
+import itertools
 
-# --- Training data definition ---
-train_cdx = np.concatenate([
-    np.arange(64, 108, 8),  # 64 to 100 with step 8
-    [120, 138, 192, 240]
-])
-train_cdy = np.array([64, 80, 152])
-train_points = set((x, y) for x in train_cdx for y in train_cdy)
+# --- Define data ranges ---
+cdx_vals = np.concatenate([np.arange(64, 108, 8), [120, 138, 192, 240]])
+cdy_vals = [64, 80, 152]
+pitch_vals = [44, 48, 56, 72, 96]
+space_vals = [40, 60, 100, 140, 200, 300, 400, 500]
+tones = [-1, 1]
+directions = [0, 90]
 
-# --- Validation data definition ---
-val_cdx = np.array([40, 60, 80, 100, 200])
-val_cdy = set()
-for cd in val_cdx:
-    for mult in [1, 2, 3]:
-        val_cdy.add(cd * mult)
-val_cdy = np.array(sorted(val_cdy))
-val_points = set((x, y) for x in val_cdx for y in val_cdy)
+# --- Marker styles for direction ---
+marker_map = {0: 'o', 90: '^'}
+tone_color = {-1: 'red', 1: 'blue'}
+pitch_color_map = {44: 'black', 48: 'gray', 56: 'green', 72: 'orange', 96: 'purple'}
+space_alpha_map = {40: 0.3, 60: 0.4, 100: 0.5, 140: 0.6, 200: 0.7, 300: 0.8, 400: 0.9, 500: 1.0}
 
-# --- Compute regions ---
-common_points = train_points.intersection(val_points)
-train_only = train_points - val_points
-val_only = val_points - train_points
+# --- Prepare the plot ---
+fig, ax = plt.subplots(figsize=(12, 10))
 
-# --- Plotting ---
-fig, ax = plt.subplots(figsize=(10, 8))
+# --- Generate combinations and plot ---
+for (cdx, cdy, px, py, sx, sy, tone, direction) in itertools.product(
+        cdx_vals, cdy_vals, pitch_vals, pitch_vals,
+        space_vals, space_vals, tones, directions):
+    
+    marker = marker_map[direction]
+    face_color = tone_color[tone]
+    edge_color = pitch_color_map[py]
+    size = 20 + 2 * px  # Size based on PitchX
+    alpha = space_alpha_map.get(sx, 0.5)
+    
+    ax.scatter(cdx, cdy,
+               marker=marker,
+               c=face_color,
+               edgecolors=edge_color,
+               s=size,
+               alpha=alpha,
+               linewidths=1.5)
 
-# Convert to plot-friendly format
-def unzip(points):
-    return list(zip(*points)) if points else ([], [])
-
-tx, ty = unzip(train_only)
-vx, vy = unzip(val_only)
-cx, cy = unzip(common_points)
-
-# --- Scatter plots ---
-ax.scatter(tx, ty, c='blue', s=40, alpha=0.5, label='Train Only')
-ax.scatter(vx, vy, c='green', marker='x', s=80, alpha=0.7, label='Validation Only')
-ax.scatter(cx, cy, facecolors='red', edgecolors='black', s=60, label='Common (Train ∩ Val)')
-
-# --- Optional visual ellipses for emphasis (commented out) ---
-# ax.add_patch(Ellipse((100, 300), 200, 600, alpha=0.05, color='blue'))  # training region
-# ax.add_patch(Ellipse((100, 600), 200, 600, alpha=0.05, color='green'))  # validation region
-
-# --- Labels and layout ---
-ax.set_title("Grid CDx–CDy Sampling Visualization")
+# --- Axis settings ---
+ax.set_title("Grid CDx–CDy Sampling Visualization with Multi-D Encodings")
 ax.set_xlabel("CDx (nm)")
 ax.set_ylabel("CDy (nm)")
 ax.grid(True)
-ax.legend()
+
+# --- Legend proxies ---
+from matplotlib.lines import Line2D
+
+legend_elements = [
+    Line2D([0], [0], marker='o', color='w', label='Dir 0', markerfacecolor='gray', markersize=10),
+    Line2D([0], [0], marker='^', color='w', label='Dir 90', markerfacecolor='gray', markersize=10),
+    Line2D([0], [0], marker='o', color='blue', label='Tone +1', linestyle='None'),
+    Line2D([0], [0], marker='o', color='red', label='Tone -1', linestyle='None'),
+    Line2D([0], [0], marker='o', color='black', markeredgecolor='black', label='PitchY = 44', linestyle='None'),
+    Line2D([0], [0], marker='o', color='black', markeredgecolor='green', label='PitchY = 56', linestyle='None'),
+    Line2D([0], [0], marker='o', color='black', markeredgecolor='purple', label='PitchY = 96', linestyle='None'),
+]
+
+ax.legend(handles=legend_elements, loc='upper right')
 plt.tight_layout()
 plt.show()
