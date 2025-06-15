@@ -1,98 +1,56 @@
-🛕 Temple of Diagnosis
+🛕 Temple of Diagnosis – Stagger dataset (final series)
 
 
 ---
 
 My diagnosis:
 
-Both training and validation RMSE steadily increase after a few epochs.
+Training and validation RMSE fall in the first 4 epochs, then rise for the remainder.
 
-Explanation: The model initially learns (RMSE dips until about epoch 5), but then the optimizer’s weights begin to overshoot minima in the loss landscape, causing both training and validation errors to climb thereafter.
-
-
----
-
-Validation RMSE remains above training RMSE at every epoch.
-
-Explanation: The validation set uses CDx/CDy and space values (e.g., WY = WX×{1,2,3}, space = 40–500) that fall outside or at the edges of the denser training grid. These novel combinations are harder to predict, so the model’s validation error stays higher than its training error.
+Explanation:
+The optimiser initially finds a shallow minimum, giving a brief loss reduction.
+After epoch 4, weight updates start overshooting or oscillating; both losses trend upward, a classic sign of training-time instability.
 
 
 ---
 
-Absolute train–val RMSE gap shrinks early, then increases as errors worsen.
+Validation RMSE remains higher than training RMSE at every epoch.
 
-Explanation: Early on, the model fits the training data faster than it generalizes—narrowing the gap. But as both RMSEs climb due to unstable optimization, the numerical gap widens again, reflecting shared performance degradation rather than improved generalization.
+Explanation:
+Validation patterns are far outside the training manifold:
+
+CDx includes 40 nm and 200 nm (never in train)
+
+CDy reaches 3×WX (up to 600 nm)
+
+PitchX/Y spike to 1400 / 1000 nm (train tops out at 96 nm)
+
+
+These extrapolated regions are harder, so the model generalises poorly and val RMSE stays above train RMSE.
+
+
+---
+
+RMSE gap (val – train) narrows early, then widens again.
+
+It shrinks from 0.295 → 0.247 as the model learns low-hanging training features.
+
+It widens to 0.310 once divergence begins, because validation error grows faster than training error.
+
 
 
 ---
 
 Diagnosis:
 
-The model exhibits training divergence after initial learning. Its RMSE rises for both train and validation sets, with validation error consistently higher—indicative of unstable training dynamics (e.g., learning rate too high, insufficient regularization) and poor generalization to the sparser validation grid.
+> Diverging model under severe distribution shift.
+Not underfitting (model learned early); not classic overfitting (train loss rises too).
+Root causes: high learning-rate or weak regularisation plus a validation set that is largely out-of-distribution (extreme pitch and CD combinations).
 
 
------
 
- 
-import matplotlib.pyplot as plt
-import numpy as np
-import itertools
 
-# --- Define data ranges ---
-cdx_vals = np.concatenate([np.arange(64, 108, 8), [120, 138, 192, 240]])
-cdy_vals = [64, 80, 152]
-pitch_vals = [44, 48, 56, 72, 96]
-space_vals = [40, 60, 100, 140, 200, 300, 400, 500]
-tones = [-1, 1]
-directions = [0, 90]
+---
 
-# --- Marker styles for direction ---
-marker_map = {0: 'o', 90: '^'}
-tone_color = {-1: 'red', 1: 'blue'}
-pitch_color_map = {44: 'black', 48: 'gray', 56: 'green', 72: 'orange', 96: 'purple'}
-space_alpha_map = {40: 0.3, 60: 0.4, 100: 0.5, 140: 0.6, 200: 0.7, 300: 0.8, 400: 0.9, 500: 1.0}
+Of course, you make your own diagnosis.
 
-# --- Prepare the plot ---
-fig, ax = plt.subplots(figsize=(12, 10))
-
-# --- Generate combinations and plot ---
-for (cdx, cdy, px, py, sx, sy, tone, direction) in itertools.product(
-        cdx_vals, cdy_vals, pitch_vals, pitch_vals,
-        space_vals, space_vals, tones, directions):
-    
-    marker = marker_map[direction]
-    face_color = tone_color[tone]
-    edge_color = pitch_color_map[py]
-    size = 20 + 2 * px  # Size based on PitchX
-    alpha = space_alpha_map.get(sx, 0.5)
-    
-    ax.scatter(cdx, cdy,
-               marker=marker,
-               c=face_color,
-               edgecolors=edge_color,
-               s=size,
-               alpha=alpha,
-               linewidths=1.5)
-
-# --- Axis settings ---
-ax.set_title("Grid CDx–CDy Sampling Visualization with Multi-D Encodings")
-ax.set_xlabel("CDx (nm)")
-ax.set_ylabel("CDy (nm)")
-ax.grid(True)
-
-# --- Legend proxies ---
-from matplotlib.lines import Line2D
-
-legend_elements = [
-    Line2D([0], [0], marker='o', color='w', label='Dir 0', markerfacecolor='gray', markersize=10),
-    Line2D([0], [0], marker='^', color='w', label='Dir 90', markerfacecolor='gray', markersize=10),
-    Line2D([0], [0], marker='o', color='blue', label='Tone +1', linestyle='None'),
-    Line2D([0], [0], marker='o', color='red', label='Tone -1', linestyle='None'),
-    Line2D([0], [0], marker='o', color='black', markeredgecolor='black', label='PitchY = 44', linestyle='None'),
-    Line2D([0], [0], marker='o', color='black', markeredgecolor='green', label='PitchY = 56', linestyle='None'),
-    Line2D([0], [0], marker='o', color='black', markeredgecolor='purple', label='PitchY = 96', linestyle='None'),
-]
-
-ax.legend(handles=legend_elements, loc='upper right')
-plt.tight_layout()
-plt.show()
