@@ -30,3 +30,60 @@ Diagnosis:
 
 The model exhibits training divergence after initial learning. Its RMSE rises for both train and validation sets, with validation error consistently higher—indicative of unstable training dynamics (e.g., learning rate too high, insufficient regularization) and poor generalization to the sparser validation grid.
 
+
+-----
+
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.patches import Ellipse
+
+# --- Training data definition ---
+train_cdx = np.concatenate([
+    np.arange(64, 108, 8),  # 64 to 100 with step 8
+    [120, 138, 192, 240]
+])
+train_cdy = np.array([64, 80, 152])
+train_points = set((x, y) for x in train_cdx for y in train_cdy)
+
+# --- Validation data definition ---
+val_cdx = np.array([40, 60, 80, 100, 200])
+val_cdy = set()
+for cd in val_cdx:
+    for mult in [1, 2, 3]:
+        val_cdy.add(cd * mult)
+val_cdy = np.array(sorted(val_cdy))
+val_points = set((x, y) for x in val_cdx for y in val_cdy)
+
+# --- Compute regions ---
+common_points = train_points.intersection(val_points)
+train_only = train_points - val_points
+val_only = val_points - train_points
+
+# --- Plotting ---
+fig, ax = plt.subplots(figsize=(10, 8))
+
+# Convert to plot-friendly format
+def unzip(points):
+    return list(zip(*points)) if points else ([], [])
+
+tx, ty = unzip(train_only)
+vx, vy = unzip(val_only)
+cx, cy = unzip(common_points)
+
+# --- Scatter plots ---
+ax.scatter(tx, ty, c='blue', s=40, alpha=0.5, label='Train Only')
+ax.scatter(vx, vy, c='green', marker='x', s=80, alpha=0.7, label='Validation Only')
+ax.scatter(cx, cy, facecolors='red', edgecolors='black', s=60, label='Common (Train ∩ Val)')
+
+# --- Optional visual ellipses for emphasis (commented out) ---
+# ax.add_patch(Ellipse((100, 300), 200, 600, alpha=0.05, color='blue'))  # training region
+# ax.add_patch(Ellipse((100, 600), 200, 600, alpha=0.05, color='green'))  # validation region
+
+# --- Labels and layout ---
+ax.set_title("Grid CDx–CDy Sampling Visualization")
+ax.set_xlabel("CDx (nm)")
+ax.set_ylabel("CDy (nm)")
+ax.grid(True)
+ax.legend()
+plt.tight_layout()
+plt.show()
