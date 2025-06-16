@@ -1,185 +1,47 @@
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
 import numpy as np
-
-# === Generate train CD and pitch ===
-train_cd = np.concatenate([
-    np.arange(120, 221, 4),
-    np.arange(120, 161, 8),
-    np.arange(160, 200, 16)
-])
-train_pitch = np.concatenate([
-    np.arange(1000, 1601, 50),
-    np.arange(1600, 2201, 100),
-    np.array([1600])
-])
-
-# === Build training set (tone #4, dir=0 only, to match val) ===
-train_points = set((cd, pitch) for cd in train_cd for pitch in train_pitch)
-
-# === Validation CD and pitch (tone #1, dir=3 only) ===
-val_cd = np.arange(200, 220 + 1, 2)
-val_points = set()
-for cd in val_cd:
-    for multiplier in [2, 3, 4]:
-        val_points.add((cd, multiplier * cd))
-
-# === Compute sets ===
-common_points = train_points.intersection(val_points)
-train_only = train_points - common_points
-val_only = val_points - common_points
-
-# === Prepare data for seaborn ===
-data = []
-
-for cd, pitch in train_only:
-    data.append({'CD': cd, 'Pitch': pitch, 'Set': 'Train Only'})
-for cd, pitch in val_only:
-    data.append({'CD': cd, 'Pitch': pitch, 'Set': 'Validation Only'})
-for cd, pitch in common_points:
-    data.append({'CD': cd, 'Pitch': pitch, 'Set': 'Common'})
-
-df = pd.DataFrame(data)
-
-# === Plotting with seaborn ===
-plt.figure(figsize=(10, 7))
-sns.scatterplot(data=df, x='CD', y='Pitch', hue='Set', style='Set', alpha=0.7, s=70, palette={
-    'Train Only': 'blue',
-    'Validation Only': 'green',
-    'Common': 'red'
-})
-
-plt.title("1DLS-style CD–Pitch Sampling Visualization")
-plt.xlabel("CD (nm)")
-plt.ylabel("Pitch (nm)")
-plt.grid(True)
-plt.tight_layout()
-plt.show()
-
-
-
------1DLS-----
-
-
-import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.pyplot as plt
 import pandas as pd
 
-# === Training Data Generation ===
-train_cd = list(range(24, 121, 8))  # 24–120 step 8
-train_pitch = 1690  # not used in 2D plot
-train_space_continuous = list(range(24, 121, 8))
-train_space_discrete = [160, 200, 240, 320, 400, 560]
+# Simulate points in 2D space
+np.random.seed(0)
 
-# Combine all train (CD, Space) pairs
-train_set = set()
-for cd in train_cd:
-    for space in train_space_continuous + train_space_discrete:
-        train_set.add((cd, space))
+# Generate training set: Gaussian blob centered left
+train_x = np.random.normal(loc=40, scale=10, size=150)
+train_y = np.random.normal(loc=60, scale=10, size=150)
+train_set = set(zip(train_x.round(1), train_y.round(1)))
 
-# === Validation Data Generation ===
-val_cd = [36, 40, 50, 80, 100, 140]
-val_pitch = 1600  # not used in plot
-val_space = [40, 60, 80, 100, 140, 180, 268]
+# Generate validation set: Gaussian blob centered slightly right
+val_x = np.random.normal(loc=50, scale=10, size=150)
+val_y = np.random.normal(loc=60, scale=10, size=150)
+val_set = set(zip(val_x.round(1), val_y.round(1)))
 
-val_set = set()
-for cd in val_cd:
-    for space in val_space:
-        val_set.add((cd, space))
-
-# === Identify Overlaps ===
+# Find overlaps
 common_set = train_set & val_set
 train_only = train_set - common_set
 val_only = val_set - common_set
 
-# === Prepare data for seaborn ===
+# Prepare DataFrame for Seaborn
 data = []
 
 for x, y in train_only:
-    data.append({'CD': x, 'Space': y, 'Set': 'Train Only'})
+    data.append({'x': x, 'y': y, 'Set': 'Train Only'})
+
 for x, y in val_only:
-    data.append({'CD': x, 'Space': y, 'Set': 'Validation Only'})
+    data.append({'x': x, 'y': y, 'Set': 'Validation Only'})
+
 for x, y in common_set:
-    data.append({'CD': x, 'Space': y, 'Set': 'Common'})
+    data.append({'x': x, 'y': y, 'Set': 'Common'})
 
 df = pd.DataFrame(data)
 
-# === Plotting with seaborn ===
-plt.figure(figsize=(10, 7))
-sns.scatterplot(data=df, x='CD', y='Space', hue='Set', style='Set', alpha=0.6, palette={
-    'Train Only': 'blue',
-    'Validation Only': 'green',
-    'Common': 'red'
-})
+# Plot using Seaborn
+plt.figure(figsize=(8, 6))
+sns.scatterplot(data=df, x='x', y='y', hue='Set', style='Set', s=60, alpha=0.6, edgecolor='black')
 
-plt.title("3-Bar Pattern: Training vs Validation Coverage in CD-Space")
-plt.xlabel("CD")
-plt.ylabel("Space")
-plt.grid(True)
-plt.tight_layout()
-plt.sho
-
-----3bar----
-
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-
-# === Training Data Generation ===
-train_cd = list(range(124, 221, 8))  # 124–220 step 8
-train_pitch = 1690  # not used in 2D plot
-train_space_continuous = list(range(4, 80, 8))
-train_space_discrete = [150, 200, 240, 320, 340, 420, 500, 560, 800]
-
-# Combine all train (CD, Space) pairs
-train_set = set()
-for cd in train_cd:
-    for space in train_space_continuous + train_space_discrete:
-        train_set.add((cd, space))
-
-# === Validation Data Generation ===
-val_cd = list(range(132, 204, 8))  # 132–200 step 8
-val_pitch = 1600  # not used in plot
-val_space = [80, 100, 120, 140, 180, 200, 220, 260]
-
-val_set = set()
-for cd in val_cd:
-    for space in val_space:
-        val_set.add((cd, space))
-
-# === Identify Overlap ===
-common_set = train_set & val_set
-train_only = train_set - common_set
-val_only = val_set - common_set
-
-# === Prepare data for seaborn ===
-data = []
-
-for x, y in train_only:
-    data.append({'CD': x, 'Space': y, 'Set': 'Train Only'})
-for x, y in val_only:
-    data.append({'CD': x, 'Space': y, 'Set': 'Validation Only'})
-for x, y in common_set:
-    data.append({'CD': x, 'Space': y, 'Set': 'Common'})
-
-df = pd.DataFrame(data)
-
-# === Plotting with seaborn ===
-plt.figure(figsize=(10, 7))
-sns.scatterplot(data=df, x='CD', y='Space', hue='Set', style='Set', alpha=0.6, palette={
-    'Train Only': 'blue',
-    'Validation Only': 'green',
-    'Common': 'red'
-})
-
-plt.title("2x2 Bar Pattern: Training vs Validation Coverage in CD-Space")
-plt.xlabel("CD")
-plt.ylabel("Space")
+plt.title("Venn-style 2D Set Overlap (Simulated Layout Sampling)")
+plt.xlabel("CD (or Feature X)")
+plt.ylabel("Pitch (or Feature Y)")
 plt.grid(True)
 plt.tight_layout()
 plt.show()
-
-
-2bar
