@@ -1,56 +1,185 @@
-🛕 Temple of Diagnosis – Stagger dataset (final series)
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+import numpy as np
+
+# === Generate train CD and pitch ===
+train_cd = np.concatenate([
+    np.arange(120, 221, 4),
+    np.arange(120, 161, 8),
+    np.arange(160, 200, 16)
+])
+train_pitch = np.concatenate([
+    np.arange(1000, 1601, 50),
+    np.arange(1600, 2201, 100),
+    np.array([1600])
+])
+
+# === Build training set (tone #4, dir=0 only, to match val) ===
+train_points = set((cd, pitch) for cd in train_cd for pitch in train_pitch)
+
+# === Validation CD and pitch (tone #1, dir=3 only) ===
+val_cd = np.arange(200, 220 + 1, 2)
+val_points = set()
+for cd in val_cd:
+    for multiplier in [2, 3, 4]:
+        val_points.add((cd, multiplier * cd))
+
+# === Compute sets ===
+common_points = train_points.intersection(val_points)
+train_only = train_points - common_points
+val_only = val_points - common_points
+
+# === Prepare data for seaborn ===
+data = []
+
+for cd, pitch in train_only:
+    data.append({'CD': cd, 'Pitch': pitch, 'Set': 'Train Only'})
+for cd, pitch in val_only:
+    data.append({'CD': cd, 'Pitch': pitch, 'Set': 'Validation Only'})
+for cd, pitch in common_points:
+    data.append({'CD': cd, 'Pitch': pitch, 'Set': 'Common'})
+
+df = pd.DataFrame(data)
+
+# === Plotting with seaborn ===
+plt.figure(figsize=(10, 7))
+sns.scatterplot(data=df, x='CD', y='Pitch', hue='Set', style='Set', alpha=0.7, s=70, palette={
+    'Train Only': 'blue',
+    'Validation Only': 'green',
+    'Common': 'red'
+})
+
+plt.title("1DLS-style CD–Pitch Sampling Visualization")
+plt.xlabel("CD (nm)")
+plt.ylabel("Pitch (nm)")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
 
 
----
 
-My diagnosis:
-
-Training and validation RMSE fall in the first 4 epochs, then rise for the remainder.
-
-Explanation:
-The optimiser initially finds a shallow minimum, giving a brief loss reduction.
-After epoch 4, weight updates start overshooting or oscillating; both losses trend upward, a classic sign of training-time instability.
+-----1DLS-----
 
 
----
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
-Validation RMSE remains higher than training RMSE at every epoch.
+# === Training Data Generation ===
+train_cd = list(range(24, 121, 8))  # 24–120 step 8
+train_pitch = 1690  # not used in 2D plot
+train_space_continuous = list(range(24, 121, 8))
+train_space_discrete = [160, 200, 240, 320, 400, 560]
 
-Explanation:
-Validation patterns are far outside the training manifold:
+# Combine all train (CD, Space) pairs
+train_set = set()
+for cd in train_cd:
+    for space in train_space_continuous + train_space_discrete:
+        train_set.add((cd, space))
 
-CDx includes 40 nm and 200 nm (never in train)
+# === Validation Data Generation ===
+val_cd = [36, 40, 50, 80, 100, 140]
+val_pitch = 1600  # not used in plot
+val_space = [40, 60, 80, 100, 140, 180, 268]
 
-CDy reaches 3×WX (up to 600 nm)
+val_set = set()
+for cd in val_cd:
+    for space in val_space:
+        val_set.add((cd, space))
 
-PitchX/Y spike to 1400 / 1000 nm (train tops out at 96 nm)
+# === Identify Overlaps ===
+common_set = train_set & val_set
+train_only = train_set - common_set
+val_only = val_set - common_set
+
+# === Prepare data for seaborn ===
+data = []
+
+for x, y in train_only:
+    data.append({'CD': x, 'Space': y, 'Set': 'Train Only'})
+for x, y in val_only:
+    data.append({'CD': x, 'Space': y, 'Set': 'Validation Only'})
+for x, y in common_set:
+    data.append({'CD': x, 'Space': y, 'Set': 'Common'})
+
+df = pd.DataFrame(data)
+
+# === Plotting with seaborn ===
+plt.figure(figsize=(10, 7))
+sns.scatterplot(data=df, x='CD', y='Space', hue='Set', style='Set', alpha=0.6, palette={
+    'Train Only': 'blue',
+    'Validation Only': 'green',
+    'Common': 'red'
+})
+
+plt.title("3-Bar Pattern: Training vs Validation Coverage in CD-Space")
+plt.xlabel("CD")
+plt.ylabel("Space")
+plt.grid(True)
+plt.tight_layout()
+plt.sho
+
+----3bar----
 
 
-These extrapolated regions are harder, so the model generalises poorly and val RMSE stays above train RMSE.
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
+
+# === Training Data Generation ===
+train_cd = list(range(124, 221, 8))  # 124–220 step 8
+train_pitch = 1690  # not used in 2D plot
+train_space_continuous = list(range(4, 80, 8))
+train_space_discrete = [150, 200, 240, 320, 340, 420, 500, 560, 800]
+
+# Combine all train (CD, Space) pairs
+train_set = set()
+for cd in train_cd:
+    for space in train_space_continuous + train_space_discrete:
+        train_set.add((cd, space))
+
+# === Validation Data Generation ===
+val_cd = list(range(132, 204, 8))  # 132–200 step 8
+val_pitch = 1600  # not used in plot
+val_space = [80, 100, 120, 140, 180, 200, 220, 260]
+
+val_set = set()
+for cd in val_cd:
+    for space in val_space:
+        val_set.add((cd, space))
+
+# === Identify Overlap ===
+common_set = train_set & val_set
+train_only = train_set - common_set
+val_only = val_set - common_set
+
+# === Prepare data for seaborn ===
+data = []
+
+for x, y in train_only:
+    data.append({'CD': x, 'Space': y, 'Set': 'Train Only'})
+for x, y in val_only:
+    data.append({'CD': x, 'Space': y, 'Set': 'Validation Only'})
+for x, y in common_set:
+    data.append({'CD': x, 'Space': y, 'Set': 'Common'})
+
+df = pd.DataFrame(data)
+
+# === Plotting with seaborn ===
+plt.figure(figsize=(10, 7))
+sns.scatterplot(data=df, x='CD', y='Space', hue='Set', style='Set', alpha=0.6, palette={
+    'Train Only': 'blue',
+    'Validation Only': 'green',
+    'Common': 'red'
+})
+
+plt.title("2x2 Bar Pattern: Training vs Validation Coverage in CD-Space")
+plt.xlabel("CD")
+plt.ylabel("Space")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
 
 
----
-
-RMSE gap (val – train) narrows early, then widens again.
-
-It shrinks from 0.295 → 0.247 as the model learns low-hanging training features.
-
-It widens to 0.310 once divergence begins, because validation error grows faster than training error.
-
-
-
----
-
-Diagnosis:
-
-> Diverging model under severe distribution shift.
-Not underfitting (model learned early); not classic overfitting (train loss rises too).
-Root causes: high learning-rate or weak regularisation plus a validation set that is largely out-of-distribution (extreme pitch and CD combinations).
-
-
-
-
----
-
-Of course, you make your own diagnosis.
-
+2bar
