@@ -1,51 +1,12 @@
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-import pandas as pd
-
-# Simulate points in 2D space
-np.random.seed(0)
-
-# Generate training set: Gaussian blob centered left
-train_x = np.random.normal(loc=40, scale=10, size=150)
-train_y = np.random.normal(loc=60, scale=10, size=150)
-train_set = set(zip(train_x.round(1), train_y.round(1)))
-
-# Generate validation set: Gaussian blob centered slightly right
-val_x = np.random.normal(loc=50, scale=10, size=150)
-val_y = np.random.normal(loc=60, scale=10, size=150)
-val_set = set(zip(val_x.round(1), val_y.round(1)))
-
-# Find overlaps
-common_set = train_set & val_set
-train_only = train_set - common_set
-val_only = val_set - common_set
-
-# Prepare DataFrame for Seaborn
-data = []
-
-for x, y in train_only:
-    data.append({'x': x, 'y': y, 'Set': 'Train Only'})
-
-for x, y in val_only:
-    data.append({'x': x, 'y': y, 'Set': 'Validation Only'})
-
-for x, y in common_set:
-    data.append({'x': x, 'y': y, 'Set': 'Common'})
-
-df = pd.DataFrame(data)
-
-# Custom color palette: red for Common
-palette = {
-    'Train Only': 'blue',
-    'Validation Only': 'green',
-    'Common': 'red'
-}
-
 # Plot using Seaborn
 plt.figure(figsize=(8, 6))
-sns.scatterplot(data=df, x='x', y='y', hue='Set', style='Set',
-                palette=palette, s=60, alpha=0.6, edgecolor='black')
+scatter = sns.scatterplot(
+    data=df, x='x', y='y', hue='Set', style='Set',
+    palette=palette, s=60, alpha=0.6, edgecolor='black'
+)
+
+# Remove legend title
+scatter.legend_.set_title("")  # Removes "Set" from the legend title
 
 plt.title("Venn-style 2D Set Overlap (Simulated Layout Sampling)")
 plt.xlabel("CD (or Feature X)")
