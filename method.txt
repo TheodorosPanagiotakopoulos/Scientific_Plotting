@@ -35,9 +35,17 @@ for x, y in common_set:
 
 df = pd.DataFrame(data)
 
+# Custom color palette: red for Common
+palette = {
+    'Train Only': 'blue',
+    'Validation Only': 'green',
+    'Common': 'red'
+}
+
 # Plot using Seaborn
 plt.figure(figsize=(8, 6))
-sns.scatterplot(data=df, x='x', y='y', hue='Set', style='Set', s=60, alpha=0.6, edgecolor='black')
+sns.scatterplot(data=df, x='x', y='y', hue='Set', style='Set',
+                palette=palette, s=60, alpha=0.6, edgecolor='black')
 
 plt.title("Venn-style 2D Set Overlap (Simulated Layout Sampling)")
 plt.xlabel("CD (or Feature X)")
