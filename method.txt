@@ -1,16 +1,31 @@
-# Plot using Seaborn
-plt.figure(figsize=(8, 6))
-scatter = sns.scatterplot(
-    data=df, x='x', y='y', hue='Set', style='Set',
-    palette=palette, s=60, alpha=0.6, edgecolor='black'
-)
+import pandas as pd
 
-# Remove legend title
-scatter.legend_.set_title("")  # Removes "Set" from the legend title
+def Rmse_pergroup(dataframes_dictionary, to_return=False):
+    if to_return:
+        rowdata = {}
+        group_rmse_tracker = {}
 
-plt.title("Venn-style 2D Set Overlap (Simulated Layout Sampling)")
-plt.xlabel("CD (or Feature X)")
-plt.ylabel("Pitch (or Feature Y)")
-plt.grid(True)
-plt.tight_layout()
-plt.show()
+        for key, df in dataframes_dictionary.items():
+            group_value = df.loc[1, "group"]
+            rmse_value = df.loc[1, "RMSE"]
+
+            # Save RMSE for this group
+            rowdata[group_value] = rmse_value
+
+            # Track max RMSE per group
+            if group_value not in group_rmse_tracker:
+                group_rmse_tracker[group_value] = df["RMSE"].max()
+            else:
+                group_rmse_tracker[group_value] = max(group_rmse_tracker[group_value], df["RMSE"].max())
+
+        # Construct final dataframe: each column is a group, values at index=1
+        final_df = pd.DataFrame(rowdata, index=[1])
+
+        # Add Max_RMSE as the first column
+        max_rmse_values = [group_rmse_tracker[group] for group in final_df.columns]
+        final_df.loc[1, "Max_RMSE"] = max(max_rmse_values)
+
+        # Reorder columns to put Max_RMSE first
+        final_df = final_df[["Max_RMSE"] + [col for col in final_df.columns if col != "Max_RMSE"]]
+
+        return final_df
