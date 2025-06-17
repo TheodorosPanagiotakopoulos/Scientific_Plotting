@@ -1,39 +1,22 @@
-def split_gauges_by_slit(final_dataframe):
-    import numpy as np
-    dataframes_dictionary = {}
-    pattern = re.compile(r"slit_(.-?\d+(?:\.\d+)?)")
+Certainly! Here's the full content with the title and the revised questions, formatted clearly:
 
-    for idx, row in final_dataframe.iterrows():
-        gauge = row["gauge"]
-        match = pattern.search(gauge)
-        if match:
-            num = match.group(1)
-            if num.startswith("-"):
-                key = "df_n_" + num[1:]
-            else:
-                key = "df_" + num
-        else:
-            key = "df_no_slit"
 
-        if key not in dataframes_dictionary:
-            dataframes_dictionary[key] = []
-        dataframes_dictionary[key].append(idx)
+---
 
-    for key in dataframes_dictionary:
-        df_part = final_dataframe.loc[dataframes_dictionary[key]].reset_index(drop=True)
-        df_part.index += 1
+Title:
+Finding Metrics that Simulate the Loss Function Behavior of the Newron Model
 
-        last_col = df_part.columns[-1]
-        squared = df_part[last_col] ** 2
-        rmse = np.sqrt(squared.sum() / len(df_part))
-        rmse_column = [rmse] + [np.nan] * (len(df_part) - 1)
-        df_part["RMSE"] = rmse_column
+Questions to Answer:
 
-        # Calculate max value from 'max_aitable' column
-        max_value = df_part["max_aitable"].max()
-        max_col = [max_value] + [np.nan] * (len(df_part) - 1)
-        df_part["max(max_ai_table)"] = max_col
+1. Is there a category that simulates the behavior of the loss function in the Newron model schema?
 
-        dataframes_dictionary[key] = df_part
 
-    return dataframes_dictionary
+2. Is there any observation of overfitting or underfitting based on these metrics?
+
+
+
+
+---
+
+Let me know if you'd like this styled for a slide or document!
+
