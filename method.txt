@@ -1,32 +1,39 @@
-def separate_by_group_AI(final_dataframe, group, verbose=False):
-    # Filter the dataframe by group
-    final_dataframe = final_dataframe[final_dataframe["group"].str.lower() == group.lower()]
-    final_dataframe.reset_index(drop=True, inplace=True)
-    final_dataframe.index += 1
+def split_gauges_by_slit(final_dataframe):
+    import numpy as np
+    dataframes_dictionary = {}
+    pattern = re.compile(r"slit_(.-?\d+(?:\.\d+)?)")
 
-    # Drop unnecessary columns
-    cols = get_columns(final_dataframe, verbose=False)
-    final_dataframe = drop_all_except(final_dataframe, cols, row_or_column=1)
+    for idx, row in final_dataframe.iterrows():
+        gauge = row["gauge"]
+        match = pattern.search(gauge)
+        if match:
+            num = match.group(1)
+            if num.startswith("-"):
+                key = "df_n_" + num[1:]
+            else:
+                key = "df_" + num
+        else:
+            key = "df_no_slit"
 
-    # Get RMSE column
-    cols = get_columns(final_dataframe, verbose=False)
-    final_dataframe = get_RMSE(final_dataframe, cols[:-1], result_column="RMSE")
-    final_dataframe.reset_index(drop=True, inplace=True)
-    final_dataframe.index += 1
+        if key not in dataframes_dictionary:
+            dataframes_dictionary[key] = []
+        dataframes_dictionary[key].append(idx)
 
-    # Fill RMSE[1] with first valid RMSE value
-    non_nan_value = final_dataframe["RMSE"].loc[0]
-    final_dataframe["RMSE"] = [non_nan_value] + [np.nan] * (len(final_dataframe) - 1)
+    for key in dataframes_dictionary:
+        df_part = final_dataframe.loc[dataframes_dictionary[key]].reset_index(drop=True)
+        df_part.index += 1
 
-    # Add max(max_aitable) column after RMSE
-    max_val = final_dataframe["max_aitable"].max()
-    max_col_values = [max_val] + [np.nan] * (len(final_dataframe) - 1)
-    final_dataframe.insert(final_dataframe.columns.get_loc("RMSE") + 1, "max(max_aitable)", max_col_values)
+        last_col = df_part.columns[-1]
+        squared = df_part[last_col] ** 2
+        rmse = np.sqrt(squared.sum() / len(df_part))
+        rmse_column = [rmse] + [np.nan] * (len(df_part) - 1)
+        df_part["RMSE"] = rmse_column
 
-    # Drop fully NaN rows
-    final_dataframe = final_dataframe.dropna(how="all")
+        # Calculate max value from 'max_aitable' column
+        max_value = df_part["max_aitable"].max()
+        max_col = [max_value] + [np.nan] * (len(df_part) - 1)
+        df_part["max(max_ai_table)"] = max_col
 
-    if verbose:
-        print(final_dataframe)
+        dataframes_dictionary[key] = df_part
 
-    return final_dataframe
+    return dataframes_dictionary
