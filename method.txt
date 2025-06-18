@@ -1,7 +1,5 @@
-This slide shows the Validation RMSE per group and slit, again comparing the AI Profile on the left and the Model CD Profile on the right.
+For 1DLS and 2bar, we have a clear indication of overfitting. After 42,000 epochs, the training RMSE continues to decrease, while the validation RMSE starts increasing. This indicates that the model is learning the training data too well and does not generalize effectively to unseen data.
 
-What we observe here is that for the AI Profile, the validation RMSE generally follows a more dynamic trend—sometimes decreasing, but in several cases showing a clear rise after an initial drop. This suggests potential signs of overfitting, especially where the model continues to improve on training data but performance on validation data worsens.
+The Stagger data also shows signs of overfitting after 42,000 epochs, where the training RMSE keeps decreasing, but the validation RMSE begins to rise.
 
-On the Model CD Profile side, however, validation RMSE tends to either steadily increase or remain flat, with no meaningful signal that reflects model learning. This again reinforces that Model CD is less aligned with the optimization process, while the AI Profile captures both training dynamics and generalization behavior more effectively.
-
-Together, these observations support the idea that the AI Profile behaves more like a true loss function in both training and validation.
+In the Grid data, the model exhibits overfitting after 48,000 epochs, with the training RMSE continuing to decrease while the validation RMSE increases.
