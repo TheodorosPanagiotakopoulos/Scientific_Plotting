@@ -1,5 +1,7 @@
-On this slide, we’ve isolated only the training RMSE to allow for a clearer comparison between the AI Profile (left) and the Model CD Profile (right), across all groups and slits.
+This slide shows the Validation RMSE per group and slit, again comparing the AI Profile on the left and the Model CD Profile on the right.
 
-The AI Profile consistently shows a downward trend in RMSE, which is characteristic of effective training—this behavior is similar to how a typical loss function decreases as the model learns. On the other hand, the Model CD Profile often displays flat or increasing RMSE, indicating a weak alignment with the training process.
+What we observe here is that for the AI Profile, the validation RMSE generally follows a more dynamic trend—sometimes decreasing, but in several cases showing a clear rise after an initial drop. This suggests potential signs of overfitting, especially where the model continues to improve on training data but performance on validation data worsens.
 
-In the next slide, we will look at the validation RMSE only, to investigate generalization performance and to assess signs of overfitting or underfitting across the two profiles.
+On the Model CD Profile side, however, validation RMSE tends to either steadily increase or remain flat, with no meaningful signal that reflects model learning. This again reinforces that Model CD is less aligned with the optimization process, while the AI Profile captures both training dynamics and generalization behavior more effectively.
+
+Together, these observations support the idea that the AI Profile behaves more like a true loss function in both training and validation.
