@@ -1,1 +1,12 @@
-Fast and accurate results in modeling are essential. However, simulations are often computationally expensive and consume significant resources. Therefore, machine learning offers a viable alternative for generating accurate results more efficiently.
+We first generate the model using the depicted parameters and the default illumination source.
+
+Then, we load the model into Newron, along with the M3D 2D Library.
+
+Optimizer:
+We use the Rectified Adam optimizer, which dynamically adjusts momentum to reduce the impact of high variance.
+
+Learning rate: 0.001
+
+Batch size: 238
+
+Epochs: 84,000
