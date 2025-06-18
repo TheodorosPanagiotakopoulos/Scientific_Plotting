@@ -1,5 +1,3 @@
-For 1DLS and 2bar, we have a clear indication of overfitting. After 42,000 epochs, the training RMSE continues to decrease, while the validation RMSE starts increasing. This indicates that the model is learning the training data too well and does not generalize effectively to unseen data.
+For Slit_0.0, the model shows signs of overfitting after 42,000 epochs, where the training RMSE continues to decrease while the validation RMSE increases.
 
-The Stagger data also shows signs of overfitting after 42,000 epochs, where the training RMSE keeps decreasing, but the validation RMSE begins to rise.
-
-In the Grid data, the model exhibits overfitting after 48,000 epochs, with the training RMSE continuing to decrease while the validation RMSE increases.
+The model demonstrates a good architecture for the 3bar pattern.
