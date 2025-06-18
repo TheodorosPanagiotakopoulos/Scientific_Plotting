@@ -1,1 +1,5 @@
-There is a clear trend in the data acquired from the AI profile, showing that AI intensity can mimic the behavior of neurons in the loss function. Since the loss function is always decreasing in a network to minimize loss, this mirrors the RMSE of training and validation acquired from the AI profile intensity.
+Plot the AI profile for the remaining groups, including training and validation sets.
+
+Collect loss function accuracy from log files and compare it with the RMSE obtained from the AI profile.
+
+Use a supervised learning approach to incorporate unseen validation data into the training set and evaluate whether performance improves.
