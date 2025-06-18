@@ -1,5 +1,1 @@
-Plot the AI profile for the remaining groups, including training and validation sets.
-
-Collect loss function accuracy from log files and compare it with the RMSE obtained from the AI profile.
-
-Use a supervised learning approach to incorporate unseen validation data into the training set and evaluate whether performance improves.
+Does the loss function used during neuron training reflect the final accuracy evolution metrics?
