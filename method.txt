@@ -1,12 +1,5 @@
-We have two questions to answer:
+This slide presents the Training and Validation RMSE across epochs for different groups and slits, comparing two profiles: the AI Profile (left) and the Model CD Profile (right).
 
-1. Is there a data category that behaves similarly to the loss function used in the Newron model schema?
+From these plots, we see that the AI Profile shows a consistent downward trend in RMSE, similar to a typical loss function used during model training. This suggests that the AI Profile may closely align with how the model optimizes during learning. In contrast, the Model CD Profile does not exhibit a clear decreasing pattern, indicating a weaker correlation with the model’s optimization behavior.
 
-
-2. Is there any observation of overfitting or underfitting based on these metrics?
-
-
-
-To address these questions, we will use two different metrics. One will be based on the aerial image profile, and the other will be based on the Model CD profile.
-
-More precisely, we will compare the RMSE of AI error from the absolute maximum attainable error—derived from the ML model minus the rigorous model—to the Model CD of our simulation. This will be compared against the corresponding RMSE of the Model CD from both the ML model and the rigorous simulations.
+To better visualize this behavior, in the next slide, we isolate the training RMSE only, removing the validation curves for improved clarity and comparison across configurations.
