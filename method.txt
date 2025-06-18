@@ -1,12 +1,18 @@
-We first generate the model using the depicted parameters and the default illumination source.
+import pandas as pd
+import re
 
-Then, we load the model into Newron, along with the M3D 2D Library.
+def get_aitable_columns_sorted(df):
+    pattern = re.compile(r'^aitable-?(-?\d+)$')
+    matched_columns = []
 
-Optimizer:
-We use the Rectified Adam optimizer, which dynamically adjusts momentum to reduce the impact of high variance.
+    for col in df.columns:
+        match = pattern.match(col)
+        if match:
+            number = int(match.group(1))
+            matched_columns.append((number, col))
+    
+    # Sort by the numeric value
+    matched_columns.sort(key=lambda x: x[0])
 
-Learning rate: 0.001
-
-Batch size: 238
-
-Epochs: 84,000
+    # Return only the column names
+    return [col for _, col in matched_columns]
