@@ -1,21 +1,5 @@
-# Example list of elements
-elements = [
-    "default_group_10",
-    "main_group_2",
-    "main_group_20",
-    "other_group_5",
-    "main_group_1",
-    "MAIN_group_15"  # Optional: make case-insensitive if needed
-]
+import pandas as pd
 
-# Filter items that contain 'main' (case-sensitive by default)
-filtered = [e for e in elements if "main" in e]
-
-# If you want case-insensitive filtering, use this instead:
-# filtered = [e for e in elements if "main" in e.lower()]
-
-# Sort the filtered list by the number at the end
-sorted_filtered = sorted(filtered, key=lambda x: int(x.rsplit('_', 1)[-1]))
-
-# Print result
-print(sorted_filtered)
+# Combine and reindex from 1
+combined_df = pd.concat(your_dict.values(), ignore_index=True)
+combined_df.index = range(1, len(combined_df) + 1)
