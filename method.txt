@@ -2,24 +2,20 @@ import pandas as pd
 import re
 
 def get_aitable_columns_sorted(df):
+    # Matches "aitable" optionally followed by "-" and then a number, with or without a dash
     pattern = re.compile(r'^aitable-?(-?\d+)$')
     matched_columns = []
 
     for col in df.columns:
         match = pattern.match(col)
         if match:
-            number = int(match.group(1))
+            # Parse the numeric part correctly
+            number_str = match.group(1)
+            number = int(number_str)
             matched_columns.append((number, col))
-    
-    # Sort by the numeric value properly
+
+    # Sort from smallest to largest number
     matched_columns.sort(key=lambda x: x[0])
 
-    # Return only the column names in the correct order
+    # Return only the column names in correct order
     return [col for _, col in matched_columns]
-
-
-df = pd.DataFrame(columns=[
-    'aitable-100', 'aitable-24', 'aitable-5', 'aitable0', 'aitable12', 'aitable100'
-])
-
-print(get_aitable_columns_sorted(df))
