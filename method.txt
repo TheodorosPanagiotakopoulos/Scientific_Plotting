@@ -1,5 +1,14 @@
-import pandas as pd
+import re
 
-# Combine and reindex from 1
-combined_df = pd.concat(your_dict.values(), ignore_index=True)
-combined_df.index = range(1, len(combined_df) + 1)
+# Example list
+data = [
+    "modelchk_5_NC",
+    "modelchk_2_NC",
+    "modelchk_10_NC",
+    "modelchk_1_NC"
+]
+
+# Sort based on the number between underscores
+sorted_data = sorted(data, key=lambda x: int(re.search(r'modelchk_(\d+)_NC', x).group(1)))
+
+print(sorted_data)
