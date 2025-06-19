@@ -1,14 +1,57 @@
-import re
+# AI Error Data Collection Pipeline
 
-# Example list
-data = [
-    "modelchk_5_NC",
-    "modelchk_2_NC",
-    "modelchk_10_NC",
-    "modelchk_1_NC"
-]
+This repository contains scripts used to collect and process AI error data from one or two process paths. The pipeline is currently under development and aims to automate the analysis and plotting of AI error metrics.
 
-# Sort based on the number between underscores
-sorted_data = sorted(data, key=lambda x: int(re.search(r'modelchk_(\d+)_NC', x).group(1)))
+## Project Structure
 
-print(sorted_data)
+There are **two modes of operation**, depending on whether your job has one or two paths.
+
+---
+
+### 📁 Single Path Mode
+
+If your job is completed **in one path**, use the following scripts:
+
+- `get_data_ai_profile_one_path.py`
+- `collect_AIerror_one_path.py`
+
+**Instructions:**
+
+1. Place both scripts in the same folder.
+2. Run `collect_AIerror_one_path.py`. It will call `get_data_ai_profile_one_path.py` internally.
+
+---
+
+### 📁 Dual Path Mode
+
+If your job is completed **in two paths**, use the following scripts:
+
+- `get_data_ai_profile_two_paths.py`
+- `collect_AIerror_two_paths.py`
+
+**Instructions:**
+
+1. Place both scripts in the same folder.
+2. Run `collect_AIerror_two_paths.py`. It will call `get_data_ai_profile_two_paths.py` internally.
+
+---
+
+### 🔧 EUV or DUV Configuration
+
+Depending on whether your data is from **EUV** or **DUV** tools, you must **modify the `apply_filters` function** in the main script accordingly. Make sure the filtering logic reflects your specific use case.
+
+---
+
+### 🚧 Development Status
+
+The pipeline is **under active development**, especially the automation of AI error plotting. Fixes and enhancements are being made continuously.
+
+---
+
+## Authors
+
+- **Theodoros Panagiotakopoulos**  
+  Modeling Product Engineer Intern
+
+- **Ming Chun Tien**  
+  PEG Modeling Manager
