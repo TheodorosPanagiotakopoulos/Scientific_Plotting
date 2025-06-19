@@ -1,32 +1,9 @@
 import pandas as pd
-import re
 
-def compute_aitable_differences(df):
-    # Get 'aitable' columns excluding those that start with 'Rig_'
-    aitable_cols = [col for col in df.columns if re.match(r'^aitable[-\d]+$', col)]
+# Example DataFrame
+# df = pd.read_csv("your_data.csv")  # Replace with your actual DataFrame
 
-    for col in aitable_cols:
-        match = re.search(r'aitable([-\d]+)', col)
-        if match:
-            number = match.group(1)
-            rig_col = 'Rig_aitable' + number
-            if rig_col in df.columns:
-                new_col_name = col + ' -' + rig_col
-                df[new_col_name] = (df[col] - df[rig_col]).abs()
-
-    return df
-
-if __name__ == "__main__":
-    # Example data
-    data = {
-        'aitable-24': [10, 20, 30],
-        'Rig_aitable-24': [12, 18, 33],
-        'aitable0': [5, 15, 25],
-        'Rig_aitable0': [3, 17, 24],
-        'aitable8': [7, 14, 21],
-        'Rig_aitable8': [7, 13, 19]
-    }
-
-    df = pd.DataFrame(data)
-    df = compute_aitable_differences(df)
-    print(df)
+# Convert all columns to float except 'gauge' and 'group'
+df = df.copy()  # Optional: avoids modifying the original DataFrame
+cols_to_convert = [col for col in df.columns if col not in ["gauge", "group"]]
+df[cols_to_convert] = df[cols_to_convert].astype(float)
