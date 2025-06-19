@@ -11,8 +11,15 @@ def get_aitable_columns_sorted(df):
             number = int(match.group(1))
             matched_columns.append((number, col))
     
-    # Sort by the numeric value
+    # Sort by the numeric value properly
     matched_columns.sort(key=lambda x: x[0])
 
-    # Return only the column names
+    # Return only the column names in the correct order
     return [col for _, col in matched_columns]
+
+
+df = pd.DataFrame(columns=[
+    'aitable-100', 'aitable-24', 'aitable-5', 'aitable0', 'aitable12', 'aitable100'
+])
+
+print(get_aitable_columns_sorted(df))
