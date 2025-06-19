@@ -1,9 +1,1 @@
-import pandas as pd
-
-# Example DataFrame
-# df = pd.read_csv("your_data.csv")  # Replace with your actual DataFrame
-
-# Convert all columns to float except 'gauge' and 'group'
-df = df.copy()  # Optional: avoids modifying the original DataFrame
-cols_to_convert = [col for col in df.columns if col not in ["gauge", "group"]]
-df[cols_to_convert] = df[cols_to_convert].astype(float)
+grep -RnwI --exclude-dir={.git,node_modules} '/path/to/start/folder' -e 'conditions' 2>/dev/null
