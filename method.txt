@@ -1,18 +1,8 @@
 import pandas as pd
-import re
 
-def get_aitable_columns_sorted(df):
-    matched_columns = []
-
+def prefix_aitable_columns(df):
+    rename_map = {}
     for col in df.columns:
-        # Match 'aitable' followed by optional dash and required number
-        match = re.match(r'^aitable-?(-?\d+)$', col)
-        if match:
-            num = int(match.group(1))
-            matched_columns.append((num, col))
-
-    # Sort by the numeric part
-    matched_columns.sort(key=lambda x: x[0])
-
-    # Return the column names in order
-    return [col for _, col in matched_columns]
+        if col.startswith('aitable'):
+            rename_map[col] = 'Rig_' + col
+    return df.rename(columns=rename_map)
