@@ -1,13 +1,14 @@
-import pandas as pd
+import re
 
-# Example DataFrame
-# df = pd.DataFrame({...})  # Your existing DataFrame
+# Example list
+data = [
+    "modelchk_5_NC",
+    "modelchk_2_NC",
+    "modelchk_10_NC",
+    "modelchk_1_NC"
+]
 
-# Extract the number using a regular expression
-df['sort_key'] = df.index.str.extract(r'modelchk_(\d+)_NC').astype(int)
+# Sort based on the number between underscores
+sorted_data = sorted(data, key=lambda x: int(re.search(r'modelchk_(\d+)_NC', x).group(1)))
 
-# Sort by that number
-df = df.sort_values('sort_key')
-
-# Drop the helper column
-df = df.drop(columns='sort_key')
+print(sorted_data)
