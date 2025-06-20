@@ -1,12 +1,18 @@
-def find_closest(val, candidates):
-    return min(candidates, key=lambda x: abs(x - val))
+def find_closest_index(val, candidates):
+    # Return the index of the closest value in candidates to val
+    return min(range(len(candidates)), key=lambda i: abs(candidates[i] - val))
 
-def match_elements(small_list, large_list):
-    result = []
+def match_with_corresponding(small_list, large_list1, large_list2):
+    matched_list1 = []
+    matched_list2 = []
+    
     for item in small_list:
-        if item in large_list:
-            result.append(item)
+        if item in large_list1:
+            index = large_list1.index(item)
         else:
-            closest = find_closest(item, large_list)
-            result.append(closest)
-    return result
+            index = find_closest_index(item, large_list1)
+        
+        matched_list1.append(large_list1[index])
+        matched_list2.append(large_list2[index])
+    
+    return matched_list1, matched_list2
