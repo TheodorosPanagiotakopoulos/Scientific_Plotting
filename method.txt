@@ -1,20 +1,12 @@
-import re
+def find_closest(val, candidates):
+    return min(candidates, key=lambda x: abs(x - val))
 
-def get_loss_numbers(filename):
-    loss_numbers = []
-    
-    with open(filename, 'r') as file:
-        for line in file:
-            if "Elapsed" in line and "out of" in line and "loss0=" in line:
-                match = re.search(r'loss0=([\d.]+)', line)
-                if match:
-                    loss_numbers.append(float(match.group(1)))
-    
-    if not loss_numbers:
-        print("Error: No 'loss0=' values found in lines with 'Elapsed' and 'out of'.")
-    else:
-        print("Extracted loss values:", loss_numbers)
-
-# Execute
-if __name__ == "__main__":
-    get_loss_numbers("status.log")
+def match_elements(small_list, large_list):
+    result = []
+    for item in small_list:
+        if item in large_list:
+            result.append(item)
+        else:
+            closest = find_closest(item, large_list)
+            result.append(closest)
+    return result
