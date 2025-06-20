@@ -1,17 +1,20 @@
 import re
 
-# List to store the extracted numbers
-numbers = []
+def get_loss_numbers(filename):
+    loss_numbers = []
+    
+    with open(filename, 'r') as file:
+        for line in file:
+            if "Elapsed" in line and "out of" in line and "loss0=" in line:
+                match = re.search(r'loss0=([\d.]+)', line)
+                if match:
+                    loss_numbers.append(float(match.group(1)))
+    
+    if not loss_numbers:
+        print("Error: No 'loss0=' values found in lines with 'Elapsed' and 'out of'.")
+    else:
+        print("Extracted loss values:", loss_numbers)
 
-# Open the file for reading
-with open('your_file.txt', 'r') as file:
-    for line in file:
-        # Check if "Elapsed" is in the line and contains the pattern "done(number out of"
-        if "Elapsed" in line and "done(" in line and " out of" in line:
-            # Use regular expression to find the number after done(
-            match = re.search(r'done\((\d+) out of', line)
-            if match:
-                numbers.append(match.group(1))
-
-# Print the list of numbers
-print(numbers)
+# Execute
+if __name__ == "__main__":
+    get_loss_numbers("status.log")
