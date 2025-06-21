@@ -1,37 +1,6 @@
-import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_trend_with_threshold(data, degree=1, start=0, threshold=0):
-    """
-    Plot all data points, and draw a trend line starting from a threshold index.
+slope = -4.5e-8
+angle_degrees = np.degrees(np.arctan(slope))
 
-    Parameters:
-    - data (list): The list of numeric data values
-    - degree (int): Degree of the polynomial trend (default = 1 for linear)
-    - start (int): Starting value for the x-axis
-    - threshold (int): Index (relative to data) from which to start the trend line
-    """
-    x_full = np.arange(start, start + len(data))
-    y_full = np.array(data)
-
-    # Plot all data points
-    plt.plot(x_full, y_full, label='Original Data', marker='o')
-
-    # Select data from threshold onwards
-    x_trend = x_full[threshold:]
-    y_trend = y_full[threshold:]
-
-    # Fit trend line only to data after threshold
-    z = np.polyfit(x_trend, y_trend, degree)
-    p = np.poly1d(z)
-
-    # Plot trend line
-    plt.plot(x_trend, p(x_trend), label=f'{degree}-degree Trend (from index {threshold})',
-             color='red', linewidth=2)
-
-    plt.title(f'Trend Line from Index {threshold}')
-    plt.xlabel('X')
-    plt.ylabel('Value')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+print(f"Angle: {angle_degrees:.6f}°")
