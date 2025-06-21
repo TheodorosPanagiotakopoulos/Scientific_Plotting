@@ -1,21 +1,36 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_trend(data, degree=1):
+def plot_trend_with_threshold(data, degree=1, start=0, threshold=0):
     """
-    Plot a trend line for the given data.
+    Plot all data points, and draw a trend line starting from a threshold index.
 
     Parameters:
-    - data (list or array): Numeric values
+    - data (list): The list of numeric data values
     - degree (int): Degree of the polynomial trend (default = 1 for linear)
+    - start (int): Starting value for the x-axis
+    - threshold (int): Index (relative to data) from which to start the trend line
     """
-    x = np.arange(len(data))
-    z = np.polyfit(x, data, degree)
+    x_full = np.arange(start, start + len(data))
+    y_full = np.array(data)
+
+    # Plot all data points
+    plt.plot(x_full, y_full, label='Original Data', marker='o')
+
+    # Select data from threshold onwards
+    x_trend = x_full[threshold:]
+    y_trend = y_full[threshold:]
+
+    # Fit trend line only to data after threshold
+    z = np.polyfit(x_trend, y_trend, degree)
     p = np.poly1d(z)
-    
-    plt.plot(x, p(x), label=f'{degree}-degree Trend', color='red', linewidth=2)
-    plt.title(f'{degree}-Degree Trend of Data')
-    plt.xlabel('Index')
+
+    # Plot trend line
+    plt.plot(x_trend, p(x_trend), label=f'{degree}-degree Trend (from index {threshold})',
+             color='red', linewidth=2)
+
+    plt.title(f'Trend Line from Index {threshold}')
+    plt.xlabel('X')
     plt.ylabel('Value')
     plt.legend()
     plt.grid(True)
