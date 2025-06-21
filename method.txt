@@ -1,11 +1,21 @@
-def normalize_list(data):
-    if not data:
-        return []
-    
-    min_val = min(data)
-    max_val = max(data)
-    
-    if min_val == max_val:
-        return [0.0 for _ in data]  # Avoid division by zero, return all zeros
+import matplotlib.pyplot as plt
+import numpy as np
 
-    return [(x - min_val) / (max_val - min_val) for x in data]
+# Example data
+data = [5, 7, 6, 8, 7, 10, 11, 13, 12]
+
+# Create x values (indices)
+x = np.arange(len(data))
+
+# Fit a linear trend line
+z = np.polyfit(x, data, 1)
+p = np.poly1d(z)
+
+# Plot trend only
+plt.plot(x, p(x), label='Trend Line', linewidth=2)
+plt.title('Trend of Data')
+plt.xlabel('Index')
+plt.ylabel('Value')
+plt.legend()
+plt.grid(True)
+plt.show()
