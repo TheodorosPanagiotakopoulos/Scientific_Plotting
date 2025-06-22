@@ -1,3 +1,0 @@
-I will be doing the same with EUV. However, should I also categorize by slit and group? For example, should I run 1DLS only for slit0.0 or for every one?
-
-Also, for the EUV jobs that I have, I do not have validation data. In the PPTX above, I was able to identify overfitting of the model because I had validation data. I then confirmed that the loss becomes flat after the number of epochs I mentioned above. This was also verified using validation data per group and per slit. However, in this case, I do not have validation data. Could you provide me with an EUV job that includes validation data?
