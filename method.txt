@@ -1,0 +1,47 @@
+
+# Neuron Flow Loss Calculator
+
+This repository calculates `loss0`, `loss1`, `loss2`, and `lossAll` for Neuron Flow jobs.
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.x
+- Required Python packages (add any specific dependencies if applicable)
+
+### Setup
+
+1. Clone this repository.
+2. In `collect_loss.py`, update the path variable to point to your Neuron job.
+3. Ensure `get_loss.py` is placed in the **same folder** as `collect_loss.py`, since it is called internally.
+4. Set the `verbose` flag in `collect_loss.py` to `True` or `False` depending on whether you want to view detailed loss output.
+
+   ```python
+   verbose = True  # or False
+
+How to Run
+
+Make sure both collect_loss.py and get_loss.py are in the same directory. Then execute:
+
+python collect_loss.py
+
+The script will output the losses as Python lists:
+
+Loss0: [ ... ]
+Loss1: [ ... ]
+Loss2: [ ... ]
+LossAll: [ ... ]
+
+These lists can be used for further analysis, visualization, or diagnostics.
+
+Authors
+
+Theodoros Panagiotakopoulos
+Modeling Product Engineer Intern
+
+
+Acknowledgments
+
+Ming-Chun Tien
+PEG Modeling Product Manager
