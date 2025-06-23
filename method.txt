@@ -1,19 +1,10 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+import numpy as np
 
-# Assume df is your DataFrame
-# Example:
-# df = pd.DataFrame({
-#     'Height': [160, 170, 175, 180, 165],
-#     'Weight': [60, 70, 65, 80, 75],
-#     'Age': [25, 30, 22, 35, 28]
-# })
+# Example DataFrame
+# df = pd.DataFrame({'column_name': [1, 2, 3, 4, 5]})
 
-# Plot boxplots side by side with column titles as labels
-plt.figure(figsize=(10, 6))
-plt.boxplot([df[col] for col in df.columns], labels=df.columns)
-plt.title('Boxplots by Column')
-plt.ylabel('Values')
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.show()
+# Step-by-step RMS calculation
+squared_sum = (df['column_name'] ** 2).sum()
+n_rows = len(df)
+rms = np.sqrt(squared_sum / n_rows)
