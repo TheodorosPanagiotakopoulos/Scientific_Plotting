@@ -1,55 +1,20 @@
-# Neuron Flow Loss Calculator
+import pandas as pd
 
-This repository calculates `loss0`, `loss1`, `loss2`, and `lossAll` for Neuron Flow jobs.
+# Assume big_dict is your nested dictionary
+# Format: { 'key_xxxx': { 'df_name': dataframe, ... }, ... }
 
----
+result_df = pd.DataFrame()
 
-## 🚀 Getting Started
+for outer_key, inner_dict in big_dict.items():
+    suffix = outer_key.split("_")[-1]  # Get the 'xxxx' from 'key_xxxx'
+    
+    for df_name, df in inner_dict.items():
+        if "_0.00" in df_name:
+            if "max_aitable" in df.columns:
+                # Create the new column name
+                new_col_name = f"max_aitable_{suffix}"
+                
+                # Add to the result dataframe
+                result_df[new_col_name] = df["max_aitable"].reset_index(drop=True)
 
-### ✅ Prerequisites
-
-- Python environment with access to `tachyon_python`.
-
----
-
-## ⚙️ Setup
-
-1. Clone this repository.
-2. In `collect_loss.py`, update the `path` variable to point to your Neuron job.
-3. Ensure `get_loss.py` is placed in the same folder as `collect_loss.py`, since it is called internally.
-4. Set the `verbose` flag in `collect_loss.py` to `True` or `False` depending on whether you want to view detailed loss output.
-
-```python
-verbose = True  # or False
-```
-
----
-
-## ▶️ How to Run
-
-Make sure both `collect_loss.py` and `get_loss.py` are in the same directory. Then execute:
-
-```bash
-/nfs/software/ME/tachyon_flux_225.08.c/releases/LSF/bin/tachyon_python collect_loss.py
-```
-
-The script will output the losses as Python lists:
-
-```
-Loss0: [...]
-Loss1: [...]
-Loss2: [...]
-LossAll: [...]
-```
-
-These lists can be used for further analysis, visualization, or diagnostics.
-
----
-
-## 👥 Authors
-
-**Theodoros Panagiotakopoulos**  
-Modeling Product Engineer Intern
-
-**Chun Tiew**  
-PEG Modeling Product Manager
+# Now result_df contains the desired merged columns
