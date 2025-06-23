@@ -1,10 +1,14 @@
 import pandas as pd
-import numpy as np
 
-# Example DataFrame
-# df = pd.DataFrame({'column_name': [1, 2, 3, 4, 5]})
+columns = []
 
-# Step-by-step RMS calculation
-squared_sum = (df['column_name'] ** 2).sum()
-n_rows = len(df)
-rms = np.sqrt(squared_sum / n_rows)
+for outer_key, inner_dict in big_dict.items():
+    suffix = outer_key.split("_")[-1]
+    
+    for df_name, df in inner_dict.items():
+        if "_0.00" in df_name:
+            new_col_name = "max_aitable_" + suffix
+            series = df["max_aitable"].rename(new_col_name)
+            columns.append(series)
+
+result_df = pd.concat(columns, axis=1)
