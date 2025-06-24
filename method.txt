@@ -1,11 +1,23 @@
-import threading
+import pandas as pd
+import re
 
-def function1(path):
-    print(f"Processing: {path}")
-    # Your logic here
-
-# Run function1 asynchronously (in parallel)
-def run_in_background(path):
-    thread = threading.Thread(target=function1, args=(path,))
-    thread.start()
-    return thread
+def split_dfs_by_slit(df_dict):
+    new_dict = {}
+    
+    for key, df in df_dict.items():
+        # Extract all unique slit values from the 'gauge' column using regex
+        slit_matches = df['gauge'].str.extractall(r'_slit_([0-9.]+)').dropna().unique()
+        unique_slits = sorted(set(slit_matches.flatten()), key=float)
+        
+        for slit in unique_slits:
+            # Create a boolean mask for rows matching the current slit value
+            pattern = r'_slit_' + re.escape(slit) + r'\b'
+            mask = df['gauge'].str.contains(pattern)
+            
+            # Construct new dictionary key
+            new_key = '{}_slit_{}'.format(key, slit)
+            
+            # Add filtered dataframe to the new dictionary
+            new_dict[new_key] = df[mask].copy()
+    
+    return new_dict
