@@ -1,14 +1,20 @@
 import pandas as pd
+import re
 
-columns = []
+def extract_slits(df_dict):
+    result = {}
+    slit_pattern = re.compile(r'_slit_(-?\d+(?:\.\d+)?)')
 
-for outer_key, inner_dict in big_dict.items():
-    suffix = outer_key.split("_")[-1]
-    
-    for df_name, df in inner_dict.items():
-        if "_0.00" in df_name:
-            new_col_name = "max_aitable_" + suffix
-            series = df["max_aitable"].rename(new_col_name)
-            columns.append(series)
+    for key, df in df_dict.items():
+        # Extract all slit matches from the 'gauge' column
+        slit_matches = df['gauge'].astype(str).apply(lambda x: slit_pattern.findall(x))
+        unique_slits = set(s for sublist in slit_matches for s in sublist)
 
-result_df = pd.concat(columns, axis=1)
+        for slit in unique_slits:
+            pattern = '_slit_' + re.escape(slit)
+            filtered_df = df[df['gauge'].astype(str).str.contains(pattern)].copy()
+            filtered_df.reset_index(drop=True, inplace=True)
+            new_key = '{}_slit_{}'.format(key, slit)
+            result[new_key] = filtered_df
+
+    return result
