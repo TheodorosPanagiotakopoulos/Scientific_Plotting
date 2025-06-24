@@ -1,20 +1,5 @@
-import pandas as pd
-import re
-
-def extract_slits(df_dict):
-    result = {}
-    slit_pattern = re.compile(r'_slit_(-?\d+(?:\.\d+)?)')
-
-    for key, df in df_dict.items():
-        # Extract all slit matches from the 'gauge' column
-        slit_matches = df['gauge'].astype(str).apply(lambda x: slit_pattern.findall(x))
-        unique_slits = set(s for sublist in slit_matches for s in sublist)
-
-        for slit in unique_slits:
-            pattern = '_slit_' + re.escape(slit)
-            filtered_df = df[df['gauge'].astype(str).str.contains(pattern)].copy()
-            filtered_df.reset_index(drop=True, inplace=True)
-            new_key = '{}_slit_{}'.format(key, slit)
-            result[new_key] = filtered_df
-
-    return result
+def flatten_nested_df_dict(nested_dict):
+    flat_dict = {}
+    for inner_dict in nested_dict.values():
+        flat_dict.update(inner_dict)
+    return flat_dict
