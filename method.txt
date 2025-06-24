@@ -1,10 +1,11 @@
-import os
-import sys
+import threading
 
-def check_path_or_exit(path):
-    if not os.path.exists(path):
-        print(f"Error: Path '{path}' does not exist.")
-        sys.exit(1)  # Exit the program with status 1 (indicating error)
+def function1(path):
+    print(f"Processing: {path}")
+    # Your logic here
 
-# Example usage
-check_path_or_exit('/some/directory/or/file')
+# Run function1 asynchronously (in parallel)
+def run_in_background(path):
+    thread = threading.Thread(target=function1, args=(path,))
+    thread.start()
+    return thread
