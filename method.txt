@@ -1,24 +1,12 @@
-import pandas as pd
-import re
+# Sample data
+df1 = pd.DataFrame({
+    'group': ['1DKS', 'circle', '1DKS', 'circle'],
+    'value': [10, 20, 30, 40]
+})
 
-def split_dfs_by_slit(df_dict):
-    new_dict = {}
-    
-    for key, df in df_dict.items():
-        # Capture both positive and negative slit values
-        extracted = df['gauge'].str.extractall(r'_slit_(-?[0-9.]+)')
-        unique_slits = extracted[0].dropna().unique()
-        unique_slits = sorted(unique_slits, key=float)
+dataframes = {'df1': df1}
+result = split_dataframes_by_group(dataframes)
 
-        for slit in unique_slits:
-            pattern = r'_slit_' + re.escape(slit) + r'\b'
-            mask = df['gauge'].str.contains(pattern)
-
-            new_key = '{}_slit_{}'.format(key, slit)
-
-            df_filtered = df[mask].copy().reset_index(drop=True)
-            df_filtered.index += 1  # Start indexing from 1
-
-            new_dict[new_key] = df_filtered
-    
-    return new_dict
+# result now contains:
+# - 'df1_1DKS': rows with group == '1DKS', reindexed from 1
+# - 'df1_circle': rows with group == 'circle', reindexed from 1
