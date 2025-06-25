@@ -6,27 +6,30 @@ def extract_metrics(data_dict):
     df_max_rows = {}
 
     for name, df in data_dict.items():
-        # Use re.search to allow name to appear anywhere in the string
-        match = re.search(r'modelchk_(-?\d+(?:\.\d+)?)_NC.*slit_(-?\d+(?:\.\d+)?)', name)
+        # Updated regex: more flexible float matching with optional leading sign
+        match = re.search(r'modelchk_(-?\d*\.?\d+)_NC.*?slit_(-?\d*\.?\d+)', name)
         if not match:
+            print(f"Skipping unmatched name: {name}")
             continue  # Skip if name doesn't match expected format
 
+        # Extract numeric parts from the matched groups
         row_index = f"modelchk_{match.group(1)}_NC"
         col_name = f"slit_{match.group(2)}"
 
-        # Extract values (from index 1)
+        # Extract values from index 1 if available
         rmse_value = df.at[1, 'RMSE'] if 1 in df.index else None
         max_value = df.at[1, 'MAX'] if 1 in df.index else None
 
-        # Initialize row if needed
+        # Initialize dictionary rows if they don't exist
         if row_index not in df_rows:
             df_rows[row_index] = {}
             df_max_rows[row_index] = {}
 
+        # Store the values
         df_rows[row_index][col_name] = rmse_value
         df_max_rows[row_index][col_name] = max_value
 
-    # Convert to DataFrames
+    # Convert to DataFrames and sort both rows and columns
     df_result = pd.DataFrame.from_dict(df_rows, orient='index').sort_index().sort_index(axis=1)
     df_max_result = pd.DataFrame.from_dict(df_max_rows, orient='index').sort_index().sort_index(axis=1)
 
