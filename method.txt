@@ -1,29 +1,32 @@
 import pandas as pd
-import numpy as np
+import re
 
-def compute_metrics_for_dict(data_dict):
-    for key, df in data_dict.items():
-        if 'max_aitable' in df.columns:
-            # Calculate RMSE
-            squared = df['max_aitable'] ** 2
-            rmse = np.sqrt(squared.sum() / len(squared))
-            
-            # Calculate MAX
-            max_val = df['max_aitable'].max()
-            
-            # Create RMSE and MAX columns with NaNs
-            df['RMSE'] = np.nan
-            df['MAX'] = np.nan
-            
-            # Ensure index starts from 1
-            if df.index.min() != 1:
-                df.index = range(1, len(df) + 1)
-            
-            # Set values at index 1
-            df.at[1, 'RMSE'] = rmse
-            df.at[1, 'MAX'] = max_val
-            
-            # Update the dataframe in the dictionary
-            data_dict[key] = df
+def extract_metrics(data_dict):
+    df_rows = {}
+    df_max_rows = {}
 
-    return data_dict
+    for name, df in data_dict.items():
+        # Extract parts from name using regex
+        match = re.match(r'df_(modelchk_\d+_NC)_slit_(\d+(?:\.\d+)?)', name)
+        if not match:
+            continue  # Skip if name doesn't match expected format
+        
+        row_index = match.group(1)
+        col_name = f"slit_{match.group(2)}"
+
+        # Get RMSE and MAX from index 1
+        rmse_value = df.at[1, 'RMSE'] if 1 in df.index else None
+        max_value = df.at[1, 'MAX'] if 1 in df.index else None
+
+        if row_index not in df_rows:
+            df_rows[row_index] = {}
+            df_max_rows[row_index] = {}
+
+        df_rows[row_index][col_name] = rmse_value
+        df_max_rows[row_index][col_name] = max_value
+
+    # Create DataFrames from collected data
+    df_result = pd.DataFrame.from_dict(df_rows, orient='index').sort_index().sort_index(axis=1)
+    df_max_result = pd.DataFrame.from_dict(df_max_rows, orient='index').sort_index().sort_index(axis=1)
+
+    return df_result, df_max_result
