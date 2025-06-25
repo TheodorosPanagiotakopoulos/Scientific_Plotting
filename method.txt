@@ -1,40 +1,27 @@
 import pandas as pd
 import re
 
-def extract_metrics_with_category(data_dict):
-    df_rows = {}
-    df_max_rows = {}
+def print_sorted_by_categorytype(df):
+    # Dictionary to group columns by categorytype
+    grouped_columns = {}
 
-    for name, df in data_dict.items():
-        # Regex pattern to extract modelchk_number_NC, slit_number, and categorytype
-        match = re.search(
-            r'modelchk_(-?\d+(?:\.\d+)?)_NC.*slit_(-?\d+(?:\.\d+)?)(_?[A-Za-z0-9]+)?',
-            name
-        )
+    # Parse each column name and categorize
+    pattern = re.compile(r"slit_(-?\d+(?:\.\d+)?)_(\w+)")
+    for col in df.columns:
+        match = pattern.fullmatch(col)
+        if match:
+            number = float(match.group(1))
+            categorytype = match.group(2)
+            if categorytype not in grouped_columns:
+                grouped_columns[categorytype] = []
+            grouped_columns[categorytype].append((number, col))
 
-        if not match:
-            continue  # Skip invalid names
-
-        model_number = match.group(1)
-        slit_number = match.group(2)
-        category = match.group(3).lstrip('_') if match.group(3) else "unknown"
-
-        row_index = f"modelchk_{model_number}_NC"
-        col_name = f"slit_{slit_number}_{category}"
-
-        # Extract values from index 1
-        rmse_value = df.at[1, 'RMSE'] if 1 in df.index else None
-        max_value = df.at[1, 'MAX'] if 1 in df.index else None
-
-        if row_index not in df_rows:
-            df_rows[row_index] = {}
-            df_max_rows[row_index] = {}
-
-        df_rows[row_index][col_name] = rmse_value
-        df_max_rows[row_index][col_name] = max_value
-
-    # Construct DataFrames
-    df_result = pd.DataFrame.from_dict(df_rows, orient='index').sort_index().sort_index(axis=1)
-    df_max_result = pd.DataFrame.from_dict(df_max_rows, orient='index').sort_index().sort_index(axis=1)
-
-    return df_result, df_max_result
+    # Process and print each group
+    for categorytype, col_list in grouped_columns.items():
+        # Sort columns by number
+        sorted_cols = sorted(col_list, key=lambda x: x[0])
+        print(f"=== Category: {categorytype} ===")
+        for number, col_name in sorted_cols:
+            print(f"\nslit_{number}_{categorytype}")
+            print(df[col_name])
+        print("\n" + "-" * 40 + "\n")
