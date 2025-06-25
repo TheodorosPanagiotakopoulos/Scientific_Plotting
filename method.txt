@@ -1,23 +1,25 @@
 import pandas as pd
-import re
+import numpy as np
 
-def split_dfs_by_slit(df_dict):
-    new_dict = {}
-    
-    for key, df in df_dict.items():
-        extracted = df['gauge'].str.extractall(r'_slit_([0-9.]+)')
-        unique_slits = extracted[0].dropna().unique()
-        unique_slits = sorted(unique_slits, key=float)
-
-        for slit in unique_slits:
-            pattern = r'_slit_' + re.escape(slit) + r'\b'
-            mask = df['gauge'].str.contains(pattern)
-
-            new_key = '{}_slit_{}'.format(key, slit)
-
-            df_filtered = df[mask].copy().reset_index(drop=True)
-            df_filtered.index += 1  # Reindex from 1
-
-            new_dict[new_key] = df_filtered
-    
-    return new_dict
+def compute_rmse_for_dict(data_dict):
+    for key, df in data_dict.items():
+        if 'max_aitable' in df.columns:
+            # Calculate RMSE
+            squared = df['max_aitable'] ** 2
+            rmse = np.sqrt(squared.sum() / len(squared))
+            
+            # Create RMSE column with NaNs
+            df['RMSE'] = np.nan
+            
+            # Set RMSE value at the top (index 1)
+            if 1 in df.index:
+                df.at[1, 'RMSE'] = rmse
+            else:
+                # Reindex if necessary to ensure index starts from 1
+                df.index = range(1, len(df) + 1)
+                df.at[1, 'RMSE'] = rmse
+                
+            # Update the dataframe in the dictionary
+            data_dict[key] = df
+            
+    return data_dict
