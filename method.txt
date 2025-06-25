@@ -1,10 +1,8 @@
-import pandas as pd
 import re
 
-def reorder_columns_by_number(df):
-    def extract_number(col_name):
-        match = re.search(r'slit_([-+]?\d*\.?\d+)_category', col_name)
-        return float(match.group(1)) if match else float('inf')
+def extract_numbers_from_index(df):
+    def extract_number(idx):
+        match = re.search(r'modelchk_([-+]?\d*\.?\d+)_NC', idx)
+        return float(match.group(1)) if match else None
 
-    sorted_columns = sorted(df.columns, key=extract_number)
-    return df[sorted_columns]
+    return [extract_number(idx) for idx in df.index if extract_number(idx) is not None]
