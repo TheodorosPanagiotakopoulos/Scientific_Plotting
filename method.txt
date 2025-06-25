@@ -6,8 +6,8 @@ def extract_metrics(data_dict):
     df_max_rows = {}
 
     for name, df in data_dict.items():
-        # Extract parts from name using regex
-        match = re.match(r'df_(modelchk_\d+_NC)_slit_(\d+(?:\.\d+)?)', name)
+        # Updated regex to handle negative numbers and floats
+        match = re.match(r'df_(modelchk_-?\d+(?:\.\d+)?_NC)_slit_(-?\d+(?:\.\d+)?)', name)
         if not match:
             continue  # Skip if name doesn't match expected format
         
