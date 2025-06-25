@@ -1,12 +1,16 @@
-# Sample data
-df1 = pd.DataFrame({
-    'group': ['1DKS', 'circle', '1DKS', 'circle'],
-    'value': [10, 20, 30, 40]
-})
+import pandas as pd
 
-dataframes = {'df1': df1}
-result = split_dataframes_by_group(dataframes)
-
-# result now contains:
-# - 'df1_1DKS': rows with group == '1DKS', reindexed from 1
-# - 'df1_circle': rows with group == 'circle', reindexed from 1
+def split_dataframes_by_group(dataframes_dict):
+    result = {}
+    for df_name, df in dataframes_dict.items():
+        if 'group' not in df.columns:
+            continue  # Skip if there's no 'group' column
+        for group_value in df['group'].unique():
+            # Filter rows where group matches the current group_value
+            filtered_df = df[df['group'] == group_value].copy()
+            filtered_df.reset_index(drop=True, inplace=True)
+            filtered_df.index += 1  # Reindex starting from 1
+            # Create new name
+            new_name = f"{df_name}_{str(group_value)}"
+            result[new_name] = filtered_df
+    return result
