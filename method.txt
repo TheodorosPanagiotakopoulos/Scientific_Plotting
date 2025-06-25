@@ -1,29 +1,21 @@
 import pandas as pd
 import re
 
-def print_dataframes_grouped_by_slit(df):
-    # Regex to parse the column name
-    pattern = re.compile(r"slit_(-?\d+(?:\.\d+)?)_(\w+)")
+def split_dataframe_by_number(df):
+    # Dictionary to hold grouped columns
+    grouped_cols = {}
 
-    # Temporary structure: {slit_number: {categorytype: [column names]}}
-    slit_groups = {}
-
+    # Extract number from each column name and group
     for col in df.columns:
-        match = pattern.fullmatch(col)
+        match = re.match(r"slit_([+-]?\d*\.?\d+)_.*", col)
         if match:
-            slit = float(match.group(1))
-            category = match.group(2)
-            if slit not in slit_groups:
-                slit_groups[slit] = {}
-            if category not in slit_groups[slit]:
-                slit_groups[slit][category] = []
-            slit_groups[slit][category].append(col)
+            number = match.group(1)
+            grouped_cols.setdefault(number, []).append(col)
+        else:
+            print(f"Skipping column with unexpected name format: {col}")
 
-    # Process in order of increasing slit number
-    for slit in sorted(slit_groups):
-        print(f"\n=== Slit: {slit} ===")
-        category_dict = slit_groups[slit]
-        for category in sorted(category_dict):  # sort categories alphabetically
-            print(f"\n-- Category: {category} --")
-            columns = category_dict[category]
-            print(df[columns])
+    # Iterate and print dataframes
+    for number in sorted(grouped_cols, key=lambda x: float(x)):
+        print()  # Blank line before each group
+        print(f"Data for slit number {number}:\n")
+        print(df[grouped_cols[number]])
