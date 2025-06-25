@@ -5,22 +5,19 @@ def split_dfs_by_slit(df_dict):
     new_dict = {}
     
     for key, df in df_dict.items():
-        # Extract all matches of slit values using regex
         extracted = df['gauge'].str.extractall(r'_slit_([0-9.]+)')
-        
-        # Flatten and get unique slit values
         unique_slits = extracted[0].dropna().unique()
         unique_slits = sorted(unique_slits, key=float)
 
         for slit in unique_slits:
-            # Build regex pattern to find rows with this slit
             pattern = r'_slit_' + re.escape(slit) + r'\b'
             mask = df['gauge'].str.contains(pattern)
 
-            # New key for the dictionary
             new_key = '{}_slit_{}'.format(key, slit)
 
-            # Assign filtered DataFrame
-            new_dict[new_key] = df[mask].copy()
+            df_filtered = df[mask].copy().reset_index(drop=True)
+            df_filtered.index += 1  # Reindex from 1
+
+            new_dict[new_key] = df_filtered
     
     return new_dict
