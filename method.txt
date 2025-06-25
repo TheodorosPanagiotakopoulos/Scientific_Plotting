@@ -1,16 +1,40 @@
 import pandas as pd
+import re
 
-def split_dataframes_by_group(dataframes_dict):
-    result = {}
-    for df_name, df in dataframes_dict.items():
-        if 'group' not in df.columns:
-            continue  # Skip if there's no 'group' column
-        for group_value in df['group'].unique():
-            # Filter rows where group matches the current group_value
-            filtered_df = df[df['group'] == group_value].copy()
-            filtered_df.reset_index(drop=True, inplace=True)
-            filtered_df.index += 1  # Reindex starting from 1
-            # Create new name
-            new_name = f"{df_name}_{str(group_value)}"
-            result[new_name] = filtered_df
-    return result
+def extract_metrics_with_category(data_dict):
+    df_rows = {}
+    df_max_rows = {}
+
+    for name, df in data_dict.items():
+        # Regex pattern to extract modelchk_number_NC, slit_number, and categorytype
+        match = re.search(
+            r'modelchk_(-?\d+(?:\.\d+)?)_NC.*slit_(-?\d+(?:\.\d+)?)(_?[A-Za-z0-9]+)?',
+            name
+        )
+
+        if not match:
+            continue  # Skip invalid names
+
+        model_number = match.group(1)
+        slit_number = match.group(2)
+        category = match.group(3).lstrip('_') if match.group(3) else "unknown"
+
+        row_index = f"modelchk_{model_number}_NC"
+        col_name = f"slit_{slit_number}_{category}"
+
+        # Extract values from index 1
+        rmse_value = df.at[1, 'RMSE'] if 1 in df.index else None
+        max_value = df.at[1, 'MAX'] if 1 in df.index else None
+
+        if row_index not in df_rows:
+            df_rows[row_index] = {}
+            df_max_rows[row_index] = {}
+
+        df_rows[row_index][col_name] = rmse_value
+        df_max_rows[row_index][col_name] = max_value
+
+    # Construct DataFrames
+    df_result = pd.DataFrame.from_dict(df_rows, orient='index').sort_index().sort_index(axis=1)
+    df_max_result = pd.DataFrame.from_dict(df_max_rows, orient='index').sort_index().sort_index(axis=1)
+
+    return df_result, df_max_result
