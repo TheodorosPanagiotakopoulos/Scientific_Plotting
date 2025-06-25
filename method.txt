@@ -1,21 +1,24 @@
-import pandas as pd
-import re
+def sort_slit_columns(df, prefix="slit_"):
+    """
+    Reorders DataFrame columns by the numeric part after a given prefix.
 
-def split_dataframe_by_number(df):
-    # Dictionary to hold grouped columns
-    grouped_cols = {}
+    Assumes all column names starting with the prefix are in the format: prefix<number>,
+    e.g., 'slit_-2.5', 'slit_0', 'slit_1'.
 
-    # Extract number from each column name and group
-    for col in df.columns:
-        match = re.match(r"slit_([+-]?\d*\.?\d+)_.*", col)
-        if match:
-            number = match.group(1)
-            grouped_cols.setdefault(number, []).append(col)
-        else:
-            print(f"Skipping column with unexpected name format: {col}")
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        prefix (str): Prefix to identify target columns.
 
-    # Iterate and print dataframes
-    for number in sorted(grouped_cols, key=lambda x: float(x)):
-        print()  # Blank line before each group
-        print(f"Data for slit number {number}:\n")
-        print(df[grouped_cols[number]])
+    Returns:
+        pd.DataFrame: DataFrame with slit columns ordered numerically, others after.
+    """
+    # Split columns into matching and non-matching
+    slit_cols = [col for col in df.columns if col.startswith(prefix)]
+    other_cols = [col for col in df.columns if not col.startswith(prefix)]
+
+    # Sort matching columns by the numeric part
+    slit_cols_sorted = sorted(slit_cols, key=lambda col: float(col[len(prefix):]))
+
+    # Combine sorted + other columns
+    final_cols = slit_cols_sorted + other_cols
+    return df[final_cols]
