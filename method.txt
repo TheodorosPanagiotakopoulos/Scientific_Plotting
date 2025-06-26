@@ -1,18 +1,20 @@
-import pandas as pd
+import os
+import shutil
 
-def sort_dataframe_by_modelchk_number(df):
-    # Extract the numeric part from the index (assumes format "modelchk_<number>_NC")
-    def extract_number(index):
-        return int(index.split('_')[1])
+def check_or_copy_folder(src_folder_path):
+    # Get the name of the folder
+    folder_name = os.path.basename(os.path.normpath(src_folder_path))
     
-    # Create a temporary column with the extracted numbers
-    df_sorted = df.copy()
-    df_sorted['__temp_number'] = df_sorted.index.map(extract_number)
+    # Get the path to the folder in the current working directory
+    dest_path = os.path.join(os.getcwd(), folder_name)
     
-    # Sort by the extracted number
-    df_sorted = df_sorted.sort_values('__temp_number')
-    
-    # Drop the temporary column
-    df_sorted = df_sorted.drop(columns='__temp_number')
-    
-    return df_sorted
+    if os.path.exists(dest_path):
+        print(f"The folder '{folder_name}' already exists in the current directory.")
+    else:
+        try:
+            shutil.copytree(src_folder_path, dest_path)
+            print(f"Folder '{folder_name}' copied to current directory.")
+        except FileNotFoundError:
+            print(f"The source folder '{src_folder_path}' does not exist.")
+        except Exception as e:
+            print(f"An error occurred: {e}")
