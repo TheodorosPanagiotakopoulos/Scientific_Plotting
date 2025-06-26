@@ -1,8 +1,18 @@
-import re
+import pandas as pd
 
-def extract_numbers_from_index(df):
-    def extract_number(idx):
-        match = re.search(r'modelchk_([-+]?\d*\.?\d+)_NC', idx)
-        return float(match.group(1)) if match else None
-
-    return [extract_number(idx) for idx in df.index if extract_number(idx) is not None]
+def sort_dataframe_by_modelchk_number(df):
+    # Extract the numeric part from the index (assumes format "modelchk_<number>_NC")
+    def extract_number(index):
+        return int(index.split('_')[1])
+    
+    # Create a temporary column with the extracted numbers
+    df_sorted = df.copy()
+    df_sorted['__temp_number'] = df_sorted.index.map(extract_number)
+    
+    # Sort by the extracted number
+    df_sorted = df_sorted.sort_values('__temp_number')
+    
+    # Drop the temporary column
+    df_sorted = df_sorted.drop(columns='__temp_number')
+    
+    return df_sorted
