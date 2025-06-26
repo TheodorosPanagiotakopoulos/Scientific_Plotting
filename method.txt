@@ -1,30 +1,15 @@
 import os
 
-def distribute_tmp_files_to_default_groups(folder_path):
-	# Define allowed default group files
-	allowed_groups = ["default_group_" + str(i) + ".txt" for i in range(1, 8)]
-	blocked_groups = ["default_group_8.txt", "default_group_9.txt"]
+def check_or_scp_copy(src_folder_path):
+    folder_name = os.path.basename(os.path.normpath(src_folder_path))
+    dest_folder_path = os.path.join(os.getcwd(), folder_name)
 
-	# Collect tmp files: all .txt files excluding any default group files (1-9)
-	all_files = sorted([
-		f for f in os.listdir(folder_path)
-		if f.endswith(".txt") and f not in allowed_groups + blocked_groups
-	])
-
-	# Full paths for allowed group files
-	group_paths = [os.path.join(folder_path, fname) for fname in allowed_groups]
-
-	group_index = 0
-	for tmp_file in all_files:
-		tmp_path = os.path.join(folder_path, tmp_file)
-		dest_group_path = group_paths[group_index]
-
-		with open(tmp_path, 'r') as tf:
-			content = tf.read()
-
-		with open(dest_group_path, 'a') as gf:
-			gf.write(content)
-
-		print("Appended '" + tmp_file + "' to '" + allowed_groups[group_index] + "'")
-
-		group_index = (group_index + 1) % 7
+    if os.path.exists(dest_folder_path):
+        print("The folder '" + folder_name + "' already exists in the current directory.")
+    else:
+        scp_command = "scp -rp " + src_folder_path + " " + os.getcwd()
+        result = os.system(scp_command)
+        if result == 0:
+            print("Folder '" + folder_name + "' copied successfully to current directory using SCP.")
+        else:
+            print("Failed to copy folder '" + folder_name + "' using SCP.")
