@@ -1,22 +1,23 @@
 import os
-import re
+import random
 
-def get_sorted_group_files(directory):
-    pattern = re.compile(r"default_group_(\d+)\.txt")
-    matched_files = []
+def copy_half_matching_lines(group, cal_ver, path, file_list, tmp_file_name, seed=42):
+    matching_lines = []
 
-    for filename in os.listdir(directory):
-        match = pattern.match(filename)
-        if match:
-            number = int(match.group(1))
-            matched_files.append((number, filename))
+    # Collect matching lines
+    for filename in file_list:
+        full_path = os.path.join(path, filename)
+        if not os.path.isfile(full_path):
+            continue  # Skip if not a file
+        with open(full_path, 'r') as f:
+            for line in f:
+                if group in line and cal_ver in line:
+                    matching_lines.append(line)
+    
+    # Randomly select approx half the lines
+    random.seed(seed)
+    selected_lines = random.sample(matching_lines, k=len(matching_lines)//2)
 
-    # Sort by the extracted number
-    matched_files.sort()
-    # Return only the filenames in sorted order
-    return [filename for _, filename in matched_files]
-
-# Example usage:
-# directory_path = "/path/to/your/directory"
-# files = get_sorted_group_files(directory_path)
-# print(files)
+    # Write to tmp file
+    with open(tmp_file_name, 'w') as tmp_file:
+        tmp_file.writelines(selected_lines)
