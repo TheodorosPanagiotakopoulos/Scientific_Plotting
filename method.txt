@@ -1,20 +1,15 @@
 import os
-import shutil
 
-def check_or_copy_folder(src_folder_path):
-    # Get the name of the folder
+def check_or_scp_copy(src_folder_path):
     folder_name = os.path.basename(os.path.normpath(src_folder_path))
-    
-    # Get the path to the folder in the current working directory
-    dest_path = os.path.join(os.getcwd(), folder_name)
-    
-    if os.path.exists(dest_path):
-        print(f"The folder '{folder_name}' already exists in the current directory.")
+    dest_folder_path = os.path.join(os.getcwd(), folder_name)
+
+    if os.path.exists(dest_folder_path):
+        print("The folder '" + folder_name + "' already exists in the current directory.")
     else:
-        try:
-            shutil.copytree(src_folder_path, dest_path)
-            print(f"Folder '{folder_name}' copied to current directory.")
-        except FileNotFoundError:
-            print(f"The source folder '{src_folder_path}' does not exist.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
+        scp_command = "scp -rp " + src_folder_path + " " + os.getcwd()
+        result = os.system(scp_command)
+        if result == 0:
+            print("Folder '" + folder_name + "' copied successfully to current directory using SCP.")
+        else:
+            print("Failed to copy folder '" + folder_name + "' using SCP.")
