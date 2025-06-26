@@ -17,9 +17,11 @@ def distribute_tmp_files_to_default_groups(folder_path):
 		tmp_path = os.path.join(folder_path, tmp_file)
 		group_path = os.path.join(folder_path, group_files[group_index])
 
+		# Read tmp file
 		with open(tmp_path, 'r') as tf:
 			content = tf.read()
 
+		# Append tmp file content to the corresponding default group file
 		with open(group_path, 'a') as gf:
 			gf.write(content)
 
