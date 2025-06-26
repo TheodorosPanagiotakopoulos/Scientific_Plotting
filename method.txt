@@ -1,30 +1,30 @@
 import os
 
 def distribute_tmp_files_to_default_groups(folder_path):
-	# Prepare default group file names
-	group_files = []
-	for i in range(1, 8):
-		group_files.append("default_group_" + str(i) + ".txt")
+	# Define allowed default group files
+	allowed_groups = ["default_group_" + str(i) + ".txt" for i in range(1, 8)]
+	blocked_groups = ["default_group_8.txt", "default_group_9.txt"]
 
-	# Collect tmp files (exclude default group files)
+	# Collect tmp files: all .txt files excluding any default group files (1-9)
 	all_files = sorted([
 		f for f in os.listdir(folder_path)
-		if f.endswith(".txt") and f not in group_files
+		if f.endswith(".txt") and f not in allowed_groups + blocked_groups
 	])
+
+	# Full paths for allowed group files
+	group_paths = [os.path.join(folder_path, fname) for fname in allowed_groups]
 
 	group_index = 0
 	for tmp_file in all_files:
 		tmp_path = os.path.join(folder_path, tmp_file)
-		group_path = os.path.join(folder_path, group_files[group_index])
+		dest_group_path = group_paths[group_index]
 
-		# Read tmp file
 		with open(tmp_path, 'r') as tf:
 			content = tf.read()
 
-		# Append tmp file content to the corresponding default group file
-		with open(group_path, 'a') as gf:
+		with open(dest_group_path, 'a') as gf:
 			gf.write(content)
 
-		print("Appended '" + tmp_file + "' to '" + group_files[group_index] + "'")
+		print("Appended '" + tmp_file + "' to '" + allowed_groups[group_index] + "'")
 
 		group_index = (group_index + 1) % 7
