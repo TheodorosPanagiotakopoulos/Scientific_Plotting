@@ -1,15 +1,22 @@
 import os
+import re
 
-def check_or_scp_copy(src_folder_path):
-    folder_name = os.path.basename(os.path.normpath(src_folder_path))
-    dest_folder_path = os.path.join(os.getcwd(), folder_name)
+def get_sorted_group_files(directory):
+    pattern = re.compile(r"default_group_(\d+)\.txt")
+    matched_files = []
 
-    if os.path.exists(dest_folder_path):
-        print("The folder '" + folder_name + "' already exists in the current directory.")
-    else:
-        scp_command = "scp -rp " + src_folder_path + " " + os.getcwd()
-        result = os.system(scp_command)
-        if result == 0:
-            print("Folder '" + folder_name + "' copied successfully to current directory using SCP.")
-        else:
-            print("Failed to copy folder '" + folder_name + "' using SCP.")
+    for filename in os.listdir(directory):
+        match = pattern.match(filename)
+        if match:
+            number = int(match.group(1))
+            matched_files.append((number, filename))
+
+    # Sort by the extracted number
+    matched_files.sort()
+    # Return only the filenames in sorted order
+    return [filename for _, filename in matched_files]
+
+# Example usage:
+# directory_path = "/path/to/your/directory"
+# files = get_sorted_group_files(directory_path)
+# print(files)
