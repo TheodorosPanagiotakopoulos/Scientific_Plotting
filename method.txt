@@ -1,33 +1,19 @@
-import os
-import random
+def replace_cal_ver(file_path, choice):
+	if choice not in ("CAL_TO_VER", "VER_TO_CAL"):
+		print("Invalid choice. Use 'CAL_TO_VER' or 'VER_TO_CAL'.")
+		return
 
-def copy_half_matching_lines(group, cal_ver, path, file_list, tmp_file_name, seed=42):
-	matching_lines = []
+	with open(file_path, 'r') as f:
+		lines = f.readlines()
 
-	# Collect matching lines
-	for filename in file_list:
-		full_path = os.path.join(path, filename)
-		if not os.path.isfile(full_path):
-			continue  # Skip if not a file
+	updated_lines = []
+	for line in lines:
+		if choice == "CAL_TO_VER":
+			updated_lines.append(line.replace("CAL", "VER"))
+		elif choice == "VER_TO_CAL":
+			updated_lines.append(line.replace("VER", "CAL"))
 
-		file_matches = []
-		with open(full_path, 'r') as f:
-			for line in f:
-				if group in line and cal_ver in line:
-					file_matches.append(line)
+	with open(file_path, 'w') as f:
+		f.writelines(updated_lines)
 
-		if not file_matches:
-			print(f"No matching lines found in file: {filename}")
-		else:
-			matching_lines.extend(file_matches)
-
-	# Randomly select approx half the lines
-	if matching_lines:
-		random.seed(seed)
-		selected_lines = random.sample(matching_lines, k=len(matching_lines) // 2)
-
-		# Write to tmp file
-		with open(tmp_file_name, 'w') as tmp_file:
-			tmp_file.writelines(selected_lines)
-	else:
-		print("No matching lines found in any file. Temp file will not be created.")
+	print(f"File '{file_path}' updated with choice: {choice}")
