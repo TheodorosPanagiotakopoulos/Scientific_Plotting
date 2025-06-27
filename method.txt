@@ -1,0 +1,25 @@
+import pandas as pd
+import sys
+
+def process_dataframe(df: pd.DataFrame, use: str) -> pd.DataFrame:
+	# Ensure columns exist
+	if 'usage' not in df.columns or 'Rig_usage' not in df.columns:
+		raise ValueError("DataFrame must contain 'usage' and 'Rig_usage' columns.")
+
+	# Compare elements
+	differences = df['usage'].str.lower() != df['Rig_usage'].str.lower()
+	if differences.any():
+		print("Warning: Some elements differ between 'usage' and 'Rig_usage'.")
+
+	use_lower = use.lower()
+
+	if use_lower == 'ver':
+		df = df[~((df['usage'].str.lower() == 'cal') & (df['Rig_usage'].str.lower() == 'cal'))]
+	elif use_lower == 'cal':
+		df = df[~((df['usage'].str.lower() == 'ver') & (df['Rig_usage'].str.lower() == 'ver'))]
+	else:
+		sys.exit(1)
+
+	# Reindex from 1
+	df.index = range(1, len(df) + 1)
+	return df
