@@ -1,1 +1,13 @@
-grep -E 'Vhole.*VER|VER.*Vhole' default_group9.txt | wc -l
+def replace_cal_with_ver_if_2dsraf(file_path):
+    """
+    Replaces 'CAL' with 'VER' in lines that contain both '2Dsraf' and 'CAL'.
+    Modifies the file in place.
+    """
+    with open(file_path, "r") as file:
+        lines = file.readlines()
+
+    with open(file_path, "w") as file:
+        for line in lines:
+            if "2Dsraf" in line and "CAL" in line:
+                line = line.replace("CAL", "VER")
+            file.write(line)
