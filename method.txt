@@ -17,7 +17,10 @@ def load_all_data_and_plot():
 	with ThreadPoolExecutor() as executor:
 		futures = {
 			"v2_tr": executor.submit(load_data, path_to_job_v2, "cal"),
-			"v2_val": executor.submit(load_data, path_to_job_v2, "ver"),
+			"v2_val": executor.submit(load_data,
+
+
+ path_to_job_v2, "ver"),
 			"v3_tr": executor.submit(load_data, path_to_job_v3, "cal"),
 			"v3_val": executor.submit(load_data, path_to_job_v3, "ver"),
 		}
@@ -42,3 +45,8 @@ def load_all_data_and_plot():
 	plt.legend(loc="best")
 	plt.title("Model v3")
 	plt.show()
+
+from concurrent.futures import ProcessPoolExecutor
+with ProcessPoolExecutor() as executor:
+
+
