@@ -1,25 +1,44 @@
-import pandas as pd
-import sys
+from concurrent.futures import ThreadPoolExecutor
+import matplotlib.pyplot as plt
 
-def process_dataframe(df: pd.DataFrame, use: str) -> pd.DataFrame:
-	# Ensure columns exist
-	if 'usage' not in df.columns or 'Rig_usage' not in df.columns:
-		raise ValueError("DataFrame must contain 'usage' and 'Rig_usage' columns.")
+def load_all_data_and_plot():
+	path_to_job_v2 = "/nfs/PEG/FEM/tpanagio/Influence_of_Different_Illuminations_on_same_Schema_Performance/newron_first_IS_val_to_train_anchor_cal_CR_V2"
+	path_to_job_v3 = "/nfs/PEG/FEM/tpanagio/Influence_of_Different_Illuminations_on_same_Schema_Performance/newron_first_IS_val_to_train_anchor_cal_CR_V3"
 
-	# Compare elements
-	differences = df['usage'].str.lower() != df['Rig_usage'].str.lower()
-	if differences.any():
-		print("Warning: Some elements differ between 'usage' and 'Rig_usage'.")
+	def load_data(path_to_job, usage):
+		return get_data.pipeline_per_slit(
+			path_to_job=path_to_job,
+			training_validation_option="",
+			machine_type="DUV",
+			usage=usage,
+			verbose=True
+		)
 
-	use_lower = use.lower()
+	with ThreadPoolExecutor() as executor:
+		futures = {
+			"v2_tr": executor.submit(load_data, path_to_job_v2, "cal"),
+			"v2_val": executor.submit(load_data, path_to_job_v2, "ver"),
+			"v3_tr": executor.submit(load_data, path_to_job_v3, "cal"),
+			"v3_val": executor.submit(load_data, path_to_job_v3, "ver"),
+		}
+		results = {key: future.result() for key, future in futures.items()}
 
-	if use_lower == 'ver':
-		df = df[~((df['usage'].str.lower() == 'cal') & (df['Rig_usage'].str.lower() == 'cal'))]
-	elif use_lower == 'cal':
-		df = df[~((df['usage'].str.lower() == 'ver') & (df['Rig_usage'].str.lower() == 'ver'))]
-	else:
-		sys.exit(1)
+	# Unpack results
+	df_v2_tr, _ = results["v2_tr"]
+	df_v2_val, _ = results["v2_val"]
+	df_v3_tr, _ = results["v3_tr"]
+	df_v3_val, _ = results["v3_val"]
 
-	# Reindex from 1
-	df.index = range(1, len(df) + 1)
-	return df
+	# Plotting v2
+	plt.plot(df_v2_tr["slit_0.00"], "-o", label="training v2")
+	plt.plot(df_v2_val["slit_0.00"], "-o", label="validation v2")
+	plt.legend(loc="best")
+	plt.title("Model v2")
+	plt.show()
+
+	# Plotting v3
+	plt.plot(df_v3_tr["slit_0.00"], "-o", label="training v3")
+	plt.plot(df_v3_val["slit_0.00"], "-o", label="validation v3")
+	plt.legend(loc="best")
+	plt.title("Model v3")
+	plt.show()
