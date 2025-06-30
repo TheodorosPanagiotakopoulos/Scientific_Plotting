@@ -1,52 +1,45 @@
-from concurrent.futures import ThreadPoolExecutor
-import matplotlib.pyplot as plt
+import re
+import pandas as pd
 
-def load_all_data_and_plot():
-	path_to_job_v2 = "/nfs/PEG/FEM/tpanagio/Influence_of_Different_Illuminations_on_same_Schema_Performance/newron_first_IS_val_to_train_anchor_cal_CR_V2"
-	path_to_job_v3 = "/nfs/PEG/FEM/tpanagio/Influence_of_Different_Illuminations_on_same_Schema_Performance/newron_first_IS_val_to_train_anchor_cal_CR_V3"
+def extract_metrics_with_category(data_dict):
+    df_rows = {}
+    df_max_rows = {}
 
-	def load_data(path_to_job, usage):
-		return get_data.pipeline_per_slit(
-			path_to_job=path_to_job,
-			training_validation_option="",
-			machine_type="DUV",
-			usage=usage,
-			verbose=True
-		)
+    for name, df in data_dict.items():
+        # Skip if not matching pattern
+        match = re.search(r'modelchk_(\d+).*slit_([-\d.]+)', name)
+        if not match or '_NC_' not in name:
+            continue
 
-	with ThreadPoolExecutor() as executor:
-		futures = {
-			"v2_tr": executor.submit(load_data, path_to_job_v2, "cal"),
-			"v2_val": executor.submit(load_data,
+        model_number = match.group(1)
+        slit_number = match.group(2)
+        category = name.split('_NC_', 1)[1]  # Everything after _NC_
 
+        row_index = f"modelchk{model_number}_NC"
+        col_name = f"slit_{slit_number}_{category}"
 
- path_to_job_v2, "ver"),
-			"v3_tr": executor.submit(load_data, path_to_job_v3, "cal"),
-			"v3_val": executor.submit(load_data, path_to_job_v3, "ver"),
-		}
-		results = {key: future.result() for key, future in futures.items()}
+        rmse_value = df.at[1, "RMSE"] if 1 in df.index else None
+        max_value = df.at[1, "MAX"] if 1 in df.index else None
 
-	# Unpack results
-	df_v2_tr, _ = results["v2_tr"]
-	df_v2_val, _ = results["v2_val"]
-	df_v3_tr, _ = results["v3_tr"]
-	df_v3_val, _ = results["v3_val"]
+        if row_index not in df_rows:
+            df_rows[row_index] = {}
+            df_max_rows[row_index] = {}
 
-	# Plotting v2
-	plt.plot(df_v2_tr["slit_0.00"], "-o", label="training v2")
-	plt.plot(df_v2_val["slit_0.00"], "-o", label="validation v2")
-	plt.legend(loc="best")
-	plt.title("Model v2")
-	plt.show()
+        df_rows[row_index][col_name] = rmse_value
+        df_max_rows[row_index][col_name] = max_value
 
-	# Plotting v3
-	plt.plot(df_v3_tr["slit_0.00"], "-o", label="training v3")
-	plt.plot(df_v3_val["slit_0.00"], "-o", label="validation v3")
-	plt.legend(loc="best")
-	plt.title("Model v3")
-	plt.show()
+    df_result = pd.DataFrame.from_dict(df_rows, orient="index").sort_index(axis=1)
+    df_max_result = pd.DataFrame.from_dict(df_max_rows, orient="index").sort_index(axis=1)
 
-from concurrent.futures import ProcessPoolExecutor
-with ProcessPoolExecutor() as executor:
+    return df_result, df_max_result
 
-
+def split_dataframe_by_number(df):
+    grouped_cols = {}
+    for col in df.columns:
+        match = re.match(r"slit_([-\d.]+)", col)
+        if match:
+            number = match.group(1)
+            if number not in grouped_cols:
+                grouped_cols[number] = []
+            grouped_cols[number].append(col)
+    return grouped_cols
