@@ -1,45 +1,13 @@
-import re
-import pandas as pd
+def update_ver_to_cal(filepath):
+    with open(filepath, 'r') as file:
+        lines = file.readlines()
 
-def extract_metrics_with_category(data_dict):
-	df_rows = {}
-	df_max_rows = {}
+    updated_lines = []
+    for line in lines:
+        if 'anchor' in line.lower() and 'VER' in line:
+            updated_lines.append(line.replace('VER', 'CAL'))
+        else:
+            updated_lines.append(line)
 
-	for name, df in data_dict.items():
-		# Skip if not matching pattern
-		match = re.search(r'modelchk_(\d+).*slit_([-\d.]+)', name)
-		if not match or '_NC_' not in name:
-			continue
-
-		model_number = match.group(1)
-		slit_number = match.group(2)
-		category = name.split('_NC_', 1)[1]  # Everything after _NC_
-
-		row_index = f"modelchk{model_number}_NC"
-		col_name = f"slit_{slit_number}_{category}"
-
-		rmse_value = df.at[1, "RMSE"] if 1 in df.index else None
-		max_value = df.at[1, "MAX"] if 1 in df.index else None
-
-		if row_index not in df_rows:
-			df_rows[row_index] = {}
-			df_max_rows[row_index] = {}
-
-		df_rows[row_index][col_name] = rmse_value
-		df_max_rows[row_index][col_name] = max_value
-
-	df_result = pd.DataFrame.from_dict(df_rows, orient="index").sort_index(axis=1)
-	df_max_result = pd.DataFrame.from_dict(df_max_rows, orient="index").sort_index(axis=1)
-
-	return df_result, df_max_result
-
-def split_dataframe_by_number(df):
-	grouped_cols = {}
-	for col in df.columns:
-		match = re.match(r"slit_([-\d.]+)", col)
-		if match:
-			number = match.group(1)
-			if number not in grouped_cols:
-				grouped_cols[number] = []
-			grouped_cols[number].append(col)
-	return grouped_cols
+    with open(filepath, 'w') as file:
+        file.writelines(updated_lines)
