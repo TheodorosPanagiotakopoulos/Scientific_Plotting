@@ -1,13 +1,28 @@
-def update_ver_to_cal(filepath):
-    with open(filepath, 'r') as file:
-        lines = file.readlines()
+import matplotlib.pyplot as plt
 
-    updated_lines = []
-    for line in lines:
-        if 'anchor' in line.lower() and 'VER' in line:
-            updated_lines.append(line.replace('VER', 'CAL'))
-        else:
-            updated_lines.append(line)
+def plot_dataframe(df):
+    # Check if the DataFrame is empty
+    if df.empty:
+        print("The DataFrame is empty. Nothing to plot.")
+        return
 
-    with open(filepath, 'w') as file:
-        file.writelines(updated_lines)
+    # Ensure the index is numeric for division
+    try:
+        x_values = df.index.astype(float) / 1000
+    except ValueError:
+        print("Index must be numeric to divide by 1000.")
+        return
+
+    # Plot all columns
+    plt.figure(figsize=(10, 6))
+    for column in df.columns:
+        plt.plot(x_values, df[column], label=column)
+
+    # Labels and title
+    plt.xlabel("Steps × 10⁻³")
+    plt.ylabel("Values")
+    plt.title("DataFrame Column Plot")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
