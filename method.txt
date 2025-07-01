@@ -1,4 +1,12 @@
-  try:
-        x_values = df.index.to_series().str.extract(r'(\d+)')[0].astype(float) / 1000
-    except Exception as e:
-        print(f"Error extracting numeric index: {e}")
+import pandas as pd
+
+df_fff = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
+
+def get_variable_name(obj):
+    for name, val in globals().items():
+        if val is obj:
+            return name
+    return None
+
+name = get_variable_name(df_fff)
+print(name)  # Will print 'df_fff'
