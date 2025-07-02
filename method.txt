@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
 
-def mark_max_on_top(df: pd.DataFrame, column_name: str, new_column_name: str) -> pd.DataFrame:
+def mark_max_on_top_and_print_row(df: pd.DataFrame, column_name: str, new_column_name: str) -> pd.DataFrame:
 	"""
-	Adds a new column with the max value of a specified column placed only
-	on the first row. All other rows are NaN.
+	Adds a new column with the max value of a specified column in the first row.
+	Prints the row where the max value is found.
 
 	Parameters:
 		df (pd.DataFrame): The input DataFrame.
@@ -18,6 +18,11 @@ def mark_max_on_top(df: pd.DataFrame, column_name: str, new_column_name: str) ->
 		raise ValueError(f"Column '{column_name}' not found in DataFrame")
 
 	max_val = df[column_name].max()
+	max_rows = df[df[column_name] == max_val]
+
+	print("Row(s) where max is found:")
+	print(max_rows)
+
 	new_col = [max_val] + [np.nan] * (len(df) - 1)
 	df[new_column_name] = new_col
 	return df
