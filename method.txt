@@ -1,18 +1,22 @@
 import pandas as pd
+import numpy as np
 
-def add_model_difference_column(df: pd.DataFrame) -> pd.DataFrame:
+def mark_max_in_column(df: pd.DataFrame, column_name: str, new_column_name: str) -> pd.DataFrame:
 	"""
-	Adds a new column 'Model_CD_minus_Rig_Model_CD' to the DataFrame
-	which is the result of Model_CD - Rig_Model_CD.
+	Adds a new column with only the max value from the specified column.
+	All other values in the new column are NaN.
 
 	Parameters:
-		df (pd.DataFrame): The input DataFrame with columns 'Model_CD' and 'Rig_Model_CD'
+		df (pd.DataFrame): The input DataFrame.
+		column_name (str): The column to find the max value in.
+		new_column_name (str): The name for the new column to store the result.
 
 	Returns:
-		pd.DataFrame: The updated DataFrame with the new column appended
+		pd.DataFrame: The updated DataFrame with the new column.
 	"""
-	if 'Model_CD' not in df.columns or 'Rig_Model_CD' not in df.columns:
-		raise ValueError("Input DataFrame must contain 'Model_CD' and 'Rig_Model_CD' columns")
+	if column_name not in df.columns:
+		raise ValueError(f"Column '{column_name}' not found in DataFrame")
 
-	df['Model_CD_minus_Rig_Model_CD'] = df['Model_CD'] - df['Rig_Model_CD']
+	max_val = df[column_name].max()
+	df[new_column_name] = np.where(df[column_name] == max_val, max_val, np.nan)
 	return df
