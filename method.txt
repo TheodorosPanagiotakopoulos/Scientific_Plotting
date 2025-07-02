@@ -1,12 +1,14 @@
-import pandas as pd
+import os
+import shutil
 
-df_fff = pd.DataFrame({'a': [1, 2], 'b': [3, 4]})
+def reset_folder(path, folder_name):
+    folder_path = os.path.join(path, folder_name)
+    
+    # If folder exists, delete it
+    if os.path.exists(folder_path):
+        shutil.rmtree(folder_path)
+    
+    # Recreate folder
+    os.makedirs(folder_path)
 
-def get_variable_name(obj):
-    for name, val in globals().items():
-        if val is obj:
-            return name
-    return None
-
-name = get_variable_name(df_fff)
-print(name)  # Will print 'df_fff'
+    return folder_path
