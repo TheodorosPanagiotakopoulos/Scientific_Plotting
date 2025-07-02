@@ -1,14 +1,18 @@
-# main.py
+import pandas as pd
 
-from concurrent.futures import ProcessPoolExecutor
-from tasks import func1, func2, func3
+def add_model_difference_column(df: pd.DataFrame) -> pd.DataFrame:
+	"""
+	Adds a new column 'Model_CD_minus_Rig_Model_CD' to the DataFrame
+	which is the result of Model_CD - Rig_Model_CD.
 
-if __name__ == "__main__":
-    with ProcessPoolExecutor() as executor:
-        futures = [
-            executor.submit(func1, 4),                 # func1(4)
-            executor.submit(func2, 10, 20),            # func2(10, 20)
-            executor.submit(func3, "hello world")      # func3("hello world")
-        ]
-        results = [f.result() for f in futures]
-        print("Results:", results)
+	Parameters:
+		df (pd.DataFrame): The input DataFrame with columns 'Model_CD' and 'Rig_Model_CD'
+
+	Returns:
+		pd.DataFrame: The updated DataFrame with the new column appended
+	"""
+	if 'Model_CD' not in df.columns or 'Rig_Model_CD' not in df.columns:
+		raise ValueError("Input DataFrame must contain 'Model_CD' and 'Rig_Model_CD' columns")
+
+	df['Model_CD_minus_Rig_Model_CD'] = df['Model_CD'] - df['Rig_Model_CD']
+	return df
