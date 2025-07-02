@@ -1,20 +1,16 @@
 #!/bin/bash
 
-# Usage: ./update_theta.sh input_file new_number
+# Hardcoded file path
+file="path/to/your/file.txt"
 
-if [ $# -ne 2 ]; then
-  echo "Usage: $0 input_file new_number"
-  exit 1
-fi
+# Hardcoded new number
+new_number="-2.71"  # <- Change this to whatever number you want
 
-input_file="$1"
-new_number="$2"
+# Print current <theta> values
+echo "Original <theta> values in $file:"
+grep -oP '(?<=<theta>)-?[0-9]+(\.[0-9]+)?(?=</theta>)' "$file"
 
-# Extract and print original numbers
-echo "Original <theta> values:"
-grep -oP '(?<=<theta>)-?[0-9]+(\.[0-9]+)?(?=</theta>)' "$input_file"
-
-# Replace with the new number
-sed -i -E "s|<theta>-?[0-9]+(\.[0-9]+)?</theta>|<theta>${new_number}</theta>|g" "$input_file"
+# Replace all <theta> values with the new number
+sed -i -E "s|<theta>-?[0-9]+(\.[0-9]+)?</theta>|<theta>${new_number}</theta>|g" "$file"
 
 echo "All <theta> values updated to: $new_number"
