@@ -1,16 +1,19 @@
-#!/bin/bash
+import pandas as pd
 
-# Hardcoded file path
-file="path/to/your/file.txt"
+def sort_dataframe_by_index_number(df: pd.DataFrame) -> pd.DataFrame:
+	"""
+	Sorts a DataFrame based on the numerical value in the index formatted as 'modelchk_number_NC'.
 
-# Hardcoded new number
-new_number="-2.71"  # <- Change this to whatever number you want
+	Parameters:
+		df (pd.DataFrame): The input DataFrame with index of the form 'modelchk_number_NC'.
 
-# Print current <theta> values
-echo "Original <theta> values in $file:"
-grep -oP '(?<=<theta>)-?[0-9]+(\.[0-9]+)?(?=</theta>)' "$file"
+	Returns:
+		pd.DataFrame: A DataFrame sorted by the extracted numerical value.
+	"""
+	# Extract the number from the index
+	df['_sort_key'] = df.index.str.extract(r'modelchk_(\d+)_NC')[0].astype(int)
+	
+	# Sort by the extracted number
+	df_sorted = df.sort_values('_sort_key').drop(columns=['_sort_key'])
 
-# Replace all <theta> values with the new number
-sed -i -E "s|<theta>-?[0-9]+(\.[0-9]+)?</theta>|<theta>${new_number}</theta>|g" "$file"
-
-echo "All <theta> values updated to: $new_number"
+	return df_sorted
