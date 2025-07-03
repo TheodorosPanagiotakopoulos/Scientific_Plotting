@@ -2,18 +2,15 @@ import pandas as pd
 
 def sort_dataframe_by_index_number(df: pd.DataFrame) -> pd.DataFrame:
 	"""
-	Sorts a DataFrame based on the numerical value in the index formatted as 'modelchk_number_NC'.
-
-	Parameters:
-		df (pd.DataFrame): The input DataFrame with index of the form 'modelchk_number_NC'.
-
-	Returns:
-		pd.DataFrame: A DataFrame sorted by the extracted numerical value.
+	Sort DataFrame rows by the numeric part of the index formatted as 'modelchk_<number>_NC'.
 	"""
-	# Extract the number from the index
-	df['_sort_key'] = df.index.str.extract(r'modelchk_(\d+)_NC')[0].astype(int)
-	
-	# Sort by the extracted number
-	df_sorted = df.sort_values('_sort_key').drop(columns=['_sort_key'])
+	# Extract numbers as integers
+	numbers = df.index.to_series().str.extract(r'modelchk_(\d+)_NC')[0].astype(int)
+
+	# Combine with original DataFrame and sort by number
+	df_sorted = df.copy()
+	df_sorted['__num__'] = numbers
+	df_sorted = df_sorted.sort_values('__num__')
+	df_sorted = df_sorted.drop(columns='__num__')
 
 	return df_sorted
