@@ -11,3 +11,13 @@ def one_order_smaller_than_extremes(lst):
         return 10 ** power
 
     return (one_order_less(max_val), one_order_less(min_val))
+
+
+import matplotlib.pyplot as plt
+
+plt.plot([0, 1, 2], [10, 20, 25])
+plt.show()
+
+# Get the current y-axis tick values
+yticks = plt.yticks()[0]
+print(list(yticks))
