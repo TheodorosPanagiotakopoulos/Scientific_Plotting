@@ -21,3 +21,6 @@ plt.show()
 # Get the current y-axis tick values
 yticks = plt.yticks()[0]
 print(list(yticks))
+
+yticks = ax.get_yticks()
+print(list(yticks))
