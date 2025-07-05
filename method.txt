@@ -1,26 +1,13 @@
-import math
+#!/bin/bash
 
-def one_order_smaller_than_extremes(lst):
-    max_val = max(lst)
-    min_val = min(lst)
+# Define the input file
+FILE="file.txt"
 
-    def one_order_less(n):
-        if n == 0:
-            return 0
-        power = math.floor(math.log10(abs(n))) - 1
-        return 10 ** power
+# Replace 'Epochs' with 'Steps' in the file, in-place
+# Creates a backup named file.txt.bak
+sed -i.bak 's/\bEpochs\b/Steps/g' "$FILE"
 
-    return (one_order_less(max_val), one_order_less(min_val))
+# Optional: remove the backup if not needed
+# rm "${FILE}.bak"
 
-
-import matplotlib.pyplot as plt
-
-plt.plot([0, 1, 2], [10, 20, 25])
-plt.show()
-
-# Get the current y-axis tick values
-yticks = plt.yticks()[0]
-print(list(yticks))
-
-yticks = ax.get_yticks()
-print(list(yticks))
+echo "Replaced 'Epochs' with 'Steps' in $FILE"
